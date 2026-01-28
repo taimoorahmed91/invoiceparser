@@ -122,15 +122,18 @@ Code attempted:
 ATTEMPT 6: pdfjs-dist with GlobalWorkerOptions.workerSrc = false
 -----------------------------------------------------------------
 Commit: f8be4f2 - Disable pdfjs worker by setting workerSrc to false
-Status: TESTING ON VERCEL
+Status: FAILED - Runtime Error
 
-Approach:
-  - Use pdfjs-dist directly (already in dependencies)
-  - Set GlobalWorkerOptions.workerSrc = false (not empty string)
-  - Preserve layout using transform coordinates for sorting
-  - Extract text maintaining spatial relationships
+Error:
+  Setting up fake worker failed: "Cannot find module './pdf.worker.js'"
 
-Code:
+Issue:
+  - Setting workerSrc to false still tries to initialize worker
+  - pdfjs-dist fundamentally requires worker for text extraction
+  - Worker file not bundled in Vercel serverless deployment
+  - Cannot use pdfjs-dist in serverless without worker file
+
+Code attempted:
   const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.js');
   pdfjsLib.GlobalWorkerOptions.workerSrc = false as any;
   const loadingTask = pdfjsLib.getDocument({
@@ -140,11 +143,43 @@ Code:
     useSystemFonts: true,
   });
 
+Conclusion:
+  - pdfjs-dist is NOT suitable for serverless environments
+  - Requires worker thread which cannot be bundled properly
+  - Need a different library designed for Node.js/serverless
+
+---
+
+ATTEMPT 7: unpdf library (serverless-native PDF parser)
+--------------------------------------------------------
+Commit: TBD
+Status: TESTING ON VERCEL
+
+Approach:
+  - Use unpdf library specifically designed for Node.js/serverless
+  - No worker threads required
+  - Built on top of pdfjs-dist but handles Node.js environment properly
+  - Extracts text per page as array of strings
+
+Code:
+  const { extractText } = await import('unpdf');
+  const { text } = await extractText(buffer, {
+    mergePages: false, // Keep pages separate
+  });
+  const fullText = Array.isArray(text) ? text.join('\n\n') : text;
+
+Advantages:
+  - Designed specifically for serverless/Node.js
+  - No worker configuration needed
+  - No canvas dependencies
+  - Simple API
+  - Actively maintained
+
 Expected outcome:
-  - Setting workerSrc to false (not '') should disable worker completely
-  - Work in serverless environment
-  - Preserve layout for itemized extraction
-  - Restore ability to extract line items from invoices
+  - Work in Vercel serverless environment
+  - Extract text successfully
+  - Preserve enough structure for invoice parsing
+  - Restore itemized line item extraction
 
 ---
 
