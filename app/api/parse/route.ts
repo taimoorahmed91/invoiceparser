@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parseInvoiceText, ParsedInvoice } from '@/lib/parseInvoice';
-import '@/lib/pdf-polyfills'; // Load polyfills first
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,39 +26,14 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        // Dynamic import to set worker options before module loads
-        const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf');
-
-        // Completely disable worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = '';
-
         const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
 
-        // Load PDF document without worker
-        const loadingTask = pdfjsLib.getDocument({
-          data: new Uint8Array(arrayBuffer),
-          useSystemFonts: true,
-          disableFontFace: true,
-          useWorkerFetch: false,
-          isEvalSupported: false,
-          standardFontDataUrl: undefined,
-          worker: null as any, // Force no worker
-        });
+        // Use pdf-parse which is serverless-friendly
+        const pdfParse = (await import('pdf-parse')).default;
+        const pdfData = await pdfParse(buffer);
 
-        const pdfDocument = await loadingTask.promise;
-        let fullText = '';
-
-        // Extract text from all pages
-        for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
-          const page = await pdfDocument.getPage(pageNum);
-          const textContent = await page.getTextContent();
-          const pageText = textContent.items
-            .map((item: any) => item.str)
-            .join(' ');
-          fullText += pageText + '\n';
-        }
-
-        const invoice = parseInvoiceText(fullText);
+        const invoice = parseInvoiceText(pdfData.text);
 
         results.push({
           filename: file.name,
