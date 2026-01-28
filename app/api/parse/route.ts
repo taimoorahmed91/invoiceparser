@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parseInvoiceText, ParsedInvoice } from '@/lib/parseInvoice';
 import '@/lib/pdf-polyfills'; // Load polyfills first
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
 
 // Disable worker for serverless environment
 pdfjsLib.GlobalWorkerOptions.workerSrc = '';
