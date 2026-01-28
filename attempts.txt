@@ -97,29 +97,54 @@ Code attempted:
 
 ATTEMPT 5: pdfjs-dist with disableWorker flag
 ----------------------------------------------
-Status: IN PROGRESS
+Status: FAILED - Build Error
 
-Approach:
-  - Use pdfjs-dist directly (already in dependencies)
-  - Add disableWorker: true option to getDocument()
-  - Preserve layout using transform coordinates for sorting
-  - Extract text maintaining spatial relationships
+Error:
+  Type 'boolean' is not assignable to type 'string'
 
-Code:
+Issue:
+  - disableWorker is not a valid option for getDocument()
+  - standardFontDataUrl expects string, not boolean
+
+Code attempted:
   const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.js');
   const loadingTask = pdfjsLib.getDocument({
     data: uint8Array,
     useWorkerFetch: false,
     isEvalSupported: false,
     useSystemFonts: true,
-    standardFontDataUrl: false,
-    disableWorker: true,  // <-- New addition
+    standardFontDataUrl: false,  // <-- Type error
+    disableWorker: true,          // <-- Invalid option
+  });
+
+---
+
+ATTEMPT 6: pdfjs-dist with GlobalWorkerOptions.workerSrc = false
+-----------------------------------------------------------------
+Commit: f8be4f2 - Disable pdfjs worker by setting workerSrc to false
+Status: TESTING ON VERCEL
+
+Approach:
+  - Use pdfjs-dist directly (already in dependencies)
+  - Set GlobalWorkerOptions.workerSrc = false (not empty string)
+  - Preserve layout using transform coordinates for sorting
+  - Extract text maintaining spatial relationships
+
+Code:
+  const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.js');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = false as any;
+  const loadingTask = pdfjsLib.getDocument({
+    data: uint8Array,
+    useWorkerFetch: false,
+    isEvalSupported: false,
+    useSystemFonts: true,
   });
 
 Expected outcome:
-  - Completely disable worker thread
+  - Setting workerSrc to false (not '') should disable worker completely
   - Work in serverless environment
   - Preserve layout for itemized extraction
+  - Restore ability to extract line items from invoices
 
 ---
 
