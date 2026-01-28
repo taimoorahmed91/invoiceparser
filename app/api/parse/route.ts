@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parseInvoiceText, ParsedInvoice } from '@/lib/parseInvoice';
-import { PDFParse } from 'pdf-parse';
+import '@/lib/pdf-polyfills'; // Load polyfills first
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
+
+// Disable worker for serverless environment
+pdfjsLib.GlobalWorkerOptions.workerSrc = '';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,18 +32,35 @@ export async function POST(request: NextRequest) {
 
       try {
         const arrayBuffer = await file.arrayBuffer();
-        const uint8Array = new Uint8Array(arrayBuffer);
 
-        const parser = new PDFParse({ data: uint8Array });
-        const pdfData = await parser.getText();
+        // Load PDF document
+        const loadingTask = pdfjsLib.getDocument({
+          data: new Uint8Array(arrayBuffer),
+          useSystemFonts: true,
+          disableFontFace: true,
+        });
 
-        const invoice = parseInvoiceText(pdfData.text);
+        const pdfDocument = await loadingTask.promise;
+        let fullText = '';
+
+        // Extract text from all pages
+        for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
+          const page = await pdfDocument.getPage(pageNum);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items
+            .map((item: any) => item.str)
+            .join(' ');
+          fullText += pageText + '\n';
+        }
+
+        const invoice = parseInvoiceText(fullText);
 
         results.push({
           filename: file.name,
           invoice,
         });
       } catch (err) {
+        console.error('PDF parse error:', err);
         results.push({
           filename: file.name,
           invoice: null,
