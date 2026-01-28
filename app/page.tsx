@@ -160,39 +160,28 @@ export default function Home() {
     }
   }, [darkMode]);
 
-  // Load invoices from JSON file first, then fallback to localStorage
+  // Load invoices from Supabase
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Try to load from JSON file first
-        const response = await fetch('/api/invoices');
-        if (response.ok) {
-          const fileInvoices = await response.json();
-          if (Array.isArray(fileInvoices) && fileInvoices.length > 0) {
-            setInvoices(fileInvoices);
-            saveInvoices(fileInvoices); // Sync to localStorage
-          } else {
-            // Fallback to localStorage if file is empty
-            const stored = loadInvoices();
-            setInvoices(stored);
-          }
-        } else {
-          // Fallback to localStorage if API fails
-          const stored = loadInvoices();
-          setInvoices(stored);
-        }
-      } catch (error) {
-        // Fallback to localStorage on error
-        console.error('Failed to load from file, using localStorage:', error);
-        const stored = loadInvoices();
+        // Load from Supabase
+        const stored = await loadInvoices();
         setInvoices(stored);
+      } catch (error) {
+        console.error('Failed to load invoices from Supabase:', error);
+        setInvoices([]);
       }
-      
-      // Load manual values from localStorage
-      const manual = loadManualValues();
-      setManualValues(manual);
+
+      // Load manual values from Supabase
+      try {
+        const manual = await loadManualValues();
+        setManualValues(manual);
+      } catch (error) {
+        console.error('Failed to load manual values:', error);
+        setManualValues({});
+      }
     };
-    
+
     loadData();
   }, []);
 
@@ -727,10 +716,18 @@ export default function Home() {
       }
 
       if (newInvoices.length > 0) {
-        const updated = [...newInvoices, ...invoices];
-        setInvoices(updated);
-        saveInvoices(updated);
-        showToast(`Successfully added ${newInvoices.length} invoice(s)`, 'success');
+        try {
+          // Add each invoice to Supabase
+          for (const inv of newInvoices) {
+            await addInvoice(inv.filename, inv.invoice, inv.id);
+          }
+          const updated = [...newInvoices, ...invoices];
+          setInvoices(updated);
+          showToast(`Successfully added ${newInvoices.length} invoice(s)`, 'success');
+        } catch (error) {
+          console.error('Failed to save invoices:', error);
+          showToast('Failed to save some invoices to database', 'error');
+        }
       } else if (duplicates.length > 0) {
         showToast('No new invoices added - all were duplicates', 'info');
       }
@@ -747,31 +744,43 @@ export default function Home() {
     }
   };
 
-  const handleDelete = (id: string, e: React.MouseEvent) => {
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     // Save current state to undo stack
     setUndoStack((prev) => [[...invoices], ...prev.slice(0, 9)]); // Keep last 10 states
     const deletedInvoice = invoices.find((inv) => inv.id === id);
     const updated = invoices.filter((inv) => inv.id !== id);
     setInvoices(updated);
-    saveInvoices(updated);
-    if (selectedInvoice?.id === id) {
-      setSelectedInvoice(null);
+
+    try {
+      await deleteInvoice(id);
+      if (selectedInvoice?.id === id) {
+        setSelectedInvoice(null);
+      }
+      showToast(
+        `Invoice ${deletedInvoice?.invoice.invoiceNumber || 'deleted'}. Click "Undo" to restore.`,
+        'info',
+        5000
+      );
+    } catch (error) {
+      console.error('Failed to delete invoice:', error);
+      showToast('Failed to delete invoice', 'error');
+      setInvoices(invoices); // Rollback on error
     }
-    showToast(
-      `Invoice ${deletedInvoice?.invoice.invoiceNumber || 'deleted'}. Click "Undo" to restore.`,
-      'info',
-      5000
-    );
   };
 
-  const handleUndo = () => {
+  const handleUndo = async () => {
     if (undoStack.length > 0) {
       const previousState = undoStack[0];
       setInvoices(previousState);
-      saveInvoices(previousState);
-      setUndoStack((prev) => prev.slice(1));
-      showToast('Invoice restored', 'success');
+      try {
+        await saveInvoices(previousState);
+        setUndoStack((prev) => prev.slice(1));
+        showToast('Invoice restored', 'success');
+      } catch (error) {
+        console.error('Failed to restore invoices:', error);
+        showToast('Failed to restore invoices', 'error');
+      }
     } else {
       showToast('Nothing to undo', 'info');
     }
@@ -786,7 +795,7 @@ export default function Home() {
     setEditTaxTotal(invoice.invoice.totals.taxTotal.toFixed(2));
   };
 
-  const handleSaveEdit = (e: React.MouseEvent) => {
+  const handleSaveEdit = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!editingInvoiceId) return;
 
@@ -806,28 +815,32 @@ export default function Home() {
       return;
     }
 
-    const updated = invoices.map((inv) => {
-      if (inv.id === editingInvoiceId) {
-        return {
-          ...inv,
-          invoice: {
-            ...inv.invoice,
-            invoiceType: editType,
-            totals: {
-              netTotal: net,
-              taxTotal: tax,
-              grossTotal: gross,
-            },
-          },
-        };
-      }
-      return inv;
-    });
+    const invoiceToUpdate = invoices.find((inv) => inv.id === editingInvoiceId);
+    if (!invoiceToUpdate) return;
 
-    setInvoices(updated);
-    saveInvoices(updated);
-    setEditingInvoiceId(null);
-    showToast('Invoice updated successfully', 'success');
+    const updatedInvoice = {
+      ...invoiceToUpdate,
+      invoice: {
+        ...invoiceToUpdate.invoice,
+        invoiceType: editType,
+        totals: {
+          netTotal: net,
+          taxTotal: tax,
+          grossTotal: gross,
+        },
+      },
+    };
+
+    try {
+      await addInvoice(updatedInvoice.filename, updatedInvoice.invoice, updatedInvoice.id);
+      const updated = invoices.map((inv) => (inv.id === editingInvoiceId ? updatedInvoice : inv));
+      setInvoices(updated);
+      setEditingInvoiceId(null);
+      showToast('Invoice updated successfully', 'success');
+    } catch (error) {
+      console.error('Failed to update invoice:', error);
+      showToast('Failed to update invoice', 'error');
+    }
   };
 
   const handleCancelEdit = (e: React.MouseEvent) => {
@@ -839,18 +852,24 @@ export default function Home() {
     setEditTaxTotal('');
   };
 
-  const handleClearAll = () => {
+  const handleClearAll = async () => {
     // Use toast instead of confirm - but we'll show a warning first
     const confirmed = window.confirm('Are you sure you want to delete all invoices?');
     if (confirmed) {
       setUndoStack((prev) => [[...invoices], ...prev.slice(0, 9)]);
       setInvoices([]);
-      clearAllInvoices();
-      setParseErrors([]);
-      setSelectedInvoice(null);
-      setFilterType('all');
-      setFilterMonth('all');
-      showToast('All invoices deleted. Click "Undo" to restore.', 'warning', 5000);
+      try {
+        await clearAllInvoices();
+        setParseErrors([]);
+        setSelectedInvoice(null);
+        setFilterType('all');
+        setFilterMonth('all');
+        showToast('All invoices deleted. Click "Undo" to restore.', 'warning', 5000);
+      } catch (error) {
+        console.error('Failed to clear invoices:', error);
+        showToast('Failed to clear invoices', 'error');
+        setInvoices(invoices); // Rollback on error
+      }
     }
   };
 
@@ -990,16 +1009,20 @@ export default function Home() {
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = async (event) => {
         try {
           const jsonString = event.target?.result as string;
           const importedInvoices = importFromJson(jsonString);
-          
-          // Merge with existing invoices (or replace - you can change this behavior)
+
+          // Add each imported invoice to Supabase
+          for (const inv of importedInvoices) {
+            await addInvoice(inv.filename, inv.invoice, inv.id);
+          }
+
+          // Merge with existing invoices
           const updated = [...importedInvoices, ...invoices];
           setInvoices(updated);
-          saveInvoices(updated);
-          
+
           showToast(`Successfully imported ${importedInvoices.length} invoice(s)`, 'success');
         } catch (err) {
           showToast(`Failed to import: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error', 5000);
@@ -1104,26 +1127,12 @@ export default function Home() {
 
   const handleSave = async () => {
     try {
-      // Apply manual adjustments before saving
-      const adjustedInvoices = applyManualAdjustments(invoices);
-      
-      const response = await fetch('/api/invoices', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(adjustedInvoices),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        showToast(`Successfully saved ${adjustedInvoices.length} invoice(s) to invoices.json`, 'success');
-      } else {
-        const error = await response.json();
-        showToast(`Failed to save: ${error.error || 'Unknown error'}`, 'error', 5000);
-      }
+      // With Supabase, all data is automatically saved to the cloud
+      // Just sync manual values to ensure they're up to date
+      await saveManualValues(manualValues);
+      showToast(`All data is synced to Supabase database`, 'success');
     } catch (err) {
-      showToast(`Failed to save: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error', 5000);
+      showToast(`Failed to sync: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error', 5000);
     }
   };
 

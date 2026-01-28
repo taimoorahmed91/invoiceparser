@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.93.2",
     "@tailwindcss/postcss": "^4.1.18",
     "next": "^14.2.35",
     "pdf-parse": "^2.4.5",
