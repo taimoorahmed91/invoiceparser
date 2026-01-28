@@ -122,8 +122,10 @@ export async function addInvoice(
   const parsedAt = new Date().toISOString();
 
   try {
+    console.log('Attempting to save invoice:', { id, filename });
+
     // Insert invoice
-    const { error: invoiceError } = await supabase
+    const { error: invoiceError, data: invoiceData } = await supabase
       .from('invoiceparser_invoices')
       .upsert({
         id,
@@ -147,7 +149,11 @@ export async function addInvoice(
         gross_total: invoice.totals.grossTotal,
       });
 
-    if (invoiceError) throw invoiceError;
+    if (invoiceError) {
+      console.error('Error inserting invoice:', invoiceError);
+      throw invoiceError;
+    }
+    console.log('Invoice saved successfully');
 
     // Delete existing line items if updating
     if (existingId) {
@@ -159,6 +165,7 @@ export async function addInvoice(
 
     // Insert line items
     if (invoice.lineItems.length > 0) {
+      console.log(`Inserting ${invoice.lineItems.length} line items`);
       const { error: lineItemsError } = await supabase
         .from('invoiceparser_line_items')
         .insert(
@@ -175,7 +182,11 @@ export async function addInvoice(
           }))
         );
 
-      if (lineItemsError) throw lineItemsError;
+      if (lineItemsError) {
+        console.error('Error inserting line items:', lineItemsError);
+        throw lineItemsError;
+      }
+      console.log('Line items saved successfully');
     }
 
     return {

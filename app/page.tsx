@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import FileUpload from '@/components/FileUpload';
 import InvoiceCard from '@/components/InvoiceCard';
 import ToastComponent, { Toast } from '@/components/Toast';
@@ -9,6 +9,8 @@ import {
   StoredInvoice,
   loadInvoices,
   saveInvoices,
+  addInvoice,
+  deleteInvoice,
   generateId,
   clearAllInvoices,
   exportToJson,
@@ -2047,9 +2049,8 @@ export default function Home() {
                         const isSelectedForCompare = selectedForCompare.has(stored.id);
                         const canSelect = !compareMode || selectedForCompare.size < 2 || isSelectedForCompare;
                         return (
-                          <>
+                          <React.Fragment key={stored.id}>
                           <tr
-                            key={stored.id}
                             onClick={() => {
                               if (!compareMode) {
                                 setSelectedInvoice(isSelected ? null : stored);
@@ -2243,7 +2244,7 @@ export default function Home() {
                               </td>
                             </tr>
                           )}
-                          </>
+                          </React.Fragment>
                         );
                       })}
                     </tbody>
