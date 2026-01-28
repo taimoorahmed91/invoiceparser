@@ -30,8 +30,10 @@ export async function POST(request: NextRequest) {
         const buffer = Buffer.from(arrayBuffer);
 
         // Use pdf-parse which is serverless-friendly
-        const pdfParse = (await import('pdf-parse')).default;
-        const pdfData = await pdfParse(buffer);
+        const { PDFParse } = await import('pdf-parse');
+        const pdfParse = new PDFParse({ data: buffer });
+        const textResult = await pdfParse.getText();
+        const pdfData = { text: textResult.text };
 
         const invoice = parseInvoiceText(pdfData.text);
 
