@@ -27,13 +27,13 @@ export async function POST(request: NextRequest) {
 
       try {
         const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+        const uint8Array = new Uint8Array(arrayBuffer);
 
         // Use unpdf - serverless-friendly PDF parser
         const { extractText } = await import('unpdf');
 
         // Extract text (returns { totalPages, text: string[] })
-        const { text } = await extractText(buffer, {
+        const { text } = await extractText(uint8Array, {
           mergePages: false, // Keep pages separate
         });
 

@@ -152,19 +152,41 @@ Conclusion:
 
 ATTEMPT 7: unpdf library (serverless-native PDF parser)
 --------------------------------------------------------
+Commit: 66789c6 - Switch to unpdf for serverless-compatible PDF parsing
+Status: FAILED - Runtime Error
+
+Error:
+  Please provide binary data as `Uint8Array`, rather than `Buffer`
+
+Issue:
+  - unpdf requires Uint8Array, not Buffer
+  - Was passing Buffer.from(arrayBuffer) instead of new Uint8Array(arrayBuffer)
+
+Code attempted:
+  const buffer = Buffer.from(arrayBuffer);
+  const { extractText } = await import('unpdf');
+  const { text } = await extractText(buffer, { // <-- Wrong type
+    mergePages: false,
+  });
+
+---
+
+ATTEMPT 8: unpdf with Uint8Array (proper type)
+-----------------------------------------------
 Commit: TBD
 Status: TESTING ON VERCEL
 
 Approach:
-  - Use unpdf library specifically designed for Node.js/serverless
+  - Use unpdf library (serverless-native)
+  - Pass Uint8Array directly instead of converting to Buffer
   - No worker threads required
-  - Built on top of pdfjs-dist but handles Node.js environment properly
   - Extracts text per page as array of strings
 
 Code:
+  const uint8Array = new Uint8Array(arrayBuffer);
   const { extractText } = await import('unpdf');
-  const { text } = await extractText(buffer, {
-    mergePages: false, // Keep pages separate
+  const { text } = await extractText(uint8Array, { // <-- Correct type
+    mergePages: false,
   });
   const fullText = Array.isArray(text) ? text.join('\n\n') : text;
 
@@ -173,7 +195,7 @@ Advantages:
   - No worker configuration needed
   - No canvas dependencies
   - Simple API
-  - Actively maintained
+  - Proper type handling
 
 Expected outcome:
   - Work in Vercel serverless environment
