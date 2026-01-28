@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+/* Enable class-based dark mode instead of media query */
+@custom-variant dark (&:where(.dark, .dark *));
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Toast animations */
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+/* Dark mode */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+/* Print Styles */
+@media print {
+  /* Hide non-essential elements */
+  aside,
+  .no-print,
+  button:not(.print-keep),
+  .flex-wrap button {
+    display: none !important;
+  }
+
+  /* Show only essential content */
+  main {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Page setup */
+  @page {
+    margin: 1cm;
+    size: A4;
+  }
+
+  /* Ensure tables print well */
+  table {
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  /* Remove shadows and borders for cleaner print */
+  .shadow-md,
+  .shadow-lg,
+  .rounded-xl {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+
+  /* Ensure good contrast */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Prevent page breaks inside important sections */
+  .bg-white {
+    page-break-inside: avoid;
+  }
+
+  /* Print-friendly spacing */
+  .mb-6,
+  .mb-4 {
+    margin-bottom: 1rem !important;
+  }
+
+  /* Hide graphs in print (optional - remove if you want graphs printed) */
+  .recharts-wrapper {
+    display: none !important;
+  }
+}
