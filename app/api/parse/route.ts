@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parseInvoiceText, ParsedInvoice } from '@/lib/parseInvoice';
 import '@/lib/pdf-polyfills'; // Load polyfills first
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
-
-// Disable worker for serverless environment
-// @ts-ignore
-pdfjsLib.GlobalWorkerOptions.workerSrc = false;
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,6 +27,12 @@ export async function POST(request: NextRequest) {
       }
 
       try {
+        // Dynamic import to set worker options before module loads
+        const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf');
+
+        // Completely disable worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+
         const arrayBuffer = await file.arrayBuffer();
 
         // Load PDF document without worker
@@ -42,6 +43,7 @@ export async function POST(request: NextRequest) {
           useWorkerFetch: false,
           isEvalSupported: false,
           standardFontDataUrl: undefined,
+          worker: null as any, // Force no worker
         });
 
         const pdfDocument = await loadingTask.promise;
