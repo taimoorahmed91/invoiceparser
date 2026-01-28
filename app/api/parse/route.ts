@@ -4,7 +4,8 @@ import '@/lib/pdf-polyfills'; // Load polyfills first
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
 
 // Disable worker for serverless environment
-pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+// @ts-ignore
+pdfjsLib.GlobalWorkerOptions.workerSrc = false;
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,11 +34,14 @@ export async function POST(request: NextRequest) {
       try {
         const arrayBuffer = await file.arrayBuffer();
 
-        // Load PDF document
+        // Load PDF document without worker
         const loadingTask = pdfjsLib.getDocument({
           data: new Uint8Array(arrayBuffer),
           useSystemFonts: true,
           disableFontFace: true,
+          useWorkerFetch: false,
+          isEvalSupported: false,
+          standardFontDataUrl: undefined,
         });
 
         const pdfDocument = await loadingTask.promise;
