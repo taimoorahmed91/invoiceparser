@@ -1,0 +1,142 @@
+PDF Parsing Attempts Log for Vercel Serverless Deployment
+=============================================================
+
+Date: January 28, 2026
+Issue: Getting PDF text extraction to work in Vercel serverless environment
+Goal: Extract itemized invoice data from PDFs
+
+---
+
+ATTEMPT 1: pdf-parse v2.4.5 with default export
+-----------------------------------------------
+Commit: 52e2c31 - Switch back to pdf-parse for serverless compatibility
+Status: FAILED - Build Error
+
+Error:
+  Property 'default' does not exist on type 'typeof import(pdf-parse)'
+
+Issue:
+  - pdf-parse v2.x uses named exports (PDFParse class), not default export
+  - TypeScript compilation failed
+
+Code attempted:
+  const pdfParse = (await import('pdf-parse')).default;
+  const pdfData = await pdfParse(buffer);
+
+---
+
+ATTEMPT 2: pdf-parse v2.x with named export (PDFParse class)
+------------------------------------------------------------
+Commit: f4d7853 - Fix pdf-parse ESM import for Vercel build
+Status: FAILED - Runtime Error
+
+Error:
+  DOMMatrix is not defined
+
+Issue:
+  - pdf-parse v2.x requires browser APIs (DOMMatrix, canvas)
+  - These APIs don't exist in Node.js/serverless environments
+  - @napi-rs/canvas dependency also problematic for serverless
+
+Code attempted:
+  const { PDFParse } = await import('pdf-parse');
+  const pdfParse = new PDFParse({ data: buffer });
+  const textResult = await pdfParse.getText();
+
+---
+
+ATTEMPT 3: pdf-parse v1.1.1 (Node.js-friendly version)
+------------------------------------------------------
+Commit: 104b456 - Downgrade to pdf-parse v1.1.1 to fix DOMMatrix error
+Status: PARTIAL SUCCESS - Builds but loses itemized data
+
+Error:
+  No build error, but itemized sections not extracted properly
+
+Issue:
+  - pdf-parse v1.x extracts text but doesn't preserve layout/structure
+  - Text comes out in wrong order or without proper line breaks
+  - Invoice parsing regex patterns can't match itemized sections
+  - Lost ability to extract quantities, units, prices per line item
+
+Code attempted:
+  const pdfParse = (await import('pdf-parse')).default;
+  const pdfData = await pdfParse(buffer);
+
+Outcome:
+  - Build successful
+  - Runtime successful
+  - BUT: All itemized invoice features lost (no line items extracted)
+
+---
+
+ATTEMPT 4: pdfjs-dist directly with layout preservation (GlobalWorkerOptions)
+-----------------------------------------------------------------------------
+Commit: 200a838 - Use pdfjs-dist directly with improved layout preservation
+Status: FAILED - Runtime Error
+
+Error:
+  Setting up fake worker failed: "Cannot find module './pdf.worker.js'"
+
+Issue:
+  - Setting GlobalWorkerOptions.workerSrc = '' is not sufficient
+  - pdfjs still tries to initialize a worker in serverless environment
+  - pdf.worker.js file not available in serverless bundle
+
+Code attempted:
+  const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.js');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+  const loadingTask = pdfjsLib.getDocument({
+    data: uint8Array,
+    useWorkerFetch: false,
+    isEvalSupported: false,
+    useSystemFonts: true,
+  });
+
+---
+
+ATTEMPT 5: pdfjs-dist with disableWorker flag
+----------------------------------------------
+Status: IN PROGRESS
+
+Approach:
+  - Use pdfjs-dist directly (already in dependencies)
+  - Add disableWorker: true option to getDocument()
+  - Preserve layout using transform coordinates for sorting
+  - Extract text maintaining spatial relationships
+
+Code:
+  const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.js');
+  const loadingTask = pdfjsLib.getDocument({
+    data: uint8Array,
+    useWorkerFetch: false,
+    isEvalSupported: false,
+    useSystemFonts: true,
+    standardFontDataUrl: false,
+    disableWorker: true,  // <-- New addition
+  });
+
+Expected outcome:
+  - Completely disable worker thread
+  - Work in serverless environment
+  - Preserve layout for itemized extraction
+
+---
+
+LESSONS LEARNED:
+===============
+
+1. pdf-parse v2.x is NOT serverless-compatible (requires browser APIs)
+2. pdf-parse v1.x is serverless-compatible but loses layout structure
+3. pdfjs-dist needs explicit worker disabling for serverless
+4. Layout preservation is critical for invoice parsing (need X/Y coordinates)
+5. GlobalWorkerOptions.workerSrc = '' alone is insufficient
+
+NEXT STEPS IF ATTEMPT 5 FAILS:
+==============================
+
+Option A: Use pdf-lib instead (lower-level PDF manipulation)
+Option B: Pre-process PDFs to extract text on client-side before upload
+Option C: Use external PDF parsing service (AWS Textract, Google Document AI)
+Option D: Copy pdf.worker.js into public folder and reference it
+Option E: Use pdf.js in "no worker" mode with proper configuration

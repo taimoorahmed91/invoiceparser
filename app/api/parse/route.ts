@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
         // Use pdfjs-dist with Node.js configuration
         const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.js');
 
-        // Disable worker for serverless environment
-        pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+        // Completely disable worker for serverless environment
+        pdfjsLib.GlobalWorkerOptions.workerSrc = false as any;
 
         const loadingTask = pdfjsLib.getDocument({
           data: uint8Array,
