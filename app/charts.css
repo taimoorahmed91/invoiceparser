@@ -15,7 +15,8 @@
 
   .dv-toolbar { display: flex; flex-direction: column; gap: 12px; }
   .dv-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-  .dv-title { margin: 0; font-size: 17px; line-height: 24px; font-weight: 600; }
+  .dv-title { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 17px; line-height: 24px; font-weight: 600; }
+  .dv-title-icon { flex: none; color: var(--ink-muted); }
   .dv-sub { margin: 2px 0 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
   .dv-actions { display: flex; align-items: center; gap: 8px; flex: none; }
   .dv-actions-wide { display: flex; align-items: center; gap: 8px; }
@@ -33,6 +34,10 @@
   }
 
   .dv-reason { margin: 0; max-width: 64ch; font-size: 12px; line-height: 16px; color: var(--ink-subtle); }
+  .dv-summary { margin-top: 8px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+  .dv-stats { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 13px; line-height: 18px; }
+  .dv-stats dt { color: var(--ink-muted); }
+  .dv-stats dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
   .dv-content { min-width: 0; }
   .dv-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
   .fs-chart { display: flex; flex-direction: column; gap: 8px; }
@@ -116,6 +121,16 @@
 #print-root .print-table .num { text-align: right; font-variant-numeric: tabular-nums; }
 #print-root .print-table thead { display: table-header-group; }
 #print-root .print-table tr { break-inside: avoid; }
+#print-root .print-report .print-section { margin-top: 18pt; }
+#print-root .print-report .print-section h2 { margin: 0; font-size: 15pt; line-height: 1.25; font-weight: 600; }
+#print-root .print-report h3 { margin: 10pt 0 2pt; font-size: 11pt; font-weight: 600; }
+#print-root .print-sub-small { margin: 0 0 4pt; font-size: 9pt; color: #555c65; }
+#print-root .print-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+#print-root .print-cell { break-inside: avoid; min-width: 0; }
+#print-root .print-cell-full { grid-column: 1 / -1; }
+#print-root .print-table-block { margin-top: 12pt; }
+#print-root .print-report .print-table { font-size: 8.5pt; }
+#print-root .print-note { margin: 10pt 0 0; font-size: 9.5pt; color: #555c65; }
 #print-root .print-footer { display: flex; justify-content: space-between; margin-top: 14pt; padding-top: 6pt; border-top: 1px solid #e1e1da; font-size: 8pt; color: #636a73; }
 
 @media print {
@@ -129,12 +144,17 @@
   html[data-print-export="true"] body { background: #fff !important; color: #1b1f24 !important; }
   /* the plain page print hides charts (globals.css); the panel's own chart must print */
   html[data-print-export="true"] #print-root .recharts-wrapper { display: block !important; }
+  /* each section of a report starts on a new page, the first stays under the cover line */
+  html[data-print-export="true"] #print-root .print-report .print-section { break-before: page; margin-top: 0; }
+  html[data-print-export="true"] #print-root .print-report .print-section:first-of-type { break-before: auto; margin-top: 12pt; }
+  html[data-print-export="true"] #print-root .print-table-block { break-inside: auto; }
 }
 
 /* ---------- Analytics page ---------- */
 @layer components {
   .an-page { display: flex; flex-direction: column; gap: 16px; }
   .an-controls { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 8px; background: var(--canvas); }
+  .an-report { display: flex; margin-left: auto; }
   .an-caption { margin: 0; font-size: 12px; line-height: 16px; color: var(--ink-subtle); }
   @media (min-width: 768px) {
     /* stays under the top bar while the charts scroll */
@@ -146,4 +166,10 @@
     .an-controls .tabs { flex: 1 1 420px; min-width: 0; }
     .an-caption { flex-basis: 100%; }
   }
+}
+
+@layer components {
+  .an-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 1280px) { .an-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .an-note { margin: 0; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 13px; line-height: 18px; color: var(--ink-muted); }
 }

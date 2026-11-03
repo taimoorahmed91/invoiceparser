@@ -143,6 +143,20 @@ export function fmtDelta(current: number, previous: number, currency = 'PLN'): D
   return { direction, arrow, amount, percent, text };
 }
 
+/**
+ * Delta for any unit: "▲ +0,12 GJ · +4,2 %". `fmt` formats the absolute size (quantity, unit price …); the sign and arrow are added here.
+ * Same rules as fmtDelta: nothing below 0,005 counts as a change, no percentage when the previous value is 0.
+ */
+export function fmtDeltaWith(current: number, previous: number, fmt: (n: number) => string): Delta {
+  const diff = Math.round((current - previous) * 100) / 100;
+  if (diff === 0) return { direction: 'flat', arrow: '', amount: '—', percent: null, text: '—' };
+  const direction: DeltaDirection = diff > 0 ? 'up' : 'down';
+  const arrow = direction === 'up' ? '▲' : '▼';
+  const amount = `${diff > 0 ? '+' : MINUS}${fmt(Math.abs(diff))}`;
+  const percent = previous === 0 ? null : fmtPercent((diff / Math.abs(previous)) * 100, true);
+  return { direction, arrow, amount, percent, text: `${arrow} ${amount}${percent ? ` · ${percent}` : ''}` };
+}
+
 /** "18/11/2026" → "18 Nov 2026". Unparseable input is returned unchanged ("—" if empty). */
 export function fmtDate(ddmmyyyy: string | null | undefined): string {
   if (!ddmmyyyy) return '—';

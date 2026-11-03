@@ -15,6 +15,17 @@ export interface DataSeries {
   label: string;
   /** Any CSS colour, normally a token such as "var(--rent)". */
   color: string;
+  /** Optional look, used by year-over-year: newest year solid, older years dashed / dotted and fainter. */
+  style?: {
+    /** Line width in px (default 2.5). */
+    width?: number;
+    /** SVG dash pattern, e.g. "6 4". */
+    dash?: string;
+    /** 0–1 for lines and bar fills. */
+    opacity?: number;
+    /** Show only the dots (too few points to draw a line). */
+    pointsOnly?: boolean;
+  };
 }
 
 export type DataCell = string | number | null;
@@ -35,13 +46,30 @@ export interface TimeSeriesSpec {
   unit?: string;
   /** Formats a value for display (money, quantity). Defaults to String(). */
   formatValue?: (n: number) => string;
+  /** y-axis tick text (quantity, unit price …). Defaults to compact PLN. */
+  yTick?: (n: number) => string;
+  /** Tooltip text for a month marked __empty. Default "No invoice". */
+  emptyLabel?: string;
+  /** false when series must never be stacked (years side by side). Hides the Stacked chip. Default true. */
+  stackable?: boolean;
+  /** Chart type used until the user picks one (Year over year opens as Line). */
+  defaultChartType?: ChartType;
+  /** Type drawn when the wanted one is unavailable (default Bar Stacked; Year over year uses Bar Grouped). */
+  fallbackChartType?: ChartType;
+  /** Write each line's label (the year) at its last point. */
+  endLabels?: boolean;
   /** Print the total above each stacked bar (bar-stacked only). */
   totalLabels?: boolean;
   /**
    * Adds a "change vs previous" column to the table view: this row's total against the previous row that has data
    * (months without an invoice are skipped). `format` returns the display text, e.g. "▲ +104,20 zł · +9,0 %".
    */
-  deltaColumn?: { label: string; format: (current: number, previous: number) => string };
+  deltaColumn?: {
+    label: string;
+    format: (current: number, previous: number) => string;
+    /** "previous-row" (default): against the previous row that has data. "last-two-series": newest series vs the one before it (year over year). */
+    mode?: 'previous-row' | 'last-two-series';
+  };
 }
 
 export interface TableColumn {
@@ -115,10 +143,13 @@ export function chartTypeFromKind(kind: ChartKind, stacked: boolean): ChartType 
  * falls back to Bar (Stacked) for this render only — the stored preference is not touched, so it returns
  * once there are enough points again.
  */
-export function resolveChartType(pref: ChartType | undefined, spec: Pick<TimeSeriesSpec, 'rows' | 'series' | 'allowArea' | 'unit'>): ChartType {
-  const wanted = pref ?? 'bar-stacked';
+export function resolveChartType(
+  pref: ChartType | undefined,
+  spec: Pick<TimeSeriesSpec, 'rows' | 'series' | 'allowArea' | 'unit' | 'defaultChartType' | 'fallbackChartType'>,
+): ChartType {
+  const wanted = pref ?? spec.defaultChartType ?? 'bar-stacked';
   const option = chartKindOptions(spec).find((o) => o.kind === chartTypeKind(wanted));
-  if (!option || option.disabledReason) return 'bar-stacked';
+  if (!option || option.disabledReason) return spec.fallbackChartType ?? 'bar-stacked';
   return wanted;
 }
 
@@ -137,10 +168,20 @@ export function timeSeriesToTable(spec: TimeSeriesSpec): TableSpec {
   const rows = spec.rows.map((r) => ({ ...r }));
 
   // Total per row; null when no series has a value (a month without an invoice).
+  const lastTwo = spec.deltaColumn?.mode === 'last-two-series' && spec.series.length >= 2;
   let previous: number | null = null;
   rows.forEach((r) => {
     const values = spec.series.map((s) => num(r[s.key]));
     const total = values.every((v) => v === null) ? null : values.reduce<number>((sum, v) => sum + (v ?? 0), 0);
+    if (lastTwo) {
+      // year over year: newest series (cur) against the one before it (prev), same row
+      const cur = num(r[spec.series[spec.series.length - 1].key]);
+      const prev = num(r[spec.series[spec.series.length - 2].key]);
+      r.__total = cur;
+      r.__prev = prev;
+      r.__delta = cur !== null && prev !== null ? Math.round((cur - prev) * 100) / 100 : null;
+      return;
+    }
     r.__total = total;
     if (spec.deltaColumn) {
       r.__prev = previous;

@@ -6,7 +6,10 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FileUp } from 'lucide-react';
 import { AnalyticsTabs, parseTab, type AnalyticsTab } from '@/components/analytics/AnalyticsTabs';
 import { RangeControl } from '@/components/analytics/RangeControl';
+import { ReportMenu } from '@/components/analytics/ReportMenu';
 import type { MonthlyLayout } from '@/components/analytics/MonthlyCostsTab';
+import { parseMetric, type UtilityMetricKey } from '@/lib/analyticsUtilities';
+import { parseYoyType, type YoyType } from '@/lib/analyticsYoy';
 import { Banner } from '@/components/ui/Banner';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -15,6 +18,14 @@ import { useInvoices } from '@/hooks/useInvoices';
 import { monthsWithData, parseRange, resolveRange, serializeRange, type RangeSpec } from '@/lib/analyticsMonthly';
 
 // Recharts is the heaviest client dependency: only this tab loads it (plan §6.3).
+const YoyTab = dynamic(() => import('@/components/analytics/YoyTab'), {
+  ssr: false,
+  loading: () => <Skeleton height={460} label="Loading charts" />,
+});
+const UtilitiesTab = dynamic(() => import('@/components/analytics/UtilitiesTab'), {
+  ssr: false,
+  loading: () => <Skeleton height={460} label="Loading charts" />,
+});
 const MonthlyCostsTab = dynamic(() => import('@/components/analytics/MonthlyCostsTab'), {
   ssr: false,
   loading: () => <Skeleton height={460} label="Loading charts" />,
@@ -29,6 +40,8 @@ function AnalyticsInner() {
   const tab = parseTab(params.get('tab'));
   const range = useMemo(() => parseRange(params.get('range')), [params]);
   const layout: MonthlyLayout = params.get('layout') === 'separate' ? 'separate' : 'stacked';
+  const metric: UtilityMetricKey = parseMetric(params.get('metric'));
+  const yoyType: YoyType = parseYoyType(params.get('type'));
 
   const update = useCallback(
     (patch: Record<string, string | null>) => {
@@ -42,6 +55,7 @@ function AnalyticsInner() {
     [params, pathname, router],
   );
 
+  const reportOptions = useMemo(() => ({ tab, range, metric, yoyType }), [tab, range, metric, yoyType]);
   const dataMonths = useMemo(() => monthsWithData(invoices), [invoices]);
   const span = useMemo(() => resolveRange(range, dataMonths), [range, dataMonths]);
 
@@ -73,17 +87,32 @@ function AnalyticsInner() {
     <div className="an-page">
       <div className="an-controls">
         <AnalyticsTabs value={tab} onChange={(t: AnalyticsTab) => update({ tab: t })} />
-        <RangeControl range={range} dataMonths={dataMonths} span={span} onChange={(r: RangeSpec) => update({ range: serializeRange(r) })} />
-        <p className="an-caption">Charts use all invoices in the selected range.</p>
+        {tab !== 'yoy' && <RangeControl range={range} dataMonths={dataMonths} span={span} onChange={(r: RangeSpec) => update({ range: serializeRange(r) })} />}
+        <div className="an-report">
+          <ReportMenu invoices={invoices} options={reportOptions} />
+        </div>
+        <p className="an-caption">{tab === 'yoy' ? 'Year over year always compares all your invoices, so the range does not apply here.' : 'Charts use all invoices in the selected range.'}</p>
       </div>
-      <div role="tabpanel" id="analytics-panel-monthly" aria-labelledby="analytics-tab-monthly">
-        <MonthlyCostsTab
-          invoices={invoices}
-          range={range}
-          layout={layout}
-          onLayout={(l) => update({ layout: l === 'stacked' ? null : l })}
-          onResetRange={() => update({ range: 'all' })}
-        />
+      <div role="tabpanel" id={`analytics-panel-${tab}`} aria-labelledby={`analytics-tab-${tab}`}>
+        {tab === 'yoy' ? (
+          <YoyTab invoices={invoices} type={yoyType} onType={(t) => update({ type: t === 'utility' ? null : t })} />
+        ) : tab === 'utilities' ? (
+          <UtilitiesTab
+            invoices={invoices}
+            range={range}
+            metric={metric}
+            onMetric={(m) => update({ metric: m === 'cost' ? null : m })}
+            onResetRange={() => update({ range: 'all' })}
+          />
+        ) : (
+          <MonthlyCostsTab
+            invoices={invoices}
+            range={range}
+            layout={layout}
+            onLayout={(l) => update({ layout: l === 'stacked' ? null : l })}
+            onResetRange={() => update({ range: 'all' })}
+          />
+        )}
       </div>
     </div>
   );

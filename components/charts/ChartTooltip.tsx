@@ -18,7 +18,7 @@ export function ChartTooltip({ active, payload, label, spec }: { active?: boolea
     return (
       <div className="rounded-[10px] border border-border bg-surface px-3 py-2 text-[13px] leading-[18px] text-ink" style={{ boxShadow: 'var(--shadow-e2)' }}>
         <p className="font-semibold mb-1">{label}</p>
-        <p className="text-ink-muted">No invoice</p>
+        <p className="text-ink-muted">{spec.emptyLabel ?? 'No invoice'}</p>
       </div>
     );
   }

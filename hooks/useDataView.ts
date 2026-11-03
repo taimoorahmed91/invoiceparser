@@ -41,8 +41,9 @@ export function useDataView(opts: { storageKey: string; chartSpec?: TimeSeriesSp
   const hasChart = Boolean(chartSpec);
   const view: ViewMode = hasChart ? pref.view ?? defaultView : 'table';
   const chartType = chartSpec ? resolveChartType(pref.chartType, chartSpec) : 'bar-stacked';
+  const stackable = chartSpec?.stackable !== false;
   const kindOptions = chartSpec ? chartKindOptions(chartSpec) : [];
-  const barStacked = pref.chartType !== 'bar-grouped';
+  const barStacked = stackable && pref.chartType !== 'bar-grouped';
 
   const setView = useCallback((v: ViewMode) => setPref({ view: v }), [setPref]);
   const setChartKind = useCallback((kind: ChartKind) => setPref({ chartType: chartTypeFromKind(kind, barStacked) }), [setPref, barStacked]);

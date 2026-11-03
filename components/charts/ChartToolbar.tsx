@@ -1,7 +1,7 @@
 'use client';
 
 import { forwardRef, useRef, type ReactNode } from 'react';
-import { Ellipsis, Maximize2 } from 'lucide-react';
+import { Ellipsis, Maximize2, type LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { MenuButton, type MenuEntry } from '@/components/ui/MenuButton';
 import { ExportMenu } from './ExportMenu';
@@ -12,6 +12,10 @@ import type { DataViewState } from '@/hooks/useDataView';
 interface ChartToolbarProps {
   title: string;
   subtitle?: string;
+  /** Optional live figure under the subtitle (e.g. latest value and change). Screen only. */
+  summary?: ReactNode;
+  /** Decorative icon before the title (neutral colour; series colours are for chart fills only). */
+  icon?: LucideIcon;
   headingLevel?: 2 | 3;
   state: Pick<DataViewState, 'view' | 'setView' | 'kindOptions' | 'chartKind' | 'setChartKind' | 'barStacked' | 'setBarStacked'>;
   hasChart: boolean;
@@ -33,7 +37,7 @@ interface ChartToolbarProps {
  * < 640 px: title + one labelled "More ▾" menu (Full screen, Export …); both switches take the full row (§2.7.9).
  */
 export const ChartToolbar = forwardRef<HTMLButtonElement, ChartToolbarProps>(function ChartToolbar(
-  { title, subtitle, headingLevel = 2, state, hasChart, multiSeries, chartDisabledReason, exportEntries, showExpand = true, showViewSwitch = true, onExpand, trailing },
+  { title, subtitle, summary, icon: TitleIcon, headingLevel = 2, state, hasChart, multiSeries, chartDisabledReason, exportEntries, showExpand = true, showViewSwitch = true, onExpand, trailing },
   expandRef,
 ) {
   const Heading = headingLevel === 2 ? 'h2' : 'h3';
@@ -49,8 +53,12 @@ export const ChartToolbar = forwardRef<HTMLButtonElement, ChartToolbarProps>(fun
     <div className="dv-toolbar" role="group" aria-label={`${title}, controls`}>
       <div className="dv-head">
         <div className="min-w-0">
-          <Heading className="dv-title">{title}</Heading>
+          <Heading className="dv-title">
+            {TitleIcon && <TitleIcon size={18} strokeWidth={1.75} aria-hidden="true" className="dv-title-icon" />}
+            {title}
+          </Heading>
           {subtitle && <p className="dv-sub">{subtitle}</p>}
+          {summary && <div className="dv-summary">{summary}</div>}
         </div>
         <div className="dv-actions">
           <div className="dv-actions-wide">

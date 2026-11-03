@@ -23,11 +23,12 @@ interface SeriesChartProps {
  * toolbar draws today; Phase 4a adds the specialised bodies (StackedBars, SmallBars, YearLines) that plug into the same
  * ChartCard. Colours are tokens ("var(--rent)"), so the same chart is light inside the print tree and themed on screen.
  */
-export function SeriesChart({ spec, chartType, height, width, interactive = true, yTick = fmtCompactMoney }: SeriesChartProps) {
+export function SeriesChart({ spec, chartType, height, width, interactive = true, yTick: yTickProp }: SeriesChartProps) {
+  const yTick = yTickProp ?? spec.yTick ?? fmtCompactMoney;
   const reduced = useReducedMotion();
   const roomy = useMediaQuery('(min-width: 640px)');
   const animate = interactive && !reduced;
-  const stacked = isStackedType(chartType);
+  const stacked = isStackedType(chartType) && spec.stackable !== false;
   // Total above each stacked bar: only for stacked bars, not on phones (too crowded), and not for very long series.
   const totals = Boolean(spec.totalLabels) && chartType === 'bar-stacked' && spec.series.length > 1 && (roomy || !interactive) && spec.rows.length <= 24;
   const data = totals
@@ -36,7 +37,8 @@ export function SeriesChart({ spec, chartType, height, width, interactive = true
         return { ...r, __zero: 0, __sum: vals.every((v) => v === null) ? null : vals.reduce<number>((a, v) => a + (v ?? 0), 0) };
       })
     : spec.rows;
-  const common = { data, margin: { top: totals ? 22 : 12, right: 12, left: 0, bottom: 4 } };
+  const endLabels = Boolean(spec.endLabels) && chartType === 'line';
+  const common = { data, margin: { top: totals ? 22 : 12, right: endLabels ? 44 : 12, left: 0, bottom: 4 } };
 
   const axes = (
     <>
@@ -59,9 +61,40 @@ export function SeriesChart({ spec, chartType, height, width, interactive = true
     chart = (
       <LineChart {...common} accessibilityLayer={interactive} width={width} height={width ? (height as number) : undefined}>
         {axes}
-        {spec.series.map((s) => (
-          <Line key={s.key} dataKey={s.key} name={s.label} stroke={s.color} strokeWidth={2.5} dot={{ r: 3, fill: s.color }} isAnimationActive={animate} />
-        ))}
+        {spec.series.map((s) => {
+          const st = s.style ?? {};
+          // index of this line's last point, for the end-of-line label
+          let last = -1;
+          spec.rows.forEach((r, i) => {
+            if (typeof r[s.key] === 'number') last = i;
+          });
+          return (
+            <Line
+              key={s.key}
+              dataKey={s.key}
+              name={s.label}
+              stroke={s.color}
+              strokeWidth={st.pointsOnly ? 0 : st.width ?? 2.5}
+              strokeDasharray={st.dash}
+              strokeOpacity={st.opacity ?? 1}
+              connectNulls={false}
+              dot={{ r: st.pointsOnly ? 4 : 3, fill: s.color, fillOpacity: st.opacity ?? 1, strokeWidth: 0 }}
+              isAnimationActive={animate}
+              label={
+                endLabels
+                  ? (p: { x?: number | string; y?: number | string; index?: number }) =>
+                      p.index === last && typeof p.x === 'number' && typeof p.y === 'number' ? (
+                        <text key={`${s.key}-end`} x={p.x + 8} y={p.y + 4} fontSize={12} fontWeight={600} fill="var(--ink)">
+                          {s.label}
+                        </text>
+                      ) : (
+                        <g key={`${s.key}-${p.index}`} />
+                      )
+                  : undefined
+              }
+            />
+          );
+        })}
       </LineChart>
     );
   } else if (chartType === 'area') {
@@ -83,6 +116,7 @@ export function SeriesChart({ spec, chartType, height, width, interactive = true
             dataKey={s.key}
             name={s.label}
             fill={s.color}
+            fillOpacity={s.style?.opacity ?? 1}
             stackId={stacked ? 'a' : undefined}
             stroke={stacked ? 'var(--surface)' : undefined}
             strokeWidth={stacked ? 1.5 : 0}

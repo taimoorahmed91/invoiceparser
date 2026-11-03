@@ -8,6 +8,7 @@ import {
   fmtQuantity,
   fmtPercent,
   fmtDelta,
+  fmtDeltaWith,
   fmtDate,
   fmtMonthTick,
   fmtCompactMoney,
@@ -101,6 +102,18 @@ describe('fmtDelta', () => {
   });
   it('ignores float noise below one grosz', () => {
     expect(fmtDelta(0.1 + 0.2, 0.3).direction).toBe('flat');
+  });
+});
+
+describe('fmtDeltaWith', () => {
+  it('works for quantities with units', () => {
+    const d = fmtDeltaWith(1.94, 1.82, (n) => `${fmtNumber(n, 2)}${NB}GJ`);
+    expect(d.text).toBe(`▲ +0,12${NB}GJ · +6,6${NB}%`);
+    expect(fmtDeltaWith(3, 5, (n) => `${n} m³`).text).toBe(`▼ ${MINUS}2 m³ · ${MINUS}40,0${NB}%`);
+  });
+  it('flat and previous = 0', () => {
+    expect(fmtDeltaWith(2, 2, String).text).toBe('—');
+    expect(fmtDeltaWith(2, 0, String).text).toBe('▲ +2');
   });
 });
 

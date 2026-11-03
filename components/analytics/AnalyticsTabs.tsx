@@ -4,11 +4,11 @@ import { Tabs, type TabItem } from '@/components/ui/Tabs';
 
 export type AnalyticsTab = 'monthly' | 'utilities' | 'yoy';
 
-/** Tabs of the Analytics page. Utilities and Year over year arrive in Phase 4b / 4c; until then they are visible but unavailable. */
+/** Tabs of the Analytics page. */
 export const ANALYTICS_TABS: TabItem<AnalyticsTab>[] = [
   { id: 'monthly', label: 'Monthly costs' },
-  { id: 'utilities', label: 'Utilities', disabledReason: 'Utilities charts are coming in the next update' },
-  { id: 'yoy', label: 'Year over year', disabledReason: 'Year over year is coming in a later update' },
+  { id: 'utilities', label: 'Utilities' },
+  { id: 'yoy', label: 'Year over year' },
 ];
 
 /** ?tab= → a tab that can be opened (unknown or unavailable values fall back to Monthly costs). */

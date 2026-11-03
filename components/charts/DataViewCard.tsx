@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ToggleChip } from '@/components/ui/ToggleChip';
 import { useToast } from '@/components/toast/ToastProvider';
@@ -21,6 +22,11 @@ export interface DataViewCardProps {
   title: string;
   subtitle?: string;
   headingLevel?: 2 | 3;
+  /** Live figure under the subtitle (latest value + change). */
+  summary?: ReactNode;
+  icon?: LucideIcon;
+  /** Extra block shown in full screen above the chart and table (min / average / max). */
+  fullscreenExtra?: ReactNode;
   /** Stable key for the remembered Chart | Table + chart-type choice (plan §4.11.6), e.g. "overview.monthly-costs". */
   storageKey: string;
   chartSpec?: TimeSeriesSpec;
@@ -39,7 +45,7 @@ export interface DataViewCardProps {
  * chart type, Expand, Export. Wrappers only choose the default view and the data they pass.
  */
 export function DataViewCard(props: DataViewCardProps) {
-  const { variant, title, subtitle, headingLevel = 2, storageKey, chartSpec, tableSpec, range, filters, chartHeight = 320, tableMaxHeight, chartDisabledReason, className } = props;
+  const { variant, title, subtitle, summary: liveSummary, icon, fullscreenExtra, headingLevel = 2, storageKey, chartSpec, tableSpec, range, filters, chartHeight = 320, tableMaxHeight, chartDisabledReason, className } = props;
   const dv = useDataView({ storageKey, chartSpec, defaultView: variant === 'chart' ? 'chart' : 'table' });
   const toast = useToast();
   const headingId = useId();
@@ -56,6 +62,7 @@ export function DataViewCard(props: DataViewCardProps) {
   const hasChart = Boolean(chartSpec);
   const empty = table.rows.length === 0;
   const multiSeries = (chartSpec?.series.length ?? 0) > 1;
+  const stackable = chartSpec?.stackable !== false;
   const shownSpec = useMemo(
     () => (chartSpec && hidden.length ? { ...chartSpec, series: chartSpec.series.filter((s) => !hidden.includes(s.key)) } : chartSpec),
     [chartSpec, hidden],
@@ -119,10 +126,12 @@ export function DataViewCard(props: DataViewCardProps) {
   const toolbarProps = {
     title,
     subtitle,
+    summary: liveSummary,
+    icon,
     headingLevel,
     state: dv,
     hasChart,
-    multiSeries,
+    multiSeries: multiSeries && stackable,
     chartDisabledReason,
     exportEntries: entries,
   } as const;
@@ -150,6 +159,7 @@ export function DataViewCard(props: DataViewCardProps) {
               showViewSwitch={false}
               trailing={<Button variant="secondary" size="sm" onClick={() => dv.setFullscreen(false)}>Close</Button>}
             />
+            {fullscreenExtra}
             <p className="fs-hint">Turn your phone sideways for a bigger view.</p>
             <div className="fs-body">
               {chartSpec && (

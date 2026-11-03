@@ -7,17 +7,10 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { buildMonthlyRows, rangeLabel, type RangeSpec } from '@/lib/analyticsMonthly';
-import { fmtDelta, fmtMoney } from '@/lib/format';
-import type { TimeSeriesSpec } from '@/lib/dataView';
+import { monthlySingleSpec, monthlyStackedSpec } from '@/lib/analyticsSpecs';
 import type { StoredInvoice } from '@/lib/storage';
 
 export type MonthlyLayout = 'stacked' | 'separate';
-
-const SERIES = {
-  Rent: { key: 'Rent', label: 'Rent', color: 'var(--rent)' },
-  Parking: { key: 'Parking', label: 'Parking', color: 'var(--parking)' },
-  Utility: { key: 'Utility', label: 'Utility', color: 'var(--utility)' },
-} as const;
 
 /**
  * Analytics → Monthly costs (plan §4.7 tab 1).
@@ -39,18 +32,10 @@ export default function MonthlyCostsTab({
   const label = rangeLabel(result.from, result.to);
   const populated = result.rows.filter((r) => r.__empty === 0).length;
 
-  const specs = useMemo(() => {
-    const base = {
-      xKey: 'month',
-      xLabel: 'Month',
-      rows: result.rows,
-      formatValue: (n: number) => fmtMoney(n),
-      deltaColumn: { label: 'Change vs previous month', format: (c: number, p: number) => fmtDelta(c, p).text },
-    };
-    const stacked: TimeSeriesSpec = { ...base, series: [SERIES.Rent, SERIES.Parking, SERIES.Utility], allowArea: true, showTotal: true, totalLabels: true };
-    const single = (s: (typeof SERIES)[keyof typeof SERIES]): TimeSeriesSpec => ({ ...base, series: [s] });
-    return { stacked, rent: single(SERIES.Rent), parking: single(SERIES.Parking), utility: single(SERIES.Utility) };
-  }, [result.rows]);
+  const specs = useMemo(
+    () => ({ stacked: monthlyStackedSpec(result.rows), rent: monthlySingleSpec(result.rows, 'Rent'), parking: monthlySingleSpec(result.rows, 'Parking'), utility: monthlySingleSpec(result.rows, 'Utility') }),
+    [result.rows],
+  );
 
   if (populated === 0) {
     return (
