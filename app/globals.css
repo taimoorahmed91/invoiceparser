@@ -1,39 +1,162 @@
 @import "tailwindcss";
+@import "./controls.css";
 
 /* Enable class-based dark mode instead of media query */
 @custom-variant dark (&:where(.dark, .dark *));
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+/* ------------------------------------------------------------------
+   "Calm Ledger" design tokens (plan §2.2, §2.4, §2.6, §2.7.2)
+   Components use bg-surface / text-ink / border-border … and flip theme
+   through these variables, so no `dark:` prefixes are needed in new code.
+   ------------------------------------------------------------------ */
+:root,
+.light {
+  --canvas: #F4F4F1; --surface: #FFFFFF; --surface-2: #EDEDE8; --surface-3: #E4E4DD;
+  /* control-border: plan said #8A9099, but that is only 2.92:1 on --canvas; #7F8690 is ≥ 3.1:1 on canvas, surface and surface-2 */
+  --border: #E1E1DA; --control-border: #7F8690;
+  --ink: #1B1F24; --ink-muted: #555C65; --ink-subtle: #636A73;
+  --primary: #1B1F24; --on-primary: #FFFFFF; --focus: #1D4ED8;
+
+  --rent: #1D5FA8; --parking: #A63D78; --utility: #0A7456; --other: #5F6B7A;
+  --rent-tint: #E5EEF8; --parking-tint: #F6E6EF; --utility-tint: #DFF1EA; --other-tint: #EAECEF;
+  --increase: #B42318; --decrease: #067647;
+  --warning: #8A5A00; --warning-tint: #FBF0D9;
+  --danger: #B42318; --danger-tint: #FCE9E7;
+
+  /* utility sub-types (fills only) */
+  --cold-water: #1B8FCB; --hot-water: #D55E00; --electricity: #B98300;
+  --central-heating: #7A4FB0; --waste: #4C8C4A;
+
+  /* control state tokens (plan §2.7.2) */
+  --primary-hover: #2D333A; --primary-active: #0D0F12;
+  --danger-hover: #9A1D14; --danger-active: #7F170F; --on-danger: #FFFFFF;
+  --danger-tint-strong: #F8D2CE;
+
+  --scrim: rgb(14 17 22 / .45);
+  --shadow-e2: 0 8px 24px -6px rgb(16 24 40 / .16), 0 0 0 1px var(--border);
+  --shadow-e3: 0 24px 48px -12px rgb(16 24 40 / .28);
+
+  --dur-fast: 120ms; --dur-base: 200ms; --dur-slow: 320ms;
+  --ease-out: cubic-bezier(.2, .8, .2, 1); --ease-in: cubic-bezier(.4, 0, 1, 1);
+
+  color-scheme: light;
 }
 
-/* Toast animations */
-@keyframes slide-in {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.animate-slide-in {
-  animation: slide-in 0.3s ease-out;
-}
-
-/* Dark mode */
 .dark {
+  --canvas: #0E1116; --surface: #151A21; --surface-2: #1C232C; --surface-3: #242D38;
+  --border: #2A323D; --control-border: #6B7686;
+  --ink: #E8EAED; --ink-muted: #A4ACB7; --ink-subtle: #8D96A2;
+  --primary: #E8EAED; --on-primary: #0E1116; --focus: #7AA7FF;
+
+  --rent: #6CB0F0; --parking: #E58BBA; --utility: #3CCB9C; --other: #9AA6B5;
+  --rent-tint: rgb(108 176 240 / .14); --parking-tint: rgb(229 139 186 / .14);
+  --utility-tint: rgb(60 203 156 / .14); --other-tint: rgb(154 166 181 / .14);
+  --increase: #FF8A7A; --decrease: #4ADE9A;
+  --warning: #F2B84B; --warning-tint: rgb(242 184 75 / .14);
+  --danger: #FF8A7A; --danger-tint: rgb(255 138 122 / .14);
+
+  --cold-water: #4DB6F0; --hot-water: #FF8A3D; --electricity: #F2C14B;
+  --central-heating: #B393E8; --waste: #7FC77A;
+
+  --primary-hover: #F3F4F6; --primary-active: #D0D4D9;
+  --danger-hover: #FFA091; --danger-active: #F2705F; --on-danger: #0E1116;
+  --danger-tint-strong: rgb(255 138 122 / .24);
+
+  --scrim: rgb(0 0 0 / .6);
+  --shadow-e2: 0 8px 24px -6px rgb(0 0 0 / .5), 0 0 0 1px var(--border);
+  --shadow-e3: 0 24px 48px -12px rgb(0 0 0 / .6);
+
   color-scheme: dark;
 }
 
-.dark body {
-  background-color: #111827;
-  color: #f9fafb;
+/* Makes bg-canvas, text-ink, border-border, text-rent … available as utilities */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-control: var(--control-border);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-focus: var(--focus);
+  --color-rent: var(--rent);
+  --color-parking: var(--parking);
+  --color-utility: var(--utility);
+  --color-other: var(--other);
+  --color-increase: var(--increase);
+  --color-decrease: var(--decrease);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-danger-tint: var(--danger-tint);
+  --color-warning-tint: var(--warning-tint);
+
+  --font-sans: var(--font-fira-sans), var(--font-fira-sans-ext), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: var(--font-fira-code), var(--font-fira-code-ext), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
 }
 
-/* Print Styles */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-fira-sans), var(--font-fira-sans-ext), system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 0.9375rem;
+    line-height: 1.4;
+  }
+
+  /* Numbers line up in every table */
+  td, th, .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* One focus ring for everything (plan §2.7.3). Utilities such as
+     `focus:outline-none` on legacy inputs still win because this is in @layer base. */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .focus-inset:focus-visible {
+    outline-offset: -2px;
+  }
+}
+
+/* Visually hidden, still read by screen readers */
+.sr-only-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Reduced motion: no durations, no transforms */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print Styles (legacy, replaced in Phase 3.5) */
 @media print {
   /* Hide non-essential elements */
   aside,
@@ -101,6 +224,11 @@ body {
 
   /* Hide graphs in print (optional - remove if you want graphs printed) */
   .recharts-wrapper {
+    display: none !important;
+  }
+
+  /* Toasts never print */
+  [data-toast-viewport] {
     display: none !important;
   }
 }

@@ -8,7 +8,8 @@ import { toJson, toCsv, toExcelCsv } from '@/lib/export';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import FileUpload from '@/components/FileUpload';
 import InvoiceCard from '@/components/InvoiceCard';
-import ToastComponent, { Toast } from '@/components/Toast';
+import { useToast, type ToastType } from '@/components/toast/ToastProvider';
+import { ThemeSwitch } from '@/components/ui/ThemeSwitch';
 import { ParsedInvoice, InvoiceType, LineItem } from '@/lib/parseInvoice';
 import {
   StoredInvoice,
@@ -70,11 +71,9 @@ export default function Home() {
   const [manualValues, setManualValues] = useState<Record<string, number>>({});
   const [editingMonth, setEditingMonth] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>('');
-  const [toasts, setToasts] = useState<Toast[]>([]);
   const [undoStack, setUndoStack] = useState<StoredInvoice[][]>([]);
   const [sortField, setSortField] = useState<'date' | 'amount' | 'type' | 'number' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [darkMode, setDarkMode] = useState<boolean>(false);
   const [compareMode, setCompareMode] = useState<boolean>(false);
   const [selectedForCompare, setSelectedForCompare] = useState<Set<string>>(new Set());
   const [comparingInvoices, setComparingInvoices] = useState<[StoredInvoice | null, StoredInvoice | null]>([null, null]);
@@ -86,17 +85,17 @@ export default function Home() {
   const [editNetTotal, setEditNetTotal] = useState<string>('');
   const [editTaxTotal, setEditTaxTotal] = useState<string>('');
 
-  // Toast helper function
-  const showToast = useCallback((message: string, type: Toast['type'] = 'info', duration?: number) => {
-    const id = `toast-${Date.now()}-${Math.random()}`;
-    setToasts((prev) => [...prev, { id, message, type, duration }]);
-  }, []);
+  // Toasts live in the global ToastProvider (app/layout.tsx). Same call shape as before:
+  // showToast(message, type, durationMs). Errors now stay until dismissed (plan §4.9).
+  const { show } = useToast();
+  const showToast = useCallback(
+    (message: string, type: ToastType = 'info', duration?: number) => {
+      show(message, type, duration);
+    },
+    [show],
+  );
 
-  const removeToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  }, []);
-
-  // Load filters and dark mode from localStorage
+  // Load saved filters from localStorage (theme is handled by useTheme / lib/theme.ts)
   useEffect(() => {
     const savedFilters = localStorage.getItem('invoice-parser-filters');
     if (savedFilters) {
@@ -111,12 +110,6 @@ export default function Home() {
         console.error('Failed to load filters:', e);
       }
     }
-
-    const savedDarkMode = localStorage.getItem('invoice-parser-dark-mode');
-    if (savedDarkMode === 'true') {
-      setDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
   }, []);
 
   // Save filters to localStorage
@@ -130,17 +123,6 @@ export default function Home() {
     };
     localStorage.setItem('invoice-parser-filters', JSON.stringify(filters));
   }, [filterType, filterMonth, searchQuery, dateRangeStart, dateRangeEnd]);
-
-  // Toggle dark mode
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('invoice-parser-dark-mode', 'true');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('invoice-parser-dark-mode', 'false');
-    }
-  }, [darkMode]);
 
   // Load invoices from Supabase
   useEffect(() => {
@@ -783,7 +765,7 @@ export default function Home() {
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+    <div className="min-h-screen bg-canvas">
       {/* Main Content */}
       <main className="py-4 px-6">
         <div className="max-w-full mx-auto">
@@ -792,28 +774,7 @@ export default function Home() {
             <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
               Invoice Parser
             </h1>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              title="Toggle dark mode"
-            >
-              {darkMode ? (
-                <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-              )}
-            </button>
-          </div>
-
-          {/* Toast Container */}
-          <div className="fixed top-4 right-4 z-50 space-y-2">
-            {toasts.map((toast) => (
-              <ToastComponent key={toast.id} toast={toast} onClose={removeToast} />
-            ))}
+            <ThemeSwitch />
           </div>
 
           {/* Upload Area */}
