@@ -320,9 +320,22 @@ Tokens: `--dur-fast 120ms` (hover/press), `--dur-base 200ms` (menus, tab content
 
 1. **One orchestrated moment**: first load of Overview — KPI cards fade + rise 8 px (240 ms, 50 ms stagger), then chart bars grow from baseline (450 ms) **once**. Nothing re-animates on filter/tab changes.
 2. Drawer slides from right 320 ms in / 220 ms out with scrim fade; bottom sheet slides up. Toast rises 240 ms.
-3. Row hover/press: background colour only (no layout-shifting transforms).
-4. **No number count-ups** on money.
-5. `prefers-reduced-motion: reduce`: durations → ~0, transforms removed (opacity only), Recharts `isAnimationActive={false}`, skeleton shimmer → static.
+3. Table rows: hover and press change background colour only (no transforms). Controls (rule 6) are different: they scale, because they are small and self-contained.
+4. **No count-ups from zero.** A money value never counts up on first load or when a page opens. It appears at its final value. The only number motion is rule 5: a value that is already on screen and then changes.
+5. **Rolling digits (odometer)** — `components/ui/RollingNumber.tsx`, pure planning in `lib/rolling.ts`. When a total that is already visible changes, each digit is a vertical 0–9 strip that slides to the new digit.
+   - **Which digits move:** only digits that changed, plus new leading digits when the number gets longer (those slide/fade in 35 %). Unchanged digits stay still. Separators, NBSP, minus sign and "zł" never move. Text is aligned from the right, so `999,00 zł` → `1 000,00 zł` keeps every column in place. A number that gets shorter just loses its leading characters at once.
+   - **Timing:** moving digits start one after another, **left to right, 40 ms apart**, capped at 8 steps (so at most 280 ms of delay); each takes **520 ms** with `cubic-bezier(.16, 1, .3, 1)` (fast start, soft settle). No overshoot on purpose: a bounce would flash the neighbouring digit. A long number finishes in under 0.85 s.
+   - **First render: no animation.** Rule 4 forbids count-ups, and a number that is simply there is more trustworthy for money. Under `prefers-reduced-motion: reduce` the value swaps instantly (no strip movement, no delay).
+   - **Numbers stay aligned:** Fira Sans tabular figures (`font-variant-numeric: tabular-nums`) so a digit never changes the width. Text comes from `lib/format.ts` (`fmtMoney`, `fmtMoneyWhole`, plain counts); the component only animates it.
+   - **Accessibility:** the real value is in a visually hidden span; the animated strips are `aria-hidden`. It is **not** a live region by default. Pass `live="polite"` only where a value changes because of something the user is waiting for, not on every KPI change; the Overview KPI spec in §4.2 does not ask for one. Visible digits stay selectable, so copy gives the real number.
+   - **Where it is used:** Overview KPI cards in Phase 5 (value and delta lines, after the period switcher or data changes); the total label above each stacked bar and the `Showing 9 of 26 · 11 204,10 zł` result strip on Invoices (Phase 8); table footers, i.e. the Total row of monthly, YoY and utilities tables (Phase 4–5) and the totals in the invoice drawer (Phase 9). Not used for table body cells, chart axis ticks, tooltips or anything inside a print/PDF render (§4.12), which always show static text. In Phase 1 it is already on the old page's KPI cards (counts, totals, averages).
+6. **Press feedback: sink to 95 %, spring back.** One shared mechanism in `app/controls.css` for `Button`, `IconButton`, `SegmentedControl` items and `ToggleChip` (a `MenuButton` trigger is a `Button`).
+   - **Press:** `transform: scale(.95)` in **90 ms** `ease-out`, on `:active` and on `data-pressed` (set by `components/ui/PressFeedback.tsx` for Enter and Space, held at least 110 ms so a quick key press is visible).
+   - **Release:** springs back in **360 ms** with a slight overshoot (about 1.2 % over, then settles). The easing is a damped-spring `linear()` curve (ζ 0.4); browsers without `linear()` use `cubic-bezier(.34, 1.56, .64, 1)`.
+   - **Safe:** transform only, so layout never shifts and hit areas stay put. Not applied to `aria-disabled` or `aria-busy` (disabled and loading) controls. Not applied to text links, tabs or table rows.
+   - **Reduced motion:** no scale and no spring; the existing colour change (hover/pressed colours from §2.7.3) is all that remains.
+   - Replaces the older line "no layout-shifting transforms" for controls: this is a transform, but it never changes layout.
+7. `prefers-reduced-motion: reduce`: durations → ~0, transforms removed (opacity only), rolling digits swap instantly (rule 5), controls do not scale (rule 6), Recharts `isAnimationActive={false}`, skeleton shimmer → static.
 
 ### 2.7 Buttons & controls system (added after feedback: "the UI and the buttons are absolute crap")
 
@@ -396,7 +409,7 @@ Contrast (computed): white on `#B42318` 6.6:1; `#0E1116` on `#FF8A7A` 8.2:1, on 
 |---|---|
 | Default | As above. |
 | Hover | Background/border colour only, 120 ms (`--dur-fast`). Never movement or scale. |
-| Active / pressed | Pressed colour from the table; no transform. Same in touch. |
+| Active / pressed | Pressed colour from the table, plus the press feedback of §2.6 rule 6: scale to 95 % in 90 ms, spring back in 360 ms with a slight overshoot (transform only, no layout shift; not when disabled or loading; none under reduced motion). Same in touch and for Enter / Space. |
 | Focus-visible | Global ring `outline: 2px solid var(--focus); outline-offset: 2px` (6.7:1 light, 7.3:1 dark). Inside clipped containers (menus, table cells, drawer edges) use `.focus-inset` = `outline-offset: -2px`. Mouse clicks do not show the ring (`:focus-visible` only). |
 | Disabled | `aria-disabled="true"` (not the `disabled` attribute) so it stays focusable and can explain itself. Style: bg `--surface-2`, text `--ink-subtle` (≥ 4.7:1), no fill colour, `cursor: not-allowed`; secondary keeps a 1 px `--border`. **A reason is required**: `disabledReason="Select one more invoice"` is shown in a tooltip (hover + focus), linked with `aria-describedby`, and, for touch, also as helper text next to the control when it is a form or selection action. Click is ignored. Type-level: `Button` has no way to be disabled without a reason. No opacity-50 tricks (unpredictable contrast). |
 | Loading | `aria-busy="true"` + `aria-disabled="true"`; shown after 150 ms to avoid flashes; keeps the pressed colour so it still looks busy under reduced motion. A 16 px spinner (stroke 2, 700 ms linear; static under reduced motion) **replaces the leading icon**. With no leading icon, the label stays in place with `visibility: hidden` and the spinner is centred over it. Either way the **width never changes**. Result is announced in the `aria-live` region (toast or inline "Saved"). |

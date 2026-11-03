@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   fmtMoney,
+  fmtMoneyWhole,
   fmtSignedMoney,
   fmtMoneyParts,
   fmtNumber,
@@ -31,6 +32,15 @@ describe('fmtMoney', () => {
   });
   it('handles other currencies', () => {
     expect(fmtMoney(10, 'EUR')).toContain('€');
+  });
+});
+
+describe('fmtMoneyWhole', () => {
+  it('rounds to whole units with grouping', () => {
+    expect(fmtMoneyWhole(140899.27)).toBe(`140${NB}899${NB}zł`);
+    expect(fmtMoneyWhole(935.5)).toBe(`936${NB}zł`);
+    expect(fmtMoneyWhole(0)).toBe(`0${NB}zł`);
+    expect(fmtMoneyWhole(-1200)).toBe(`${MINUS}1${NB}200${NB}zł`);
   });
 });
 

@@ -98,9 +98,10 @@ const inPage = `(${function audit(touchMode) {
     const r = hitRect(measured);
     if (r.visualW <= 1 || r.visualH <= 1) return; // visually hidden helper
     const name = describe(el);
+    const forced = el.hasAttribute('data-state'); // gallery-forced states (pressed = scaled to 95%) are not real sizes
     const min = touchMode ? 44 : 24;
     const hit = Math.min(r.w, r.h);
-    if (hit < min - 0.5) findings.push({ type: 'target-size', el: name, detail: `${hit.toFixed(1)}px < ${min}px (${touchMode ? 'hit area incl. ::after' : 'mouse'})` });
+    if (!forced && hit < min - 0.5) findings.push({ type: 'target-size', el: name, detail: `${hit.toFixed(1)}px < ${min}px (${touchMode ? 'hit area incl. ::after' : 'mouse'})` });
     if (!hasName(el)) findings.push({ type: 'no-name', el: name, detail: 'no accessible name' });
     try {
       if (el.getAttribute('data-state') === 'focus' || el.closest('[data-state="focus"]') || el.nextElementSibling?.getAttribute('data-state') === 'focus') return; // gallery forces a ring; nothing to compare

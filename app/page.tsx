@@ -10,6 +10,8 @@ import FileUpload from '@/components/FileUpload';
 import InvoiceCard from '@/components/InvoiceCard';
 import { useToast, type ToastType } from '@/components/toast/ToastProvider';
 import { ThemeSwitch } from '@/components/ui/ThemeSwitch';
+import { RollingNumber } from '@/components/ui/RollingNumber';
+import { fmtMoneyWhole } from '@/lib/format';
 import { ParsedInvoice, InvoiceType, LineItem } from '@/lib/parseInvoice';
 import {
   StoredInvoice,
@@ -1418,13 +1420,9 @@ export default function Home() {
                     </svg>
                   </div>
                   <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Total Invoices</div>
-                  <div className="text-3xl font-bold text-gray-800 dark:text-gray-100">{summaryData.overallCount}</div>
+                  <div className="text-3xl font-bold text-gray-800 dark:text-gray-100"><RollingNumber value={String(summaryData.overallCount)} /></div>
                   <div className="text-base text-gray-600 dark:text-gray-400 mt-1">
-                    {new Intl.NumberFormat('en-US', {
-                      style: 'currency',
-                      currency: 'PLN',
-                      minimumFractionDigits: 0,
-                    }).format(summaryData.overallTotal)}
+                    <RollingNumber value={fmtMoneyWhole(summaryData.overallTotal)} />
                   </div>
                 </div>
                 {/* YTD Card */}
@@ -1435,13 +1433,9 @@ export default function Home() {
                     </svg>
                   </div>
                   <div className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">YTD {new Date().getFullYear()}</div>
-                  <div className="text-3xl font-bold text-blue-800 dark:text-blue-300">{summaryData.ytdCount}</div>
+                  <div className="text-3xl font-bold text-blue-800 dark:text-blue-300"><RollingNumber value={String(summaryData.ytdCount)} /></div>
                   <div className="text-base text-blue-600 dark:text-blue-400 mt-1">
-                    {new Intl.NumberFormat('en-US', {
-                      style: 'currency',
-                      currency: 'PLN',
-                      minimumFractionDigits: 0,
-                    }).format(summaryData.ytdTotal)}
+                    <RollingNumber value={fmtMoneyWhole(summaryData.ytdTotal)} />
                   </div>
                 </div>
                 {/* Type Cards */}
@@ -1479,21 +1473,13 @@ export default function Home() {
                         )}
                       </div>
                       <div className={`text-sm font-medium ${colors.text} mb-2`}>{type}</div>
-                      <div className={`text-3xl font-bold ${colors.text}`}>{data.count}</div>
+                      <div className={`text-3xl font-bold ${colors.text}`}><RollingNumber value={String(data.count)} /></div>
                       <div className={`text-base ${colors.text} opacity-80 mt-1`}>
-                        {new Intl.NumberFormat('en-US', {
-                          style: 'currency',
-                          currency: 'PLN',
-                          minimumFractionDigits: 0,
-                        }).format(data.total)}
+                        <RollingNumber value={fmtMoneyWhole(data.total)} />
                       </div>
                       {data.count > 0 && (
                         <div className={`text-sm ${colors.text} opacity-60 mt-1`}>
-                          Avg: {new Intl.NumberFormat('en-US', {
-                            style: 'currency',
-                            currency: 'PLN',
-                            minimumFractionDigits: 0,
-                          }).format(avg)}
+                          Avg: <RollingNumber value={fmtMoneyWhole(avg)} />
                         </div>
                       )}
                     </div>

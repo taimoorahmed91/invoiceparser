@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import { THEME_INIT_SCRIPT } from '@/lib/theme';
 import { ToastProvider } from '@/components/toast/ToastProvider';
+import { PressFeedback } from '@/components/ui/PressFeedback';
 
 /*
  * Fira Sans + Fira Code, vendored as woff2 (plan §2.3, risk R5: no build-time network).
@@ -79,6 +80,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="bg-canvas text-ink min-h-screen font-sans antialiased">
+        <PressFeedback />
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>

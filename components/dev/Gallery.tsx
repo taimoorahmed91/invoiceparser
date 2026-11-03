@@ -5,6 +5,7 @@ import { ThemeSwitch } from '@/components/ui/ThemeSwitch';
 import { ButtonMatrix, IconAndLabelDemo } from './GalleryButtons';
 import { SegmentedDemo, TabsChipsDemo, MenuDemo, InputsDemo, CheckboxDemo, TooltipToastDemo } from './GalleryControls';
 import { LayoutSamples } from './GalleryLayouts';
+import { PressDemo, RollingDemo } from './GalleryMotion';
 import { ContrastTable } from './ContrastTable';
 import { fmtMoney, fmtDelta, fmtMoneyParts, fmtDate, fmtCompactMoney } from '@/lib/format';
 
@@ -66,6 +67,8 @@ function ControlsBody() {
   return (
     <>
       <Section title="Type, numbers, Polish glyphs"><TypeCheck /></Section>
+      <Section title="Press feedback — press me"><PressDemo /></Section>
+      <Section title="Rolling numbers"><RollingDemo /></Section>
       <Section title="Buttons — variant × size × state"><ButtonMatrix /></Section>
       <Section title="Icons, loading, icon-only, link"><IconAndLabelDemo /></Section>
       <Section title="Segmented control"><SegmentedDemo /></Section>

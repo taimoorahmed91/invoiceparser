@@ -38,6 +38,23 @@ export function fmtMoney(value: number, currency = 'PLN'): string {
   return tidy(moneyFormat(currency, false).format(value));
 }
 
+const wholeCache = new Map<string, Intl.NumberFormat>();
+/** Whole units only (KPI cards): 140899.27 → "140 899 zł". */
+export function fmtMoneyWhole(value: number, currency = 'PLN'): string {
+  let f = wholeCache.get(currency);
+  if (!f) {
+    f = new Intl.NumberFormat(LOCALE_NUM, {
+      style: 'currency',
+      currency,
+      useGrouping: 'always',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+    wholeCache.set(currency, f);
+  }
+  return tidy(f.format(value));
+}
+
 /** Same, with an explicit sign for changes: +123,40 zł / −80,00 zł / 0,00 zł. */
 export function fmtSignedMoney(value: number, currency = 'PLN'): string {
   return tidy(moneyFormat(currency, true).format(value));
