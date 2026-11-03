@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
 import { AppShell } from '@/components/shell/AppShell';
+import { InvoicesProvider } from '@/hooks/useInvoices';
+import { ManualValuesProvider } from '@/hooks/useManualValues';
 
 /**
- * Everything inside the app shell. Phase 3 adds the data providers here
- * (InvoicesProvider, ManualValuesProvider) so state survives navigation.
+ * Shared providers live above the shell so data survives route navigation.
  * The /dev/ui gallery is deliberately outside this group (no shell, no data).
  */
 export default function AppLayout({ children }: { children: ReactNode }) {
-  return <AppShell>{children}</AppShell>;
+  return <InvoicesProvider><ManualValuesProvider><AppShell>{children}</AppShell></ManualValuesProvider></InvoicesProvider>;
 }

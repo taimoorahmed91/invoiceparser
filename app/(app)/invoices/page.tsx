@@ -12,20 +12,10 @@ import { useToast, type ToastType } from '@/components/toast/ToastProvider';
 import { RollingNumber } from '@/components/ui/RollingNumber';
 import { fmtMoneyWhole } from '@/lib/format';
 import { ParsedInvoice, InvoiceType, LineItem } from '@/lib/parseInvoice';
-import {
-  StoredInvoice,
-  loadInvoices,
-  saveInvoices,
-  addInvoice,
-  deleteInvoice,
-  generateId,
-  clearAllInvoices,
-  importFromJson,
-  loadManualValues,
-  saveManualValues,
-  getManualValue,
-  setManualValue,
-} from '@/lib/storage';
+import type { StoredInvoice } from '@/lib/storage';
+import { useInvoices } from '@/hooks/useInvoices';
+import { useManualValues } from '@/hooks/useManualValues';
+import { applyFilters, sortInvoices } from '@/lib/filters';
 import {
   BarChart,
   Bar,
@@ -52,7 +42,7 @@ const typeColors: Record<InvoiceType, { bg: string; text: string; badge: string 
 
 
 export default function Home() {
-  const [invoices, setInvoices] = useState<StoredInvoice[]>([]);
+  const { invoices, status, addMany, prepareUpload, remove, removeAll, update, importMany, undo, canUndo } = useInvoices();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [parseErrors, setParseErrors] = useState<ParseResult[]>([]);
@@ -69,10 +59,9 @@ export default function Home() {
   const [showYearOverYear, setShowYearOverYear] = useState(false);
   const [showDashboard, setShowDashboard] = useState(true);
   const [isTableCollapsed, setIsTableCollapsed] = useState(false);
-  const [manualValues, setManualValues] = useState<Record<string, number>>({});
+  const { values: manualValues, setValue, saveAll } = useManualValues();
   const [editingMonth, setEditingMonth] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>('');
-  const [undoStack, setUndoStack] = useState<StoredInvoice[][]>([]);
   const [sortField, setSortField] = useState<'date' | 'amount' | 'type' | 'number' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [compareMode, setCompareMode] = useState<boolean>(false);
@@ -124,31 +113,6 @@ export default function Home() {
     };
     localStorage.setItem('invoice-parser-filters', JSON.stringify(filters));
   }, [filterType, filterMonth, searchQuery, dateRangeStart, dateRangeEnd]);
-
-  // Load invoices from Supabase
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Load from Supabase
-        const stored = await loadInvoices();
-        setInvoices(stored);
-      } catch (error) {
-        console.error('Failed to load invoices from Supabase:', error);
-        setInvoices([]);
-      }
-
-      // Load manual values from Supabase
-      try {
-        const manual = await loadManualValues();
-        setManualValues(manual);
-      } catch (error) {
-        console.error('Failed to load manual values:', error);
-        setManualValues({});
-      }
-    };
-
-    loadData();
-  }, []);
 
   // Get unique types and months for sidebar
   const { typeGroups, monthGroups } = useMemo(() => {
@@ -218,73 +182,12 @@ export default function Home() {
 
   // Filter invoices
   const filteredInvoices = useMemo(() => {
-    return invoices.filter((inv) => {
-      // Type filter
-      const typeMatch = filterType === 'all' || inv.invoice.invoiceType === filterType;
-      
-      // Month filter (legacy - keep for backward compatibility)
-      const monthMatch = filterMonth === 'all' || getMonthYearFromDate(inv.invoice.issueDate) === filterMonth;
-      
-      // Search query filter (invoice number)
-      const searchMatch = !searchQuery || 
-        inv.invoice.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inv.filename.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      // Date range filter (Month/Year format - YYYY-MM)
-      let dateRangeMatch = true;
-      if (dateRangeStart || dateRangeEnd) {
-        const invoiceDate = parseDate(inv.invoice.issueDate);
-        if (invoiceDate) {
-          const invoiceMonthYear = `${invoiceDate.getFullYear()}-${String(invoiceDate.getMonth() + 1).padStart(2, '0')}`;
-          
-          if (dateRangeStart && dateRangeStart.trim() !== '') {
-            if (invoiceMonthYear < dateRangeStart) {
-              dateRangeMatch = false;
-            }
-          }
-          if (dateRangeEnd && dateRangeEnd.trim() !== '') {
-            if (invoiceMonthYear > dateRangeEnd) {
-              dateRangeMatch = false;
-            }
-          }
-        }
-        // If date can't be parsed, don't exclude it - let other filters handle it
-        // This allows search to work even if date parsing fails
-      }
-      
-      return typeMatch && monthMatch && searchMatch && dateRangeMatch;
-    });
+    return applyFilters(invoices, { filterType, filterMonth, searchQuery, dateRangeStart, dateRangeEnd });
   }, [invoices, filterType, filterMonth, searchQuery, dateRangeStart, dateRangeEnd]);
 
   // Sort filtered invoices
   const sortedFilteredInvoices = useMemo(() => {
-    if (!sortField) return filteredInvoices;
-
-    const sorted = [...filteredInvoices].sort((a, b) => {
-      let comparison = 0;
-
-      switch (sortField) {
-        case 'date':
-          const dateA = parseDate(a.invoice.issueDate);
-          const dateB = parseDate(b.invoice.issueDate);
-          if (!dateA || !dateB) return 0;
-          comparison = dateA.getTime() - dateB.getTime();
-          break;
-        case 'amount':
-          comparison = a.invoice.totals.grossTotal - b.invoice.totals.grossTotal;
-          break;
-        case 'type':
-          comparison = a.invoice.invoiceType.localeCompare(b.invoice.invoiceType);
-          break;
-        case 'number':
-          comparison = a.invoice.invoiceNumber.localeCompare(b.invoice.invoiceNumber);
-          break;
-      }
-
-      return sortDirection === 'asc' ? comparison : -comparison;
-    });
-
-    return sorted;
+    return sortInvoices(filteredInvoices, sortField, sortDirection);
   }, [filteredInvoices, sortField, sortDirection]);
 
   const handleSort = (field: 'date' | 'amount' | 'type' | 'number') => {
@@ -399,28 +302,7 @@ export default function Home() {
 
       setParseErrors(failed);
 
-      // Duplicate detection - check by invoice number and date
-      const existingInvoiceNumbers = new Set(
-        invoices.map(inv => `${inv.invoice.invoiceNumber}-${inv.invoice.issueDate}`)
-      );
-
-      const newInvoices: StoredInvoice[] = [];
-      const duplicates: string[] = [];
-
-      successful.forEach((r) => {
-        const key = `${r.invoice!.invoiceNumber}-${r.invoice!.issueDate}`;
-        if (existingInvoiceNumbers.has(key)) {
-          duplicates.push(r.filename);
-        } else {
-          newInvoices.push({
-            id: generateId(),
-            filename: r.filename,
-            parsedAt: new Date().toISOString(),
-            invoice: r.invoice!,
-          });
-          existingInvoiceNumbers.add(key);
-        }
-      });
+      const { rows: newInvoices, duplicates } = prepareUpload(successful.map(r => ({ filename: r.filename, invoice: r.invoice! })));
 
       if (duplicates.length > 0) {
         showToast(
@@ -432,12 +314,7 @@ export default function Home() {
 
       if (newInvoices.length > 0) {
         try {
-          // Add each invoice to Supabase
-          for (const inv of newInvoices) {
-            await addInvoice(inv.filename, inv.invoice, inv.id);
-          }
-          const updated = [...newInvoices, ...invoices];
-          setInvoices(updated);
+          await addMany(newInvoices);
           showToast(`Successfully added ${newInvoices.length} invoice(s)`, 'success');
         } catch (error) {
           console.error('Failed to save invoices:', error);
@@ -461,14 +338,10 @@ export default function Home() {
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    // Save current state to undo stack
-    setUndoStack((prev) => [[...invoices], ...prev.slice(0, 9)]); // Keep last 10 states
     const deletedInvoice = invoices.find((inv) => inv.id === id);
-    const updated = invoices.filter((inv) => inv.id !== id);
-    setInvoices(updated);
 
     try {
-      await deleteInvoice(id);
+      await remove(id);
       if (selectedInvoice?.id === id) {
         setSelectedInvoice(null);
       }
@@ -480,24 +353,15 @@ export default function Home() {
     } catch (error) {
       console.error('Failed to delete invoice:', error);
       showToast('Failed to delete invoice', 'error');
-      setInvoices(invoices); // Rollback on error
     }
   };
 
   const handleUndo = async () => {
-    if (undoStack.length > 0) {
-      const previousState = undoStack[0];
-      setInvoices(previousState);
-      try {
-        await saveInvoices(previousState);
-        setUndoStack((prev) => prev.slice(1));
-        showToast('Invoice restored', 'success');
-      } catch (error) {
-        console.error('Failed to restore invoices:', error);
-        showToast('Failed to restore invoices', 'error');
-      }
-    } else {
-      showToast('Nothing to undo', 'info');
+    if (!canUndo) { showToast('Nothing to undo', 'info'); return; }
+    try { await undo(); showToast('Invoice restored', 'success'); }
+    catch (error) {
+      console.error('Failed to restore invoices:', error);
+      showToast('Failed to restore invoices', 'error');
     }
   };
 
@@ -547,9 +411,7 @@ export default function Home() {
     };
 
     try {
-      await addInvoice(updatedInvoice.filename, updatedInvoice.invoice, updatedInvoice.id);
-      const updated = invoices.map((inv) => (inv.id === editingInvoiceId ? updatedInvoice : inv));
-      setInvoices(updated);
+      await update(updatedInvoice);
       setEditingInvoiceId(null);
       showToast('Invoice updated successfully', 'success');
     } catch (error) {
@@ -571,10 +433,8 @@ export default function Home() {
     // Use toast instead of confirm - but we'll show a warning first
     const confirmed = window.confirm('Are you sure you want to delete all invoices?');
     if (confirmed) {
-      setUndoStack((prev) => [[...invoices], ...prev.slice(0, 9)]);
-      setInvoices([]);
       try {
-        await clearAllInvoices();
+        await removeAll();
         setParseErrors([]);
         setSelectedInvoice(null);
         setFilterType('all');
@@ -583,8 +443,7 @@ export default function Home() {
       } catch (error) {
         console.error('Failed to clear invoices:', error);
         showToast('Failed to clear invoices', 'error');
-        setInvoices(invoices); // Rollback on error
-      }
+        }
     }
   };
 
@@ -615,15 +474,10 @@ export default function Home() {
       // Ctrl/Cmd + Z for undo
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         e.preventDefault();
-        if (undoStack.length > 0) {
-          const previousState = undoStack[0];
-          setInvoices(previousState);
-          saveInvoices(previousState);
-          setUndoStack((prev) => prev.slice(1));
+        if (canUndo) {
+          void undo(true).catch(error => console.error('Failed to restore invoices:', error));
           showToast('Invoice restored', 'success');
-        } else {
-          showToast('Nothing to undo', 'info');
-        }
+        } else showToast('Nothing to undo', 'info');
       }
 
       // Ctrl/Cmd + F to focus search
@@ -636,7 +490,7 @@ export default function Home() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [filteredInvoices, sortedFilteredInvoices, selectedInvoice, undoStack, showToast]);
+  }, [filteredInvoices, sortedFilteredInvoices, selectedInvoice, canUndo, undo, showToast]);
 
   // Apply manual adjustments to invoices before saving
 
@@ -652,18 +506,9 @@ export default function Home() {
       reader.onload = async (event) => {
         try {
           const jsonString = event.target?.result as string;
-          const importedInvoices = importFromJson(jsonString);
+          const importedCount = await importMany(jsonString);
 
-          // Add each imported invoice to Supabase
-          for (const inv of importedInvoices) {
-            await addInvoice(inv.filename, inv.invoice, inv.id);
-          }
-
-          // Merge with existing invoices
-          const updated = [...importedInvoices, ...invoices];
-          setInvoices(updated);
-
-          showToast(`Successfully imported ${importedInvoices.length} invoice(s)`, 'success');
+          showToast(`Successfully imported ${importedCount} invoice(s)`, 'success');
         } catch (err) {
           showToast(`Failed to import: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error', 5000);
         }
@@ -726,7 +571,7 @@ export default function Home() {
     try {
       // With Supabase, all data is automatically saved to the cloud
       // Just sync manual values to ensure they're up to date
-      await saveManualValues(manualValues);
+      await saveAll();
       showToast(`All data is synced to Supabase database`, 'success');
     } catch (err) {
       showToast(`Failed to sync: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error', 5000);
@@ -743,9 +588,7 @@ export default function Home() {
 
   const handleManualValueChange = (month: string, value: string) => {
     const numValue = parseFloat(value) || 0;
-    const updated = { ...manualValues, [month]: numValue };
-    setManualValues(updated);
-    saveManualValues(updated);
+    void setValue(month, numValue).catch(error => console.error('Failed to save manual values:', error));
   };
 
   const startEditing = (month: string) => {
@@ -774,6 +617,8 @@ export default function Home() {
           <div className="mb-4">
             <FileUpload onFilesSelected={handleFilesSelected} isLoading={isLoading} />
           </div>
+
+          {status === 'loading' && <p role="status">Loading…</p>}
 
           {/* Error Display */}
           {error && (
@@ -1275,7 +1120,7 @@ export default function Home() {
 
                 {/* Right side - Utility actions */}
                 <div className="flex items-center gap-1">
-                  {undoStack.length > 0 && (
+                  {canUndo && (
                     <button
                       onClick={handleUndo}
                       className="flex items-center gap-1.5 px-2 py-1.5 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-md transition-colors"
@@ -2264,7 +2109,7 @@ export default function Home() {
           )}
 
           {/* Empty State */}
-          {invoices.length === 0 && !isLoading && (
+          {status !== 'loading' && invoices.length === 0 && !isLoading && (
             <div className="text-center py-12 text-gray-500 dark:text-gray-400">
               <svg
                 className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4"
