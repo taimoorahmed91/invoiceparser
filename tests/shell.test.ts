@@ -7,11 +7,11 @@ describe('nav', () => {
   it('has the four destinations in plan order', () => {
     expect(NAV_ITEMS.map((n) => n.href)).toEqual(['/', '/invoices', '/analytics', '/data']);
   });
-  it('Phase 4a enables /invoices and /analytics; Overview and Data are not built yet', () => {
-    expect(ENABLED_ROUTES).toEqual(['/invoices', '/analytics']);
+  it('Phase 5 enables Overview, Invoices and Analytics; Data is not built yet', () => {
+    expect(ENABLED_ROUTES).toEqual(['/', '/invoices', '/analytics']);
     expect(isEnabled('/invoices')).toBe(true);
     expect(isEnabled('/analytics')).toBe(true);
-    expect(isEnabled('/')).toBe(false);
+    expect(isEnabled('/')).toBe(true);
     expect(isEnabled('/data')).toBe(false);
     expect(isEnabled('/data', ['/data'])).toBe(true);
   });

@@ -29,6 +29,8 @@ interface ChartToolbarProps {
   onExpand?: (origin: HTMLElement | null) => void;
   /** Extra controls (close button in the dialog). */
   trailing?: ReactNode;
+  /** Extra control in the second row, after Chart | Table and the chart type (e.g. the Overview range 6M · 12M · All). */
+  viewExtra?: ReactNode;
 }
 
 /**
@@ -37,7 +39,7 @@ interface ChartToolbarProps {
  * < 640 px: title + one labelled "More ▾" menu (Full screen, Export …); both switches take the full row (§2.7.9).
  */
 export const ChartToolbar = forwardRef<HTMLButtonElement, ChartToolbarProps>(function ChartToolbar(
-  { title, subtitle, summary, icon: TitleIcon, headingLevel = 2, state, hasChart, multiSeries, chartDisabledReason, exportEntries, showExpand = true, showViewSwitch = true, onExpand, trailing },
+  { title, subtitle, summary, icon: TitleIcon, headingLevel = 2, state, hasChart, multiSeries, chartDisabledReason, exportEntries, showExpand = true, showViewSwitch = true, onExpand, trailing, viewExtra },
   expandRef,
 ) {
   const Heading = headingLevel === 2 ? 'h2' : 'h3';
@@ -75,7 +77,7 @@ export const ChartToolbar = forwardRef<HTMLButtonElement, ChartToolbarProps>(fun
           {trailing}
         </div>
       </div>
-      {(showViewSwitch || showTypes) && (
+      {(showViewSwitch || showTypes || viewExtra) && (
         <div className="dv-view">
           {showViewSwitch && <ViewSwitch value={state.view} onChange={state.setView} chartDisabledReason={hasChart ? undefined : chartDisabledReason ?? 'This table has no time-series view'} />}
           {showTypes && (
@@ -88,6 +90,7 @@ export const ChartToolbar = forwardRef<HTMLButtonElement, ChartToolbarProps>(fun
               multiSeries={multiSeries}
             />
           )}
+          {viewExtra}
         </div>
       )}
     </div>

@@ -10,6 +10,7 @@ import { UTILITY_KEYS, UTILITY_META, buildUtilityRows, isMetricAvailable, metric
 import { buildYoy, buildYoySpec, YOY_META, type YoyType } from './analyticsYoy';
 import { resolveChartType, timeSeriesToTable, type ChartType, type TableSpec, type TimeSeriesSpec } from './dataView';
 import { fmtDelta, fmtMoney } from './format';
+import { buildBreakdown, buildKpis, describeCompare, longMonthLabel } from './analyticsOverview';
 import type { StoredInvoice } from './storage';
 
 export type ReportScope = 'tab' | 'all';
@@ -22,15 +23,19 @@ export interface ReportChart {
   chartType: ChartType;
   /** Half width: two per row. */
   half?: boolean;
+  /** Chart height in px (default 300 full width, 190 half). */
+  height?: number;
 }
 export interface ReportTable {
   title: string;
   table: TableSpec;
 }
 export interface ReportSection {
-  id: ReportTab;
+  id: ReportTab | 'overview';
   title: string;
   subtitle?: string;
+  /** Tables printed above the charts (Overview: the key figures). */
+  leadTables?: ReportTable[];
   charts: ReportChart[];
   tables: ReportTable[];
   /** Shown instead of (or after) the content, e.g. "No invoices in this range". */
@@ -122,4 +127,67 @@ export function buildAnalyticsReport(invoices: StoredInvoice[], o: ReportOptions
   const title = o.scope === 'all' ? 'Analytics Report' : `Analytics Report · ${TAB_TITLES[o.tab]}`;
   const meta = `Range: ${rangeText}${o.scope === 'all' ? ' (Year over year always uses all years)' : ''}   ·   Filters: none`;
   return { title, meta, sections };
+}
+
+/* ---------- Overview ---------- */
+
+export interface OverviewReportOptions {
+  /** "2026-11" */
+  period: string;
+  range: RangeSpec;
+  manualValues?: Record<string, number>;
+}
+
+/**
+ * "Report (PDF)" for Overview (plan §4.2 / §4.12.4): one page with the key figures, the Monthly costs chart and the
+ * "This month by item" table. Same builders as the screen, so the page can not disagree with it. null when there is nothing to report.
+ */
+export function buildOverviewReport(invoices: StoredInvoice[], o: OverviewReportOptions): ReportData | null {
+  const kpis = buildKpis(invoices, o.period);
+  const breakdown = buildBreakdown(invoices, o.period, o.manualValues);
+  if (!kpis || !breakdown) return null;
+  const monthly = buildMonthlyRows(invoices, o.range);
+  const label = rangeLabel(monthly.from, monthly.to);
+
+  const figures: TableSpec = {
+    columns: [
+      { key: 'figure', label: 'Figure', align: 'left' },
+      { key: 'amount', label: 'Amount', align: 'right', format: (v) => (typeof v === 'number' ? fmtMoney(v) : '—') },
+      { key: 'change', label: 'Change', align: 'right' },
+      { key: 'against', label: 'Compared with', align: 'left' },
+    ],
+    rows: kpis.cards.map((k) => {
+      const d = describeCompare(k.compare);
+      return { figure: k.label, amount: k.value, change: d.text, against: d.against ? d.against.replace(/^vs /, '') : k.sub || '—' };
+    }),
+  };
+
+  const byItem: TableSpec = {
+    columns: [
+      { key: 'item', label: 'Item', align: 'left' },
+      { key: 'polish', label: 'On the invoice', align: 'left' },
+      { key: 'amount', label: 'Amount', align: 'right', format: (v) => (typeof v === 'number' ? fmtMoney(v) : '—') },
+      { key: 'change', label: breakdown.previousMonth ? `Change vs ${breakdown.previousMonth}` : 'Change', align: 'right' },
+    ],
+    rows: [
+      ...breakdown.rows.map((r) => ({
+        item: r.label,
+        polish: r.polish ?? null,
+        amount: r.amount,
+        change: r.previous === null ? '—' : fmtDelta(r.amount, r.previous).text,
+      })),
+      { item: 'Total', polish: null, amount: breakdown.total, change: '' },
+    ],
+  };
+
+  const section: ReportSection = {
+    id: 'overview',
+    title: `Overview — ${longMonthLabel(o.period)}`,
+    subtitle: 'Key figures, monthly costs and this month by item · gross, zł',
+    leadTables: [{ title: 'Key figures', table: figures }],
+    charts: [{ title: 'Monthly costs', subtitle: label, spec: monthlyStackedSpec(monthly.rows), chartType: 'bar-stacked', height: 230 }],
+    tables: [{ title: `This month by item — ${breakdown.month}`, table: byItem }],
+  };
+  if (breakdown.manual) section.note = `Manual heating value set for this month: ${breakdown.manual.units} × 76 = ${fmtMoney(breakdown.manual.amount)}. Central Heating is shown as on the invoice.`;
+  return { title: 'Overview Report', meta: `Period: ${longMonthLabel(o.period)}   ·   Chart range: ${label}   ·   Filters: none`, sections: [section] };
 }

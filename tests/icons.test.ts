@@ -10,6 +10,8 @@ const NAMES = [
   // used by the controls / toast / gallery
   'ChevronDown', 'ChevronLeft', 'ChevronRight', 'Minus', 'Info', 'CircleCheck', 'CircleAlert',
   'TriangleAlert', 'LoaderCircle', 'Maximize2', 'Printer', 'Undo2', 'RotateCcw', 'Table2', 'FileText',
+  // Overview (Phase 5)
+  'Wallet', 'CalendarRange', 'ArrowRight',
 ];
 
 describe('lucide-react icon names used in the plan', () => {

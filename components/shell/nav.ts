@@ -3,7 +3,7 @@ import { ChartColumn, Database, LayoutDashboard, ReceiptText, type LucideIcon } 
 /**
  * Main navigation (plan §3.1). Order follows frequency of use.
  * ENABLED_ROUTES grows as phases ship: a route that is not in it is shown but unavailable ("Soon").
- * Phase 2: only the old page, moved to /invoices. Phase 4a adds /analytics. `/` redirects there until Phase 5 builds Overview.
+ * Phase 2: only the old page, moved to /invoices. Phase 4a adds /analytics. Phase 5 adds Overview (`/`). Data arrives in Phase 6.
  */
 export interface NavEntry {
   href: string;
@@ -20,7 +20,7 @@ export const NAV_ITEMS: readonly NavEntry[] = [
   { href: '/data', label: 'Data', title: 'Data & settings', icon: Database },
 ];
 
-export const ENABLED_ROUTES: readonly string[] = ['/invoices', '/analytics'];
+export const ENABLED_ROUTES: readonly string[] = ['/', '/invoices', '/analytics'];
 
 export function isEnabled(href: string, enabled: readonly string[] = ENABLED_ROUTES): boolean {
   return enabled.includes(href);

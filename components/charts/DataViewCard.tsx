@@ -38,6 +38,16 @@ export interface DataViewCardProps {
   tableMaxHeight?: number | string;
   chartDisabledReason?: string;
   className?: string;
+  /** Pick an x value (a month) by clicking a column, or Enter on the column the arrow keys are on. */
+  onSelectX?: (x: string) => void;
+  /** The picked x value, drawn as a soft band. */
+  selectedX?: string | null;
+  /** Hint read to screen readers with the chart, e.g. "Press Enter on a month to select it." */
+  selectHint?: string;
+  /** Grow-in animation plays once per page load for this key; later redraws are still (plan §2.6 rule 1). */
+  animateOnce?: { key: string; durationMs?: number; delayMs?: number };
+  /** Extra control in the toolbar's second row (not shown in full screen). */
+  viewExtra?: ReactNode;
 }
 
 /**
@@ -45,7 +55,7 @@ export interface DataViewCardProps {
  * chart type, Expand, Export. Wrappers only choose the default view and the data they pass.
  */
 export function DataViewCard(props: DataViewCardProps) {
-  const { variant, title, subtitle, summary: liveSummary, icon, fullscreenExtra, headingLevel = 2, storageKey, chartSpec, tableSpec, range, filters, chartHeight = 320, tableMaxHeight, chartDisabledReason, className } = props;
+  const { variant, title, subtitle, summary: liveSummary, icon, fullscreenExtra, headingLevel = 2, storageKey, chartSpec, tableSpec, range, filters, chartHeight = 320, tableMaxHeight, chartDisabledReason, className, onSelectX, selectedX, selectHint, animateOnce, viewExtra } = props;
   const dv = useDataView({ storageKey, chartSpec, defaultView: variant === 'chart' ? 'chart' : 'table' });
   const toast = useToast();
   const headingId = useId();
@@ -117,8 +127,8 @@ export function DataViewCard(props: DataViewCardProps) {
 
   const chart = shownSpec && (
     <figure className="dv-figure" style={{ margin: 0 }}>
-      <SeriesChart spec={shownSpec} chartType={dv.chartType} height={chartHeight} />
-      <figcaption className="sr-only-text">{summary}</figcaption>
+      <SeriesChart spec={shownSpec} chartType={dv.chartType} height={chartHeight} onSelect={onSelectX} selected={selectedX} animateOnce={animateOnce} />
+      <figcaption className="sr-only-text">{summary}{onSelectX && selectHint ? ` ${selectHint}` : ''}</figcaption>
       {legend}
     </figure>
   );
@@ -139,7 +149,7 @@ export function DataViewCard(props: DataViewCardProps) {
   return (
     <section className={`dv-card ${className ?? ''}`} aria-labelledby={headingId} data-storage-key={storageKey} data-view={dv.view} data-chart-type={dv.chartType}>
       <span id={headingId} className="sr-only-text">{title}</span>
-      <ChartToolbar ref={expandRef} {...toolbarProps} onExpand={openFullscreen} />
+      <ChartToolbar ref={expandRef} {...toolbarProps} viewExtra={viewExtra} onExpand={openFullscreen} />
       <div className="dv-content" style={{ minHeight: chartHeight }}>
         {empty ? (
           <p className="dv-empty">No data to show yet.</p>

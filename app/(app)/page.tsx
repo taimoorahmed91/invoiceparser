@@ -1,6 +1,13 @@
-import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
+import { Overview } from '@/components/overview/Overview';
+import { Skeleton } from '@/components/ui/Skeleton';
 
-/** TEMPORARY (Phase 2): Overview is built in Phase 5. Until then the old dashboard lives at /invoices. */
+/** Overview (plan §4.2): "What did I pay lately, and is it going up?" */
 export default function Home() {
-  redirect('/invoices');
+  // useSearchParams needs a Suspense boundary for the static build.
+  return (
+    <Suspense fallback={<Skeleton height={520} label="Loading" />}>
+      <Overview />
+    </Suspense>
+  );
 }

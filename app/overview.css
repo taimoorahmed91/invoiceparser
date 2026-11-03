@@ -1,0 +1,120 @@
+/* Overview (plan §4.2). Tokens only; motion rules from §2.6 (stagger once, nothing under reduced motion). */
+
+@layer components {
+  .ov-page { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ---------- header: period switcher + report ---------- */
+  .ov-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+  .ov-period { display: flex; align-items: flex-end; gap: 8px; }
+  .ov-period-select { min-width: 176px; }
+  @media (max-width: 639px) {
+    .ov-head { flex-direction: column; align-items: stretch; }
+    .ov-period { width: 100%; }
+    .ov-period-select { flex: 1 1 auto; min-width: 0; }
+    .ov-report { align-self: flex-end; }
+  }
+
+  /* ---------- KPI cards ---------- */
+  .ov-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  @media (min-width: 1024px) { .ov-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; } }
+
+  .ov-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding: 12px;
+    color: var(--ink);
+    text-decoration: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  }
+  @media (min-width: 640px) { .ov-kpi { padding: 16px; gap: 6px; } }
+  .ov-kpi:hover { background: var(--surface-2); border-color: var(--control-border); }
+  .ov-kpi:focus-visible { outline-offset: 2px; }
+  .ov-kpi-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .ov-kpi-label { font-size: 13px; line-height: 18px; font-weight: 500; color: var(--ink-muted); }
+  .ov-kpi-icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; background: var(--surface-2); color: var(--ink-muted); }
+  .ov-kpi-value { font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  @media (min-width: 640px) { .ov-kpi-value { font-size: 24px; line-height: 32px; } }
+  .ov-kpi-delta { display: flex; flex-wrap: wrap; column-gap: 6px; min-height: 18px; font-size: 13px; line-height: 18px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink-muted); }
+  .ov-kpi-part { white-space: nowrap; }
+  .ov-kpi-delta[data-dir="up"] { color: var(--increase); }
+  .ov-kpi-delta[data-dir="down"] { color: var(--decrease); }
+  .ov-kpi-ctx { font-size: 12px; line-height: 16px; color: var(--ink-subtle); }
+
+  /* first load of Overview: cards fade and rise 8 px, 50 ms apart; once per page load, never under reduced motion */
+  @media (prefers-reduced-motion: no-preference) {
+    .ov-stagger .ov-enter { animation: ov-rise 240ms var(--ease-out) both; animation-delay: calc(var(--i, 0) * 50ms); }
+  }
+  @keyframes ov-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* ---------- chart + by item ---------- */
+  .ov-main { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+  @media (min-width: 1280px) { .ov-main { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); } }
+
+  .ov-card { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+  @media (max-width: 639px) { .ov-card { padding: 16px; } }
+  .ov-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .ov-card-title { margin: 0; font-size: 17px; line-height: 24px; font-weight: 600; }
+  .ov-card-sub { margin: 2px 0 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
+
+  .ov-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .ov-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 0; border-top: 1px solid var(--border); }
+  .ov-item:first-child { border-top: 0; padding-top: 0; }
+  .ov-item-name { display: flex; align-items: flex-start; gap: 8px; min-width: 0; font-size: 14px; line-height: 20px; font-weight: 500; }
+  .ov-item-dot { flex: none; width: 10px; height: 10px; border-radius: 3px; margin-top: 5px; }
+  .ov-item-text { display: flex; flex-direction: column; min-width: 0; }
+  .ov-item-label { white-space: nowrap; }
+  .ov-item-pl { font-size: 12px; line-height: 16px; font-weight: 400; color: var(--ink-subtle); }
+  .ov-item-amount { text-align: right; font-size: 14px; line-height: 20px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ov-item-delta { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; }
+  .ov-item-delta small { flex: none; min-width: 11ch; font-size: 12px; line-height: 16px; font-variant-numeric: tabular-nums; color: var(--ink-muted); }
+  .ov-item-delta small[data-dir="up"] { color: var(--increase); }
+  .ov-item-delta small[data-dir="down"] { color: var(--decrease); }
+  .ov-bar { flex: 1 1 auto; height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden; }
+  .ov-bar > span { display: block; height: 100%; border-radius: 2px; }
+  .ov-items-total { display: flex; justify-content: space-between; gap: 12px; padding-top: 12px; border-top: 1px solid var(--control-border); font-size: 14px; line-height: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ov-note { margin: 0; padding: 10px 12px; border-radius: var(--radius-md); background: var(--surface-2); font-size: 12px; line-height: 16px; color: var(--ink-muted); }
+
+  /* ---------- latest invoices ---------- */
+  .ov-rows { list-style: none; margin: 0; padding: 0; }
+  .ov-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 12px;
+    align-items: center;
+    padding: 12px 8px;
+    margin: 0 -8px;
+    border-radius: var(--radius-md);
+    color: var(--ink);
+    text-decoration: none;
+    transition: background-color var(--dur-fast) var(--ease-out);
+  }
+  .ov-row:hover { background: var(--surface-2); }
+  .ov-row:focus-visible { outline-offset: -2px; }
+  .ov-rows li + li .ov-row { border-top: 0; }
+  .ov-rows li + li { border-top: 1px solid var(--border); }
+  .ov-row-num { font-size: 14px; line-height: 20px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ov-row-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+  .ov-row-amount { grid-column: 2; grid-row: 1 / span 2; text-align: right; font-size: 14px; line-height: 20px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ov-chip { display: inline-flex; align-items: center; padding: 0 8px; height: 20px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: var(--other-tint); color: var(--ink); }
+  .ov-chip[data-kind="Rent"] { background: var(--rent-tint); color: var(--rent); }
+  .ov-chip[data-kind="Parking"] { background: var(--parking-tint); color: var(--parking); }
+  .ov-chip[data-kind="Utility"] { background: var(--utility-tint); color: var(--utility); }
+  .ov-chip-plus { color: var(--ink-subtle); font-size: 12px; }
+  @media (min-width: 640px) {
+    .ov-row { grid-template-columns: minmax(0, 1.4fr) 120px minmax(0, 1fr) auto; padding: 12px 8px; }
+    .ov-row-meta { display: contents; }
+    .ov-row-amount { grid-column: auto; grid-row: auto; min-width: 110px; }
+    .ov-row-kinds { display: flex; align-items: center; gap: 6px; }
+  }
+  @media (max-width: 639px) { .ov-row-kinds { display: flex; align-items: center; gap: 6px; } }
+  .ov-row-date { white-space: nowrap; }
+
+  /* ---------- loading ---------- */
+  .ov-skel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  @media (min-width: 1024px) { .ov-skel-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; } }
+}

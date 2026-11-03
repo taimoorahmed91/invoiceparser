@@ -87,3 +87,56 @@ describe('the report uses the same spec builders as the tabs', () => {
     expect(ru.sections[0].charts[2].spec.rows).toEqual(utilityCardSpec(u, 'Hot Water', 'cost').rows);
   });
 });
+
+import { buildOverviewReport } from '../lib/analyticsReport';
+import { buildKpis, buildBreakdown } from '../lib/analyticsOverview';
+import { cellText } from '../lib/dataView';
+import { combinedInvoice as combo, utilityInvoice as util } from './fixtures/synthetic';
+
+describe('Overview report (PDF)', () => {
+  const all = [...real, combo, util];
+  const opts = { period: '2026-11', range: { kind: 'last', months: 12 } as const };
+
+  it('nothing to report without invoices or for a month without data', () => {
+    expect(buildOverviewReport([], opts)).toBeNull();
+    expect(buildOverviewReport(real, { ...opts, period: '2020-01' })).toBeNull();
+  });
+
+  it('one section: key figures above the chart, then this month by item; title and meta name the period', () => {
+    const r = buildOverviewReport(all, opts)!;
+    expect(r.title).toBe('Overview Report');
+    expect(r.meta).toContain('Period: November 2026');
+    expect(r.sections).toHaveLength(1);
+    const s = r.sections[0];
+    expect(s.id).toBe('overview');
+    expect(s.leadTables!.map((t) => t.title)).toEqual(['Key figures']);
+    expect(s.charts.map((c) => [c.title, c.chartType])).toEqual([['Monthly costs', 'bar-stacked']]);
+    expect(s.tables.map((t) => t.title)).toEqual(['This month by item — Nov 2026']);
+  });
+
+  it('key figures show the same numbers as the KPI cards', () => {
+    const r = buildOverviewReport(all, opts)!;
+    const k = buildKpis(all, '2026-11')!;
+    const rows = r.sections[0].leadTables![0].table.rows;
+    expect(rows.map((x) => x.amount)).toEqual(k.cards.map((c) => c.value));
+    expect(rows.map((x) => x.figure)).toEqual(k.cards.map((c) => c.label));
+  });
+
+  it('by-item table = the breakdown, with the Polish invoice wording and a Total row equal to the KPI total', () => {
+    const r = buildOverviewReport(all, opts)!;
+    const table = r.sections[0].tables[0].table;
+    const b = buildBreakdown(all, '2026-11')!;
+    expect(table.rows.slice(0, -1).map((x) => x.item)).toEqual(b.rows.map((x) => x.label));
+    expect(table.rows[table.rows.length - 1]).toMatchObject({ item: 'Total', amount: buildKpis(all, '2026-11')!.cards[0].value });
+    const polish = table.rows.map((x) => x.polish).filter(Boolean);
+    expect(polish).toEqual(expect.arrayContaining(['Ciepło', 'Ciepła woda', 'Energia elektryczna', 'Zimna woda', 'Gospodarka odpadami']));
+    const text = table.rows.map((row) => table.columns.map((c) => cellText(c, row)).join(' ')).join('\n');
+    expect(text.normalize('NFC')).toContain('Ciepła woda');
+  });
+
+  it('notes a manual heating value', () => {
+    const r = buildOverviewReport(all, { ...opts, manualValues: { 'Nov 2026': 2 } })!;
+    expect(r.sections[0].note).toContain('2 × 76');
+    expect(buildOverviewReport(all, opts)!.sections[0].note).toBeUndefined();
+  });
+});

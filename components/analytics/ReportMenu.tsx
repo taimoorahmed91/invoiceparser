@@ -4,9 +4,12 @@ import { useCallback, useMemo, useState } from 'react';
 import { FileText } from 'lucide-react';
 import { MenuButton } from '@/components/ui/MenuButton';
 import { useToast } from '@/components/toast/ToastProvider';
-import { ReportHost } from '@/components/print/ReportHost';
+import dynamic from 'next/dynamic';
 import { TAB_TITLES, buildAnalyticsReport, type ReportOptions, type ReportScope } from '@/lib/analyticsReport';
 import type { StoredInvoice } from '@/lib/storage';
+
+// The print tree draws charts with Recharts; load it only when a report is asked for.
+const ReportHost = dynamic(() => import('@/components/print/ReportHost').then((m) => m.ReportHost), { ssr: false });
 
 /**
  * "Report (PDF)": This tab / All tabs (plan §4.12.4). Opens the browser print dialog on a purpose-built light document;

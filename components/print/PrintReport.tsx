@@ -20,13 +20,19 @@ export function PrintReport({ data, now = new Date() }: { data: ReportData; now?
         <section key={s.id} className="print-section">
           <h2>{s.title}</h2>
           {s.subtitle && <p className="print-sub">{s.subtitle}</p>}
+          {s.leadTables?.map((t) => (
+            <div key={t.title} className="print-table-block">
+              <h3>{t.title}</h3>
+              <PrintTable table={t.table} caption={`${s.title}: ${t.title}`} />
+            </div>
+          ))}
           {s.charts.length > 0 && (
             <div className="print-grid">
               {s.charts.map((c) => (
                 <div key={c.title} className={c.half ? 'print-cell' : 'print-cell print-cell-full'}>
                   <h3>{c.title}</h3>
                   {c.subtitle && <p className="print-sub-small">{c.subtitle}</p>}
-                  <PrintChart spec={c.spec} chartType={c.chartType} width={c.half ? HALF : REPORT_WIDTH} height={c.half ? 190 : 300} legend={c.spec.series.length > 1} />
+                  <PrintChart spec={c.spec} chartType={c.chartType} width={c.half ? HALF : REPORT_WIDTH} height={c.height ?? (c.half ? 190 : 300)} legend={c.spec.series.length > 1} />
                 </div>
               ))}
             </div>
