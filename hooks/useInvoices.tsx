@@ -10,8 +10,10 @@ export interface InvoiceState {
   error: string | null;
   undoStack: StoredInvoice[][];
   pending: number;
+  /** When the list was last read from the database (ms since epoch); null before the first successful load. */
+  loadedAt: number | null;
 }
-export const initialInvoiceState: InvoiceState = { status: 'loading', invoices: [], error: null, undoStack: [], pending: 0 };
+export const initialInvoiceState: InvoiceState = { status: 'loading', invoices: [], error: null, undoStack: [], pending: 0, loadedAt: null };
 export type InvoiceAction =
   | { type: 'patch'; patch: Partial<InvoiceState> }
   | { type: 'checkpoint'; invoices: StoredInvoice[] }
@@ -20,6 +22,23 @@ export function invoiceReducer(state: InvoiceState, action: InvoiceAction): Invo
   if (action.type === 'checkpoint') return { ...state, invoices: action.invoices, undoStack: [[...state.invoices], ...state.undoStack.slice(0, 9)] };
   if (action.type === 'pending') return { ...state, pending: state.pending + action.delta };
   return { ...state, ...action.patch };
+}
+
+/**
+ * Merge saved rows into the list WITHOUT creating duplicates (P21): a row whose id is already there replaces it in place,
+ * the others are added at the top in the order given. Rows repeated inside `rows` collapse to the last one.
+ */
+export function mergeById(current: StoredInvoice[], rows: StoredInvoice[]): StoredInvoice[] {
+  const incoming = new Map(rows.map(row => [row.id, row]));
+  const known = new Set(current.map(row => row.id));
+  const added: StoredInvoice[] = [];
+  const addedIds = new Set<string>();
+  rows.forEach(row => {
+    if (known.has(row.id) || addedIds.has(row.id)) return;
+    addedIds.add(row.id);
+    added.push(incoming.get(row.id)!);
+  });
+  return [...added, ...current.map(row => incoming.get(row.id) ?? row)];
 }
 
 // The provider and tests use the same commands; storage remains the only persistence layer.
@@ -41,24 +60,36 @@ export function createInvoiceActions(get: () => InvoiceState, dispatch: (action:
       dispatch({ type: 'patch', patch: { invoices: [...rows, ...get().invoices] } });
     });
   }
+  /**
+   * Data → Import (after the preview): saves each row (new ones, and existing ones under their own id) one after another,
+   * then updates the list in one step. If a save fails, the list is left as it was.
+   */
+  async function importRows(rows: StoredInvoice[]) {
+    return mutation(async () => {
+      for (const row of rows) await api.addInvoice(row.filename, row.invoice, row.id);
+      dispatch({ type: 'patch', patch: { invoices: mergeById(get().invoices, rows) } });
+    });
+  }
   return {
     async reload() {
       dispatch({ type: 'patch', patch: { status: 'loading', error: null } });
       try {
         const invoices = await api.loadInvoices();
         // [] is a successful completion: storage swallows its own network errors.
-        dispatch({ type: 'patch', patch: { invoices, status: 'ready' } });
+        dispatch({ type: 'patch', patch: { invoices, status: 'ready', loadedAt: Date.now() } });
       } catch (error) {
         console.error('Failed to load invoices from Supabase:', error);
         dispatch({ type: 'patch', patch: { invoices: [], status: 'error', error: String(error) } });
       }
     },
     addMany: prepend,
+    /** Old toolbar import: same file format and count as before, but a row that is already in the list is updated, not shown twice. */
     async importMany(json: string) {
       const rows = api.importFromJson(json);
-      await prepend(rows); // Preserve legacy import duplicates in local state.
+      await importRows(rows);
       return rows.length;
     },
+    importRows,
     async update(row: StoredInvoice) {
       return mutation(async () => {
         await api.addInvoice(row.filename, row.invoice, row.id);

@@ -21,12 +21,14 @@ function snapshot(): UiPrefs {
   return cache.value;
 }
 
-const SERVER: UiPrefs = { sidebarCollapsed: false };
+const SERVER: UiPrefs = { sidebarCollapsed: false, density: 'comfortable' };
 
 function applyAttribute(p: UiPrefs) {
   const el = document.documentElement;
   if (p.sidebarCollapsed) el.setAttribute('data-sidebar', 'collapsed');
   else el.removeAttribute('data-sidebar');
+  if (p.density === 'compact') el.setAttribute('data-density', 'compact');
+  else el.removeAttribute('data-density');
 }
 
 function subscribe(cb: () => void) {

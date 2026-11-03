@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ToggleChip } from '@/components/ui/ToggleChip';
@@ -14,7 +14,7 @@ import { FullscreenDialog } from '@/components/overlay/FullscreenDialog';
 import { ExportHost, type ExportMode } from '@/components/print/ExportHost';
 import { chartSpecToCsv, tableSpecToCsv } from '@/lib/csv';
 import { downloadText } from '@/lib/download';
-import { exportFilename, timeSeriesToTable, type TableSpec, type TimeSeriesSpec } from '@/lib/dataView';
+import { exportFilename, timeSeriesToTable, type DataRow, type TableColumn, type TableSpec, type TimeSeriesSpec } from '@/lib/dataView';
 
 export interface DataViewCardProps {
   /** ChartCard opens on the chart, DataPanel on the table. */
@@ -48,6 +48,8 @@ export interface DataViewCardProps {
   animateOnce?: { key: string; durationMs?: number; delayMs?: number };
   /** Extra control in the toolbar's second row (not shown in full screen). */
   viewExtra?: ReactNode;
+  /** Screen-only richer cell for the table (an input). Return undefined for the plain text. Export never uses it. */
+  renderCell?: (column: TableColumn, row: DataRow, rowIndex: number) => ReactNode | undefined;
 }
 
 /**
@@ -55,7 +57,7 @@ export interface DataViewCardProps {
  * chart type, Expand, Export. Wrappers only choose the default view and the data they pass.
  */
 export function DataViewCard(props: DataViewCardProps) {
-  const { variant, title, subtitle, summary: liveSummary, icon, fullscreenExtra, headingLevel = 2, storageKey, chartSpec, tableSpec, range, filters, chartHeight = 320, tableMaxHeight, chartDisabledReason, className, onSelectX, selectedX, selectHint, animateOnce, viewExtra } = props;
+  const { variant, title, subtitle, summary: liveSummary, icon, fullscreenExtra, headingLevel = 2, storageKey, chartSpec, tableSpec, range, filters, chartHeight = 320, tableMaxHeight, chartDisabledReason, className, onSelectX, selectedX, selectHint, animateOnce, viewExtra, renderCell } = props;
   const dv = useDataView({ storageKey, chartSpec, defaultView: variant === 'chart' ? 'chart' : 'table' });
   const toast = useToast();
   const headingId = useId();
@@ -65,9 +67,12 @@ export function DataViewCard(props: DataViewCardProps) {
   // Legend chips hide/show a series on screen. Table, CSV, PNG and PDF always use all series.
   const [hidden, setHidden] = useState<string[]>([]);
 
+  // A table spec given on purpose wins (Data → Manual heating values has its own columns and a chart of the same numbers);
+  // otherwise the table is the chart's own numbers.
   const table = useMemo<TableSpec>(() => {
+    if (tableSpec) return tableSpec;
     if (chartSpec) return timeSeriesToTable(chartSpec);
-    return tableSpec ?? { columns: [], rows: [] };
+    return { columns: [], rows: [] };
   }, [chartSpec, tableSpec]);
   const hasChart = Boolean(chartSpec);
   const empty = table.rows.length === 0;
@@ -121,6 +126,15 @@ export function DataViewCard(props: DataViewCardProps) {
     dv.setFullscreen(true);
   };
 
+  // Cmd/Ctrl+Shift+F while focus is inside this panel (or its full screen) toggles full screen (plan §4.11.5, listed under Data → Keyboard shortcuts).
+  const onHotkey = (e: KeyboardEvent<HTMLElement>) => {
+    if (!(e.metaKey || e.ctrlKey) || !e.shiftKey || e.altKey || e.key.toLowerCase() !== 'f') return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (dv.fullscreen) dv.setFullscreen(false);
+    else openFullscreen(document.activeElement instanceof HTMLElement ? document.activeElement : null);
+  };
+
   const summary = chartSpec && chartSpec.rows.length
     ? `${title}: ${chartSpec.rows.length} ${chartSpec.unit ?? 'months'}, from ${chartSpec.rows[0][chartSpec.xKey]} to ${chartSpec.rows[chartSpec.rows.length - 1][chartSpec.xKey]}.`
     : title;
@@ -147,7 +161,7 @@ export function DataViewCard(props: DataViewCardProps) {
   } as const;
 
   return (
-    <section className={`dv-card ${className ?? ''}`} aria-labelledby={headingId} data-storage-key={storageKey} data-view={dv.view} data-chart-type={dv.chartType}>
+    <section className={`dv-card ${className ?? ''}`} aria-labelledby={headingId} data-storage-key={storageKey} data-view={dv.view} data-chart-type={dv.chartType} onKeyDown={onHotkey}>
       <span id={headingId} className="sr-only-text">{title}</span>
       <ChartToolbar ref={expandRef} {...toolbarProps} viewExtra={viewExtra} onExpand={openFullscreen} />
       <div className="dv-content" style={{ minHeight: chartHeight }}>
@@ -156,7 +170,7 @@ export function DataViewCard(props: DataViewCardProps) {
         ) : dv.view === 'chart' && chart ? (
           chart
         ) : (
-          <DataTable table={table} caption={title} maxHeight={tableMaxHeight ?? (variant === 'chart' ? chartHeight : undefined)} />
+          <DataTable table={table} caption={title} renderCell={renderCell} maxHeight={tableMaxHeight ?? (variant === 'chart' ? chartHeight : undefined)} />
         )}
       </div>
 
@@ -179,7 +193,7 @@ export function DataViewCard(props: DataViewCardProps) {
                 </div>
               )}
               <div className="fs-pane">
-                <DataTable table={table} caption={title} />
+                <DataTable table={table} caption={title} renderCell={renderCell} />
               </div>
             </div>
           </div>

@@ -1,0 +1,108 @@
+/* Data & settings (plan §4.8) and the small confirm dialog. Tokens only. */
+
+@layer components {
+  /* ---------- page layout: one column of cards, a sticky contents list from 1024 px ---------- */
+  .dt-layout { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+  @media (min-width: 1024px) { .dt-layout { grid-template-columns: minmax(0, 1fr) 184px; } }
+  .dt-main { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+
+  /* the aside stretches to the height of the page so the nav inside has room to stay in view while you scroll */
+  .dt-aside { display: none; }
+  @media (min-width: 1024px) {
+    .dt-aside { display: block; align-self: stretch; }
+    .dt-toc { position: sticky; top: calc(var(--top-h) + 16px); }
+  }
+  .dt-toc-title { margin: 0 0 8px; padding: 0 12px; font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-subtle); }
+  .dt-toc ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .dt-toc a {
+    display: block; padding: 8px 12px; border-radius: var(--radius-md); font-size: 14px; line-height: 20px; font-weight: 500;
+    color: var(--ink-muted); text-decoration: none; transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .dt-toc a:hover { background: var(--surface-2); color: var(--ink); }
+  .dt-toc a[aria-current="true"] { background: var(--surface-3); color: var(--ink); font-weight: 600; }
+  .dt-toc a:focus-visible { outline-offset: -2px; }
+
+  .dt-anchor { scroll-margin-top: calc(var(--top-h) + 16px); }
+
+  /* ---------- cards ---------- */
+  .dt-card { display: flex; flex-direction: column; gap: 16px; min-width: 0; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+  @media (max-width: 639px) { .dt-card { padding: 16px; } }
+  .dt-card[data-tone="danger"] { border-color: var(--danger); }
+  .dt-title { margin: 0; font-size: 17px; line-height: 24px; font-weight: 600; }
+  .dt-card[data-tone="danger"] .dt-title { color: var(--danger); }
+  .dt-desc { margin: 2px 0 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); max-width: 70ch; }
+  .dt-hint { margin: 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); max-width: 70ch; }
+  .dt-sub { margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; }
+  .dt-group { display: flex; flex-direction: column; gap: 12px; }
+  .dt-group + .dt-group { padding-top: 16px; border-top: 1px solid var(--border); }
+
+  /* rows of "name + what it does + button" */
+  .dt-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .dt-rows > li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 12px 0; border-top: 1px solid var(--border); }
+  .dt-rows > li:first-child { border-top: 0; padding-top: 0; }
+  .dt-rows > li:last-child { padding-bottom: 0; }
+  .dt-row-text { min-width: 0; flex: 1 1 260px; }
+  .dt-row-name { margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; }
+  .dt-row-desc { margin: 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
+  .dt-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+  /* import preview */
+  .dt-preview { display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--control-border); border-radius: var(--radius-md); background: var(--surface-2); }
+  .dt-preview-file { margin: 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); overflow-wrap: anywhere; }
+  .dt-preview-line { margin: 0; font-size: 17px; line-height: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .dt-preview-extra { margin: 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); overflow-wrap: anywhere; }
+
+  /* sync status */
+  .dt-status { display: flex; align-items: flex-start; gap: 8px; margin: 0; font-size: 14px; line-height: 20px; }
+  .dt-status svg { flex: none; margin-top: 2px; }
+  .dt-status[data-state="ok"] svg { color: var(--decrease); }
+  .dt-status[data-state="busy"] svg { color: var(--ink-muted); }
+  .dt-status[data-state="error"] svg { color: var(--danger); }
+
+  /* manual values table cells */
+  .dt-units { width: 132px; margin-left: auto; }
+  .dt-units .field { gap: 4px; }
+  .dt-state { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
+  .dt-state[data-state="saved"] { color: var(--ink); }
+  .dt-state[data-state="saved"] svg { color: var(--decrease); }
+  .dt-state[data-state="failed"] { color: var(--danger); }
+
+  /* on a phone the table gets tighter so Units, Adjustment and Status are mostly in view */
+  @media (max-width: 639px) {
+    #manual .dv-table th, #manual .dv-table td { padding-left: 8px; padding-right: 8px; }
+    #manual .dt-units { width: 92px; }
+    #manual .dt-state { font-size: 12px; }
+  }
+
+  /* shortcuts */
+  .dt-keys { margin: 0; display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: 10px 20px; align-items: baseline; }
+  .dt-keys dt { display: flex; flex-wrap: wrap; gap: 4px; }
+  .dt-keys dd { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink); }
+  .dt-kbd {
+    display: inline-flex; align-items: center; min-width: 24px; height: 24px; padding: 0 6px; justify-content: center;
+    border: 1px solid var(--control-border); border-bottom-width: 2px; border-radius: 6px; background: var(--surface-2);
+    font-family: inherit; font-size: 12px; line-height: 1; font-weight: 600; color: var(--ink);
+  }
+  @media (max-width: 479px) { .dt-keys { grid-template-columns: minmax(0, 1fr); gap: 2px; } .dt-keys dd { margin-bottom: 10px; } }
+
+  /* ---------- confirm dialog ---------- */
+  .dlg {
+    margin: auto; /* the CSS reset zeroes dialog margins, which is what centres a modal dialog */
+    width: min(480px, calc(100vw - 32px));
+    max-width: none;
+    padding: 0;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-e3);
+  }
+  .dlg::backdrop { background: var(--scrim); }
+  .dlg[open] { animation: ui-fade var(--dur-base) var(--ease-out); }
+  .dlg-body { display: flex; flex-direction: column; gap: 12px; padding: 24px; }
+  .dlg-title { margin: 0; font-size: 18px; line-height: 26px; font-weight: 600; }
+  .dlg-desc { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-muted); }
+  .dlg-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+  @media (max-width: 479px) { .dlg-actions { flex-direction: column-reverse; } .dlg-actions > * { width: 100%; } }
+  @media (prefers-reduced-motion: reduce) { .dlg[open] { animation: none; } }
+}

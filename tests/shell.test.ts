@@ -7,13 +7,14 @@ describe('nav', () => {
   it('has the four destinations in plan order', () => {
     expect(NAV_ITEMS.map((n) => n.href)).toEqual(['/', '/invoices', '/analytics', '/data']);
   });
-  it('Phase 5 enables Overview, Invoices and Analytics; Data is not built yet', () => {
-    expect(ENABLED_ROUTES).toEqual(['/', '/invoices', '/analytics']);
+  it('Phase 6 enables all four destinations', () => {
+    expect(ENABLED_ROUTES).toEqual(['/', '/invoices', '/analytics', '/data']);
     expect(isEnabled('/invoices')).toBe(true);
     expect(isEnabled('/analytics')).toBe(true);
     expect(isEnabled('/')).toBe(true);
-    expect(isEnabled('/data')).toBe(false);
-    expect(isEnabled('/data', ['/data'])).toBe(true);
+    expect(isEnabled('/data')).toBe(true);
+    expect(isEnabled('/data', ['/analytics'])).toBe(false);
+    expect(isEnabled('/nope')).toBe(false);
   });
   it('matches the active item from the pathname', () => {
     expect(activeEntry('/invoices')?.label).toBe('Invoices');
@@ -38,16 +39,22 @@ describe('nav', () => {
 
 describe('ui prefs', () => {
   it('defaults to expanded', () => {
-    expect(parseUiPrefs(null)).toEqual({ sidebarCollapsed: false });
-    expect(parseUiPrefs('not json')).toEqual({ sidebarCollapsed: false });
+    expect(parseUiPrefs(null)).toEqual({ sidebarCollapsed: false, density: 'comfortable' });
+    expect(parseUiPrefs('not json')).toEqual({ sidebarCollapsed: false, density: 'comfortable' });
   });
   it('reads the collapsed flag and ignores junk', () => {
     expect(parseUiPrefs('{"sidebarCollapsed":true}').sidebarCollapsed).toBe(true);
     expect(parseUiPrefs('{"sidebarCollapsed":"yes"}').sidebarCollapsed).toBe(false);
   });
+  it('reads density (compact or comfortable) and ignores junk', () => {
+    expect(parseUiPrefs('{"density":"compact"}').density).toBe('compact');
+    expect(parseUiPrefs('{"density":"comfortable"}').density).toBe('comfortable');
+    expect(parseUiPrefs('{"density":"huge"}').density).toBe('comfortable');
+  });
   it('merges updates and keeps keys from later phases', () => {
-    const out = JSON.parse(serializeUiPrefs({ sidebarCollapsed: true }, '{"density":"compact"}'));
-    expect(out).toEqual({ density: 'compact', sidebarCollapsed: true });
+    const out = JSON.parse(serializeUiPrefs({ sidebarCollapsed: true }, '{"density":"compact","future":1}'));
+    expect(out).toEqual({ density: 'compact', future: 1, sidebarCollapsed: true });
+    expect(JSON.parse(serializeUiPrefs({ density: 'compact' }, '{"sidebarCollapsed":true}'))).toEqual({ sidebarCollapsed: true, density: 'compact' });
     expect(JSON.parse(serializeUiPrefs({ sidebarCollapsed: false }, 'garbage'))).toEqual({ sidebarCollapsed: false });
   });
   it('head script sets data-sidebar before paint only when collapsed', () => {
@@ -63,5 +70,29 @@ describe('ui prefs', () => {
     expect(run('{"sidebarCollapsed":false}')).toEqual({});
     expect(run(null)).toEqual({});
     expect(run('{bad')).toEqual({});
+  });
+  it('head script sets data-density only when compact', () => {
+    const run = (stored: string) => {
+      const attrs: Record<string, string> = {};
+      vm.runInNewContext(UI_INIT_SCRIPT, {
+        localStorage: { getItem: () => stored },
+        document: { documentElement: { setAttribute: (k: string, v: string) => (attrs[k] = v) } },
+      });
+      return attrs;
+    };
+    expect(run('{"density":"compact"}')).toEqual({ 'data-density': 'compact' });
+    expect(run('{"density":"comfortable"}')).toEqual({});
+    expect(run('{"sidebarCollapsed":true,"density":"compact"}')).toEqual({ 'data-sidebar': 'collapsed', 'data-density': 'compact' });
+  });
+});
+
+import { pageShortTitle } from '../components/shell/nav';
+describe('short page title for phones', () => {
+  it('Data is "Data" on a phone, every other page keeps its title', () => {
+    expect(pageShortTitle('/data')).toBe('Data');
+    expect(pageTitle('/data')).toBe('Data & settings');
+    expect(pageShortTitle('/invoices')).toBe('Invoices');
+    expect(pageShortTitle('/analytics')).toBe('Analytics');
+    expect(pageShortTitle('/nope')).toBe('Invoice Parser');
   });
 });

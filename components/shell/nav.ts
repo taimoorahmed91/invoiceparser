@@ -3,13 +3,15 @@ import { ChartColumn, Database, LayoutDashboard, ReceiptText, type LucideIcon } 
 /**
  * Main navigation (plan §3.1). Order follows frequency of use.
  * ENABLED_ROUTES grows as phases ship: a route that is not in it is shown but unavailable ("Soon").
- * Phase 2: only the old page, moved to /invoices. Phase 4a adds /analytics. Phase 5 adds Overview (`/`). Data arrives in Phase 6.
+ * Phase 2: only the old page, moved to /invoices. Phase 4a adds /analytics. Phase 5 adds Overview (`/`), Phase 6 adds Data (`/data`): all four are live.
  */
 export interface NavEntry {
   href: string;
   label: string;
   /** Top-bar page title (h1). */
   title: string;
+  /** Shown instead of `title` on phones, where the top bar also holds More and Upload. */
+  shortTitle?: string;
   icon: LucideIcon;
 }
 
@@ -17,10 +19,10 @@ export const NAV_ITEMS: readonly NavEntry[] = [
   { href: '/', label: 'Overview', title: 'Overview', icon: LayoutDashboard },
   { href: '/invoices', label: 'Invoices', title: 'Invoices', icon: ReceiptText },
   { href: '/analytics', label: 'Analytics', title: 'Analytics', icon: ChartColumn },
-  { href: '/data', label: 'Data', title: 'Data & settings', icon: Database },
+  { href: '/data', label: 'Data', title: 'Data & settings', shortTitle: 'Data', icon: Database },
 ];
 
-export const ENABLED_ROUTES: readonly string[] = ['/', '/invoices', '/analytics'];
+export const ENABLED_ROUTES: readonly string[] = ['/', '/invoices', '/analytics', '/data'];
 
 export function isEnabled(href: string, enabled: readonly string[] = ENABLED_ROUTES): boolean {
   return enabled.includes(href);
@@ -40,6 +42,12 @@ export function activeEntry(pathname: string | null | undefined, items: readonly
 
 export function pageTitle(pathname: string | null | undefined): string {
   return activeEntry(pathname)?.title ?? 'Invoice Parser';
+}
+
+/** The page title for a phone-width top bar (falls back to the full title). */
+export function pageShortTitle(pathname: string | null | undefined): string {
+  const entry = activeEntry(pathname);
+  return entry?.shortTitle ?? entry?.title ?? 'Invoice Parser';
 }
 
 /** Reason shown for a nav item that is not built yet. */

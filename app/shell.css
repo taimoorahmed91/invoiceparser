@@ -164,6 +164,8 @@
     background: var(--canvas);
     box-shadow: 0 1px 0 var(--border);
   }
+  .shell-title .title-short { display: none; }
+  @media (max-width: 479px) { .shell-title .title-long { display: none; } .shell-title .title-short { display: inline; } }
   .shell-title { font-size: 20px; line-height: 28px; font-weight: 600; margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .shell-actions { display: flex; align-items: center; gap: 8px; flex: none; }
   @media (min-width: 768px) {

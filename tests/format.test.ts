@@ -144,3 +144,12 @@ describe('fmtCompactMoney (axis ticks)', () => {
     expect(fmtCompactMoney(-5000)).toBe(`${MINUS}5${NB}tys.`);
   });
 });
+
+import { fmtClock } from '../lib/format';
+describe('fmtClock', () => {
+  it('24 hour local time with leading zeros', () => {
+    expect(fmtClock(new Date(2026, 10, 3, 14, 2))).toBe('14:02');
+    expect(fmtClock(new Date(2026, 10, 3, 0, 5))).toBe('00:05');
+    expect(fmtClock(new Date(2026, 10, 3, 9, 30).getTime())).toBe('09:30');
+  });
+});

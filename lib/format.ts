@@ -191,3 +191,9 @@ export function fmtCompactMoney(value: number): string {
   if (abs < 1_000_000) return `${sign}${fmtNumber(abs / 1000, 1)}${NBSP}tys.`;
   return `${sign}${fmtNumber(abs / 1_000_000, 1)}${NBSP}mln`;
 }
+
+/** Local time of day, 24 hour: 14:02 (Data → Sync: "last loaded 14:02"). */
+export function fmtClock(when: number | Date): string {
+  const d = typeof when === 'number' ? new Date(when) : when;
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}

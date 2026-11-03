@@ -31,7 +31,7 @@ export interface ReportTable {
   table: TableSpec;
 }
 export interface ReportSection {
-  id: ReportTab | 'overview';
+  id: ReportTab | 'overview' | 'invoices' | 'manual';
   title: string;
   subtitle?: string;
   /** Tables printed above the charts (Overview: the key figures). */

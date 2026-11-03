@@ -5,7 +5,7 @@ vi.mock('../lib/storage', () => ({
   loadManualValues: vi.fn(), saveManualValues: vi.fn(),
 }));
 import * as storage from '../lib/storage';
-import { createInvoiceActions, initialInvoiceState, invoiceReducer, type InvoiceState } from '../hooks/useInvoices';
+import { createInvoiceActions, initialInvoiceState, invoiceReducer, mergeById, type InvoiceState } from '../hooks/useInvoices';
 import { createManualActions, initialManualState, manualReducer } from '../hooks/useManualValues';
 import { combinedInvoice, utilityInvoice } from './fixtures/synthetic';
 
@@ -107,18 +107,69 @@ describe('invoice provider commands with mocked storage', () => {
     await expect(h.actions.update({ ...rows[0], filename: 'changed' })).rejects.toThrow();
     expect(h.get().invoices).toEqual(rows);
   });
-  it.each(['add', 'import'])('%s saves each row sequentially then prepends in original order', async method => {
+  it('add saves each row sequentially then prepends in original order', async () => {
+    const h = harness();
+    vi.mocked(storage.addInvoice).mockImplementation(async () => {
+      expect(h.get().invoices).toEqual(rows);
+      return rows[0];
+    });
+    await h.actions.addMany(rows);
+    expect(storage.addInvoice).toHaveBeenNthCalledWith(1, rows[0].filename, rows[0].invoice, rows[0].id);
+    expect(storage.addInvoice).toHaveBeenNthCalledWith(2, rows[1].filename, rows[1].invoice, rows[1].id);
+    expect(h.get().invoices).toEqual([...rows, ...rows]);
+  });
+  it('import saves each row sequentially and returns the count, but never shows a row twice (P21 fixed)', async () => {
     const h = harness();
     vi.mocked(storage.importFromJson).mockReturnValue(rows);
     vi.mocked(storage.addInvoice).mockImplementation(async () => {
       expect(h.get().invoices).toEqual(rows);
       return rows[0];
     });
-    if (method === 'add') await h.actions.addMany(rows);
-    else expect(await h.actions.importMany('json')).toBe(2);
+    expect(await h.actions.importMany('json')).toBe(2);
     expect(storage.addInvoice).toHaveBeenNthCalledWith(1, rows[0].filename, rows[0].invoice, rows[0].id);
     expect(storage.addInvoice).toHaveBeenNthCalledWith(2, rows[1].filename, rows[1].invoice, rows[1].id);
-    expect(h.get().invoices).toEqual([...rows, ...rows]);
+    expect(h.get().invoices).toEqual(rows);
+    expect(new Set(h.get().invoices.map(r => r.id)).size).toBe(h.get().invoices.length);
+  });
+  it('importing the same file twice leaves one row per id', async () => {
+    const h = harness({ invoices: [] });
+    await h.actions.importRows(rows);
+    await h.actions.importRows(rows);
+    expect(h.get().invoices).toEqual(rows);
+  });
+  it('importRows: new rows go on top in file order, rows already there are replaced in place', async () => {
+    const h = harness();
+    const fresh = { ...rows[0], id: 'brand-new', filename: 'new.pdf' };
+    const changed = { ...rows[1], filename: 'replaced.pdf' };
+    await h.actions.importRows([fresh, changed]);
+    expect(h.get().invoices).toEqual([fresh, rows[0], changed]);
+    expect(storage.addInvoice).toHaveBeenCalledWith('replaced.pdf', changed.invoice, changed.id);
+  });
+  it('importRows: a failed save leaves the list untouched and rejects', async () => {
+    const h = harness();
+    vi.mocked(storage.addInvoice).mockResolvedValueOnce(rows[0]).mockRejectedValueOnce(new Error('second'));
+    await expect(h.actions.importRows([{ ...rows[0], id: 'a' }, { ...rows[1], id: 'b' }])).rejects.toThrow('second');
+    expect(h.get().invoices).toEqual(rows);
+    expect(h.get().pending).toBe(0);
+  });
+  it('mergeById collapses a row repeated inside the batch to the last version, keeping its first position', () => {
+    const a = { ...rows[0], id: 'x', filename: '1' };
+    const b = { ...rows[0], id: 'y', filename: '2' };
+    const a2 = { ...rows[0], id: 'x', filename: '3' };
+    expect(mergeById([], [a, b, a2]).map(r => [r.id, r.filename])).toEqual([['x', '3'], ['y', '2']]);
+  });
+  it('records when the list was last read from the database', async () => {
+    const h = harness();
+    expect(h.get().loadedAt).toBeNull();
+    vi.mocked(storage.loadInvoices).mockResolvedValue(rows);
+    const before = Date.now();
+    await h.actions.reload();
+    expect(h.get().loadedAt).toBeGreaterThanOrEqual(before);
+    vi.mocked(storage.loadInvoices).mockRejectedValue(new Error('down'));
+    const kept = h.get().loadedAt;
+    await h.actions.reload();
+    expect(h.get().status).toBe('error');
+    expect(h.get().loadedAt).toBe(kept);
   });
   it('partial upload failure never prepends a partially saved batch', async () => {
     const h = harness();
