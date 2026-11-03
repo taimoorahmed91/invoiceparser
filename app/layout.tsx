@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import { THEME_INIT_SCRIPT } from '@/lib/theme';
+import { UI_INIT_SCRIPT } from '@/lib/uiPrefs';
 import { ToastProvider } from '@/components/toast/ToastProvider';
 import { PressFeedback } from '@/components/ui/PressFeedback';
 
@@ -78,6 +79,7 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: UI_INIT_SCRIPT }} />
       </head>
       <body className="bg-canvas text-ink min-h-screen font-sans antialiased">
         <PressFeedback />

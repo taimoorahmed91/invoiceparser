@@ -17,7 +17,7 @@ import { hidePopoverSafe, placeFixed, showPopoverSafe } from './placement';
 interface TooltipProps {
   content: ReactNode;
   children: ReactElement;
-  side?: 'top' | 'bottom';
+  side?: 'top' | 'bottom' | 'right';
   /** Wire the tooltip to the child with aria-describedby. Leave off when the child already has the same text as aria-label. */
   describe?: boolean;
   /** Replaces the wrapper classes (default "inline-flex"). Use "flex w-full" for full-width children, "contents" inside a flex row. */
@@ -59,7 +59,7 @@ export function Tooltip({ content, children, side = 'top', describe = false, cla
     if (!panel || !wrap) return;
     showPopoverSafe(panel);
     const anchor = (wrap.firstElementChild as HTMLElement | null) ?? wrap;
-    placeFixed(panel, anchor.getBoundingClientRect(), { side, align: 'center', gap: 8 });
+    placeFixed(panel, anchor.getBoundingClientRect(), { side, align: 'center', gap: side === 'right' ? 12 : 8 });
   }, [open, side, content]);
 
   // Esc dismisses; scrolling or resizing closes (position would be stale).

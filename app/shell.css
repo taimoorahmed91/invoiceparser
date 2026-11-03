@@ -1,0 +1,260 @@
+/* ------------------------------------------------------------------
+   App shell (plan §3.3, §4.1)
+   ≥ 1280  sidebar 232 px (collapsible to the rail, remembered in html[data-sidebar])
+   768–1279 icon rail 64 px
+   < 768   no sidebar; bottom tab bar 56 px + safe area; compact top bar
+   Which variant shows is decided in CSS only, so server and client render the same markup
+   (no flash, no hydration mismatch). Classes: .sf = full sidebar only, .sr = rail only,
+   .sr-xl = rail at ≥ 1280 (i.e. the user collapsed it).
+   ------------------------------------------------------------------ */
+
+:root {
+  --top-h: 56px;
+  --bottom-h: 56px;
+}
+
+@layer components {
+  .app-shell {
+    --side-w: 64px;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 768px) {
+    .app-shell { grid-template-columns: var(--side-w) minmax(0, 1fr); }
+  }
+  @media (min-width: 1280px) {
+    html:not([data-sidebar="collapsed"]) .app-shell { --side-w: 232px; }
+  }
+
+  .sf { display: none; }
+  .sr { display: flex; }
+  .sr-xl { display: none; }
+  @media (min-width: 1280px) {
+    html:not([data-sidebar="collapsed"]) .sf { display: flex; }
+    html:not([data-sidebar="collapsed"]) .sr { display: none; }
+    html[data-sidebar="collapsed"] .sr-xl { display: flex; }
+  }
+
+  /* ---------- Sidebar / rail ---------- */
+  .shell-side {
+    display: none;
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    flex-direction: column;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    z-index: 40;
+  }
+  @media (min-width: 768px) { .shell-side { display: flex; } }
+
+  .side-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: var(--top-h);
+    padding: 0 16px;
+    flex: none;
+    color: var(--ink);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+  }
+  .side-mark {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .side-word { font-size: 15px; line-height: 20px; font-weight: 600; white-space: nowrap; }
+  .side-nav { flex: 1 1 auto; display: flex; flex-direction: column; gap: 4px; padding: 8px; overflow-y: auto; }
+  .side-foot { flex: none; display: flex; flex-direction: column; gap: 4px; padding: 8px; border-top: 1px solid var(--border); }
+
+  /* rail: everything centred in the 64 px column */
+  .side-head { justify-content: center; padding: 0; }
+  .side-nav, .side-foot { align-items: center; }
+  @media (min-width: 1280px) {
+    html:not([data-sidebar="collapsed"]) .side-head { justify-content: flex-start; padding: 0 16px; }
+    html:not([data-sidebar="collapsed"]) .side-nav,
+    html:not([data-sidebar="collapsed"]) .side-foot { align-items: stretch; }
+  }
+
+  /* ---------- Nav item (sidebar, rail) ---------- */
+  .nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--ink-muted);
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .nav-item:hover:not([aria-disabled="true"]) { background: var(--surface-2); color: var(--ink); }
+  .nav-item[aria-current="page"] { background: var(--surface-3); color: var(--ink); font-weight: 600; }
+  .nav-item[aria-current="page"]::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--ink);
+  }
+  .nav-item[aria-disabled="true"] { color: var(--ink-subtle); cursor: not-allowed; }
+  .nav-item:focus-visible { outline-offset: -2px; }
+  .nav-icon { flex: none; }
+  .nav-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .nav-soon {
+    display: none;
+    margin-left: auto;
+    padding: 0 8px;
+    border-radius: 9999px;
+    background: var(--surface-2);
+    color: var(--ink-subtle);
+    font-size: 12px;
+    line-height: 20px;
+    font-weight: 500;
+  }
+  @media (min-width: 1280px) {
+    html:not([data-sidebar="collapsed"]) .nav-item { width: auto; height: 40px; justify-content: flex-start; padding: 0 12px; }
+    html:not([data-sidebar="collapsed"]) .nav-label { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
+    html:not([data-sidebar="collapsed"]) .nav-soon { display: inline-block; }
+    html:not([data-sidebar="collapsed"]) .side-foot .btn { width: 100%; justify-content: flex-start; }
+  }
+  @media (min-width: 1280px) and (pointer: coarse) {
+    html:not([data-sidebar="collapsed"]) .nav-item { height: 44px; }
+  }
+
+  /* ---------- Top bar ---------- */
+  .shell-top {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    height: var(--top-h);
+    padding: 0 16px;
+    background: var(--canvas);
+    box-shadow: 0 1px 0 var(--border);
+  }
+  .shell-title { font-size: 20px; line-height: 28px; font-weight: 600; margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .shell-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+  @media (min-width: 768px) {
+    .shell-top { padding: 0 24px; }
+    .shell-title { font-size: 26px; line-height: 32px; }
+  }
+  .only-phone { display: inline-flex; }
+  .not-phone { display: none; }
+  @media (min-width: 768px) {
+    .only-phone { display: none; }
+    .not-phone { display: inline-flex; }
+  }
+
+  /* ---------- Content ---------- */
+  .shell-main {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 16px calc(var(--bottom-h) + env(safe-area-inset-bottom) + 24px);
+    outline: none;
+  }
+  /* The old page is not responsive yet (Phase 8): let it scroll sideways inside the content area,
+     so the top bar and the bottom tab bar stay exactly viewport wide. */
+  @media (max-width: 767px) {
+    .shell-main { overflow-x: auto; }
+  }
+  @media (min-width: 768px) {
+    .shell-main { padding: 20px 24px 32px; }
+  }
+
+  /* ---------- Bottom tab bar (phones) ---------- */
+  .bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    height: calc(var(--bottom-h) + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+  @media (min-width: 768px) { .bottom-nav { display: none; } }
+  .bn-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .bn-item[aria-current="page"] { background: var(--surface-3); color: var(--ink); font-weight: 600; }
+  .bn-item[aria-current="page"]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 16px;
+    right: 16px;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+    background: var(--ink);
+  }
+  .bn-item[aria-disabled="true"] { color: var(--ink-subtle); cursor: not-allowed; }
+  .bn-item:focus-visible { outline-offset: -3px; }
+
+  /* ---------- Skip link ---------- */
+  .skip-link {
+    position: fixed;
+    left: 12px;
+    top: 12px;
+    z-index: 100;
+    transform: translateY(-200%);
+    transition: none; /* appears at once, no spring */
+  }
+  .skip-link:focus { transform: none; }
+}
+
+/* Print: the shell disappears, the page content prints full width (replaces nothing in the legacy print block). */
+@media print {
+  .app-shell { display: block !important; }
+  .shell-side, .shell-top, .bottom-nav, .skip-link { display: none !important; }
+  .shell-main { max-width: none !important; padding: 0 !important; }
+}

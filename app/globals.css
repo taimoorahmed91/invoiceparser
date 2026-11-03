@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./controls.css";
+@import "./shell.css";
 
 /* Enable class-based dark mode instead of media query */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -106,6 +107,9 @@
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    /* focused elements must not hide under the sticky top bar / bottom tab bar (plan §5.1) */
+    scroll-padding-top: 72px;
+    scroll-padding-bottom: 80px;
   }
 
   body {

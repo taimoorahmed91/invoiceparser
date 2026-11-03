@@ -4,7 +4,7 @@
  * (so it can be measured), then calls placeFixed().
  */
 export interface PlaceOptions {
-  side?: 'top' | 'bottom';
+  side?: 'top' | 'bottom' | 'right';
   align?: 'start' | 'center' | 'end';
   gap?: number;
   margin?: number; // minimum distance from the viewport edge
@@ -16,6 +16,15 @@ export function placeFixed(panel: HTMLElement, anchor: DOMRect, opts: PlaceOptio
   const h = panel.offsetHeight;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
+
+  if (side === 'right') {
+    // beside the anchor, vertically centred (used by rail tooltips)
+    const left = Math.min(anchor.right + gap, vw - w - margin);
+    const top = Math.max(margin, Math.min(anchor.top + anchor.height / 2 - h / 2, vh - h - margin));
+    panel.style.left = `${Math.round(left)}px`;
+    panel.style.top = `${Math.round(top)}px`;
+    return;
+  }
 
   let left = align === 'start' ? anchor.left : align === 'end' ? anchor.right - w : anchor.left + anchor.width / 2 - w / 2;
   left = Math.max(margin, Math.min(left, vw - w - margin));

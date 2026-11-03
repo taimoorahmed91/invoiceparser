@@ -9,7 +9,6 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import FileUpload from '@/components/FileUpload';
 import InvoiceCard from '@/components/InvoiceCard';
 import { useToast, type ToastType } from '@/components/toast/ToastProvider';
-import { ThemeSwitch } from '@/components/ui/ThemeSwitch';
 import { RollingNumber } from '@/components/ui/RollingNumber';
 import { fmtMoneyWhole } from '@/lib/format';
 import { ParsedInvoice, InvoiceType, LineItem } from '@/lib/parseInvoice';
@@ -767,18 +766,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-canvas">
+    <div>
       {/* Main Content */}
-      <main className="py-4 px-6">
+      <div>
         <div className="max-w-full mx-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-              Invoice Parser
-            </h1>
-            <ThemeSwitch />
-          </div>
-
           {/* Upload Area */}
           <div className="mb-4">
             <FileUpload onFilesSelected={handleFilesSelected} isLoading={isLoading} />
@@ -2294,7 +2285,7 @@ export default function Home() {
           )}
 
         </div>
-      </main>
+      </div>
     </div>
   );
 }
