@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/toast/ToastProvider';
+import { useUpload } from '@/components/upload/UploadProvider';
 import { useInvoices } from '@/hooks/useInvoices';
 import { useManualValues } from '@/hooks/useManualValues';
 import { HEATING_RATE } from '@/lib/adjustments';
@@ -94,6 +95,7 @@ export function ManualValuesTable() {
   const { invoices } = useInvoices();
   const manual = useManualValues();
   const toast = useToast();
+  const upload = useUpload();
   const [rowStates, setRowStates] = useState<Record<string, RowState>>({});
   // Each save rewrites the whole manual-values table (as the old editor did), so two quick edits must not overlap.
   const queue = useRef<Promise<unknown>>(Promise.resolve());
@@ -146,7 +148,7 @@ export function ManualValuesTable() {
     return (
       <div className="dt-card">
         <h2 className="dt-title">Manual heating values</h2>
-        <EmptyState icon={Flame} title="No Utility invoices yet" action={<Button variant="secondary" href="/invoices">Go to Invoices</Button>}>
+        <EmptyState icon={Flame} title="No Utility invoices yet" action={<Button variant="secondary" onClick={() => upload.open()}>Upload PDFs</Button>}>
           Manual heating values belong to the month of a Utility invoice. Upload one first.
         </EmptyState>
       </div>

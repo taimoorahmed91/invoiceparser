@@ -12,6 +12,8 @@ const NAMES = [
   'TriangleAlert', 'LoaderCircle', 'Maximize2', 'Printer', 'Undo2', 'RotateCcw', 'Table2', 'FileText',
   // Overview (Phase 5)
   'Wallet', 'CalendarRange', 'ArrowRight',
+  // Upload dialog (Phase 7)
+  'CloudUpload', 'Clock', 'CircleX', 'Ban', 'Copy', 'FileUp',
 ];
 
 describe('lucide-react icon names used in the plan', () => {

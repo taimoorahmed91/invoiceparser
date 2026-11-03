@@ -4,6 +4,7 @@
 @import "./charts.css";
 @import "./overview.css";
 @import "./data.css";
+@import "./upload.css";
 
 /* Enable class-based dark mode instead of media query */
 @custom-variant dark (&:where(.dark, .dark *));

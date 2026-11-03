@@ -1,0 +1,63 @@
+/* Upload dialog, queue rows and the drop-anywhere overlay (plan §4.6). Tokens only. */
+
+@layer components {
+  .up-body { display: flex; flex-direction: column; gap: 12px; min-height: 0; flex: 1; }
+
+  /* ---------- drop zone ---------- */
+  .up-zone {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
+    flex: none; min-height: 160px; padding: 20px 16px; border: 2px dashed var(--control-border); border-radius: var(--radius-lg);
+    background: var(--surface); transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+  }
+  .up-zone[data-compact="true"] { min-height: 0; flex-direction: row; flex-wrap: wrap; gap: 8px 16px; padding: 12px 16px; justify-content: space-between; text-align: left; }
+  .up-zone[data-dragging="true"] { border-color: var(--focus); background: var(--surface-2); }
+  .up-zone-icon { color: var(--ink-muted); }
+  .up-zone[data-compact="true"] .up-zone-icon { display: none; }
+  .up-zone-title { margin: 0; font-size: 15px; line-height: 22px; font-weight: 600; }
+  .up-zone-sub { margin: 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
+  .up-zone[data-compact="true"] .up-zone-text { flex: 1 1 200px; min-width: 0; }
+
+  /* ---------- queue ---------- */
+  .up-count { flex: none; margin: 0; font-size: 13px; line-height: 18px; font-weight: 600; color: var(--ink-muted); }
+  .up-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; min-height: 0; border: 1px solid var(--border); border-radius: var(--radius-md); }
+  .up-row { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 4px 12px; padding: 12px; border-top: 1px solid var(--border); align-items: start; }
+  .up-row:first-child { border-top: 0; }
+  .up-icon { display: inline-flex; align-items: center; justify-content: center; height: 20px; margin-top: 1px; color: var(--ink-muted); }
+  .up-row[data-status="saved"] .up-icon { color: var(--decrease); }
+  .up-row[data-status="saved"][data-warn="true"] .up-icon { color: var(--warning); }
+  .up-row[data-status="duplicate"] .up-icon { color: var(--warning); }
+  .up-row[data-status="failed"] .up-icon { color: var(--danger); }
+  .up-main { min-width: 0; }
+  .up-name { margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .up-status { margin: 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); overflow-wrap: anywhere; }
+  .up-status strong { font-weight: 600; color: var(--ink); }
+  .up-row[data-status="failed"] .up-status strong { color: var(--danger); }
+  .up-row[data-status="saved"][data-warn="true"] .up-status strong { color: var(--warning); }
+  .up-warn { margin: 6px 0 0; padding: 8px 12px; list-style: none; border-radius: var(--radius-md); background: var(--warning-tint); font-size: 13px; line-height: 18px; color: var(--ink); }
+  .up-warn li + li { margin-top: 2px; }
+  .up-details { margin: 6px 0 0; padding: 8px 12px; border-radius: var(--radius-md); background: var(--surface-2); font-size: 12px; line-height: 16px; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .up-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 8px; }
+  @media (max-width: 479px) {
+    .up-row { grid-template-columns: 24px minmax(0, 1fr); }
+    .up-actions { grid-column: 2; justify-content: flex-start; }
+  }
+
+  /* ---------- footer ---------- */
+  .up-summary { margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .up-footer { display: flex; flex-direction: column; gap: 8px; }
+  /* the order you see is the order you tab: Retry failed, then Done (the generic dialog stacks buttons in reverse on phones) */
+  @media (max-width: 479px) { .up-footer .dlg-actions { flex-direction: column; } }
+
+  /* ---------- drop anywhere ---------- */
+  .up-overlay {
+    position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; padding: 24px;
+    background: var(--scrim); pointer-events: none; animation: ui-fade var(--dur-fast) var(--ease-out);
+  }
+  .up-overlay-card {
+    display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; max-width: 420px; padding: 40px 32px;
+    border: 3px dashed var(--focus); border-radius: var(--radius-xl); background: var(--surface); color: var(--ink); box-shadow: var(--shadow-e3);
+  }
+  .up-overlay-title { margin: 0; font-size: 20px; line-height: 28px; font-weight: 600; }
+  .up-overlay-sub { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-muted); }
+  @media (prefers-reduced-motion: reduce) { .up-overlay { animation: none; } }
+}

@@ -14,6 +14,7 @@ import { Banner } from '@/components/ui/Banner';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useUpload } from '@/components/upload/UploadProvider';
 import { useInvoices } from '@/hooks/useInvoices';
 import { monthsWithData, parseRange, resolveRange, serializeRange, type RangeSpec } from '@/lib/analyticsMonthly';
 
@@ -33,6 +34,7 @@ const MonthlyCostsTab = dynamic(() => import('@/components/analytics/MonthlyCost
 
 function AnalyticsInner() {
   const { status, invoices, error, reload } = useInvoices();
+  const upload = useUpload();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -73,8 +75,8 @@ function AnalyticsInner() {
         icon={FileUp}
         title="No invoices yet"
         action={
-          <Button variant="primary" size="lg" href="/invoices">
-            Go to Invoices to upload
+          <Button variant="primary" size="lg" onClick={() => upload.open()}>
+            Upload PDFs
           </Button>
         }
       >

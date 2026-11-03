@@ -100,6 +100,11 @@
   .dlg::backdrop { background: var(--scrim); }
   .dlg[open] { animation: ui-fade var(--dur-base) var(--ease-out); }
   .dlg-body { display: flex; flex-direction: column; gap: 12px; padding: 24px; }
+  .dlg-wide { width: min(680px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); }
+  .dlg-wide[open] { display: flex; flex-direction: column; }
+  .dlg-wide .dlg-body { min-height: 0; flex: 1; padding: 20px; }
+  @media (max-width: 479px) { .dlg-wide .dlg-body { padding: 16px; } }
+  .dlg-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
   .dlg-title { margin: 0; font-size: 18px; line-height: 26px; font-weight: 600; }
   .dlg-desc { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-muted); }
   .dlg-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 8px; }

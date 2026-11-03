@@ -8,6 +8,7 @@ import { Banner } from '@/components/ui/Banner';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useUpload } from '@/components/upload/UploadProvider';
 import { useInvoices } from '@/hooks/useInvoices';
 import { useManualValues } from '@/hooks/useManualValues';
 import { buildBreakdown, buildKpis, dataMonthsYm, overviewRangeSpec, parseOverviewRange, resolvePeriod, type OverviewRange } from '@/lib/analyticsOverview';
@@ -107,6 +108,7 @@ function Content({ invoices, manualValues }: { invoices: StoredInvoice[]; manual
 
 export function Overview() {
   const { status, invoices, error, reload } = useInvoices();
+  const upload = useUpload();
   const manual = useManualValues();
 
   if (status === 'error') {
@@ -124,10 +126,10 @@ export function Overview() {
         title="No invoices yet"
         action={
           <div className="flex flex-col items-center gap-3">
-            <Button variant="primary" size="lg" href="/invoices">
+            <Button variant="primary" size="lg" onClick={() => upload.open()}>
               Upload PDFs
             </Button>
-            <Button variant="link" href="/invoices">
+            <Button variant="link" href="/data#import-export">
               Import a JSON backup
             </Button>
           </div>

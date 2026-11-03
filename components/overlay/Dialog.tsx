@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useId, useLayoutEffect, useRef, type MouseEvent, type ReactNode } from 'react';
+import { X } from 'lucide-react';
+import { IconButton } from '@/components/ui/IconButton';
 
 interface DialogProps {
   title: string;
@@ -13,13 +15,19 @@ interface DialogProps {
   /** Where focus goes when it closes (the button that opened it). */
   returnFocusTo: HTMLElement | null;
   children?: ReactNode;
+  /** A wider dialog for lists (Upload). */
+  wide?: boolean;
+  /** Adds a ✕ button next to the title that calls onClose. */
+  closeButton?: boolean;
+  /** Extra class on the <dialog>. */
+  className?: string;
 }
 
 /**
  * A small modal confirm (plan §4.8 Danger zone). A native modal <dialog>: focus is trapped, Esc and the browser's back-gesture close it,
  * the page behind is inert. Focus starts on the control marked `data-autofocus` (Cancel for anything destructive) and returns to the opener.
  */
-export function Dialog({ title, description, actions, onClose, returnFocusTo, children }: DialogProps) {
+export function Dialog({ title, description, actions, onClose, returnFocusTo, children, wide, closeButton, className }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const descId = useId();
@@ -59,9 +67,18 @@ export function Dialog({ title, description, actions, onClose, returnFocusTo, ch
   };
 
   return (
-    <dialog ref={ref} className="dlg" aria-labelledby={titleId} aria-describedby={description ? descId : undefined} onClick={onBackdrop}>
+    <dialog
+      ref={ref}
+      className={['dlg', wide ? 'dlg-wide' : '', className ?? ''].filter(Boolean).join(' ')}
+      aria-labelledby={titleId}
+      aria-describedby={description ? descId : undefined}
+      onClick={onBackdrop}
+    >
       <div className="dlg-body">
-        <h2 id={titleId} className="dlg-title">{title}</h2>
+        <div className="dlg-head">
+          <h2 id={titleId} className="dlg-title">{title}</h2>
+          {closeButton && <IconButton label="Close" icon={X} onClick={onClose} />}
+        </div>
         {description && <p id={descId} className="dlg-desc">{description}</p>}
         {children}
         <div className="dlg-actions">{actions}</div>

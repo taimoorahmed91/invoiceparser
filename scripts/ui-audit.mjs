@@ -7,7 +7,8 @@
  *   - visible focus change when focused
  * and, on /dev/ui, the failures counted by the computed-contrast table.
  *
- * Usage: node scripts/ui-audit.mjs <url> [--touch] [--theme=light|dark] [--json]
+ * Usage: node scripts/ui-audit.mjs <url> [--touch] [--theme=light|dark] [--json] [--pre=<file.js>]
+ * --pre: a JS file evaluated in the page (awaited) after it has loaded and before the audit, e.g. to open a dialog.
  * Exit code 1 when anything is found. Needs Chrome (set CHROME_BIN to override) and Node 22+.
  */
 import { spawn } from 'node:child_process';
@@ -16,9 +17,10 @@ const args = process.argv.slice(2);
 const url = args.find((a) => !a.startsWith('--'));
 const touch = args.includes('--touch');
 const asJson = args.includes('--json');
+const pre = (args.find((a) => a.startsWith('--pre=')) ?? '').slice(6);
 const theme = (args.find((a) => a.startsWith('--theme=')) ?? '--theme=light').split('=')[1];
 if (!url) {
-  console.error('usage: node scripts/ui-audit.mjs <url> [--touch] [--theme=light|dark] [--json]');
+  console.error('usage: node scripts/ui-audit.mjs <url> [--touch] [--theme=light|dark] [--json] [--pre=<file.js>]');
   process.exit(2);
 }
 
@@ -53,6 +55,12 @@ await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-sch
 await send('Page.addScriptToEvaluateOnNewDocument', { source: `try{localStorage.setItem('invoice-parser-theme','${theme}')}catch(e){}` });
 await send('Page.navigate', { url });
 await sleep(4000);
+if (pre) {
+  const { readFileSync } = await import('node:fs');
+  const r = await send('Runtime.evaluate', { expression: readFileSync(pre, 'utf8'), awaitPromise: true, returnByValue: true, userGesture: true });
+  if (r.result?.exceptionDetails) console.error('pre script failed:', r.result.exceptionDetails.exception?.description ?? r.result.exceptionDetails.text);
+  await sleep(2500);
+}
 // One real key press, so Chrome treats later focus() calls as keyboard focus (:focus-visible matches).
 for (const type of ['rawKeyDown', 'keyUp']) await send('Input.dispatchKeyEvent', { type, key: 'Shift', code: 'ShiftLeft', windowsVirtualKeyCode: 16 });
 

@@ -4,22 +4,16 @@ import { monthNames, getMonthFromDate, getMonthYearFromDate, parseDate } from '@
 import { applyManualAdjustments } from '@/lib/adjustments';
 import { toJson, toCsv, toExcelCsv } from '@/lib/export';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import FileUpload from '@/components/FileUpload';
 import InvoiceCard from '@/components/InvoiceCard';
 import { useToast, type ToastType } from '@/components/toast/ToastProvider';
 import { RollingNumber } from '@/components/ui/RollingNumber';
 import { fmtMoneyWhole } from '@/lib/format';
-import { ParsedInvoice, InvoiceType, LineItem } from '@/lib/parseInvoice';
+import { InvoiceType, LineItem } from '@/lib/parseInvoice';
 import type { StoredInvoice } from '@/lib/storage';
 import { useInvoices } from '@/hooks/useInvoices';
 import { useManualValues } from '@/hooks/useManualValues';
+import { useUpload } from '@/components/upload/UploadProvider';
 import { applyFilters, sortInvoices } from '@/lib/filters';
-
-interface ParseResult {
-  filename: string;
-  invoice: ParsedInvoice | null;
-  error?: string;
-}
 
 const typeColors: Record<InvoiceType, { bg: string; text: string; badge: string }> = {
   Rent: { bg: 'bg-blue-50 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', badge: 'bg-blue-100 dark:bg-blue-900' },
@@ -30,10 +24,8 @@ const typeColors: Record<InvoiceType, { bg: string; text: string; badge: string 
 
 
 export default function Home() {
-  const { invoices, status, addMany, prepareUpload, remove, removeAll, update, importMany, undo, canUndo } = useInvoices();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [parseErrors, setParseErrors] = useState<ParseResult[]>([]);
+  const { invoices, status, remove, removeAll, update, importMany, undo, canUndo } = useInvoices();
+  const upload = useUpload();
   const [selectedInvoice, setSelectedInvoice] = useState<StoredInvoice | null>(null);
   const [filterType, setFilterType] = useState<InvoiceType | 'all'>('all');
   const [filterMonth, setFilterMonth] = useState<string | 'all'>('all');
@@ -213,68 +205,6 @@ export default function Home() {
     };
   }, [filteredInvoices]);
 
-  const handleFilesSelected = async (files: File[]) => {
-    setIsLoading(true);
-    setError(null);
-    setParseErrors([]);
-
-    try {
-      const formData = new FormData();
-      files.forEach((file) => {
-        formData.append('files', file);
-      });
-
-      const response = await fetch('/api/parse', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to parse invoices');
-      }
-
-      const data = await response.json();
-      const results: ParseResult[] = data.results;
-
-      const successful = results.filter((r) => r.invoice !== null);
-      const failed = results.filter((r) => r.invoice === null);
-
-      setParseErrors(failed);
-
-      const { rows: newInvoices, duplicates } = prepareUpload(successful.map(r => ({ filename: r.filename, invoice: r.invoice! })));
-
-      if (duplicates.length > 0) {
-        showToast(
-          `Skipped ${duplicates.length} duplicate invoice(s): ${duplicates.join(', ')}`,
-          'warning',
-          5000
-        );
-      }
-
-      if (newInvoices.length > 0) {
-        try {
-          await addMany(newInvoices);
-          showToast(`Successfully added ${newInvoices.length} invoice(s)`, 'success');
-        } catch (error) {
-          console.error('Failed to save invoices:', error);
-          showToast('Failed to save some invoices to database', 'error');
-        }
-      } else if (duplicates.length > 0) {
-        showToast('No new invoices added - all were duplicates', 'info');
-      }
-
-      if (failed.length > 0) {
-        showToast(`Failed to parse ${failed.length} file(s)`, 'error', 5000);
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-      setError(errorMessage);
-      showToast(errorMessage, 'error', 5000);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const deletedInvoice = invoices.find((inv) => inv.id === id);
@@ -374,7 +304,6 @@ export default function Home() {
     if (confirmed) {
       try {
         await removeAll();
-        setParseErrors([]);
         setSelectedInvoice(null);
         setFilterType('all');
         setFilterMonth('all');
@@ -552,41 +481,7 @@ export default function Home() {
       {/* Main Content */}
       <div>
         <div className="max-w-full mx-auto">
-          {/* Upload Area */}
-          <div className="mb-4">
-            <FileUpload onFilesSelected={handleFilesSelected} isLoading={isLoading} />
-          </div>
-
           {status === 'loading' && <p role="status">Loading…</p>}
-
-          {/* Error Display */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
-              {error}
-            </div>
-          )}
-
-          {/* Parse Errors */}
-          {parseErrors.length > 0 && (
-            <div className="mb-6">
-              <h2 className="text-sm font-medium text-red-600 dark:text-red-400 mb-2">
-                Failed to parse ({parseErrors.length}):
-              </h2>
-              <div className="space-y-2">
-                {parseErrors.map((result, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-sm text-gray-900 dark:text-gray-100"
-                  >
-                    <span className="font-medium">{result.filename}</span>
-                    {result.error && (
-                      <span className="text-red-600 dark:text-red-400 ml-2">- {result.error}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Selected Invoice Detail */}
           {selectedInvoice && (
@@ -1570,7 +1465,7 @@ export default function Home() {
           )}
 
           {/* Empty State */}
-          {status !== 'loading' && invoices.length === 0 && !isLoading && (
+          {status !== 'loading' && invoices.length === 0 && (
             <div className="text-center py-12 text-gray-500 dark:text-gray-400">
               <svg
                 className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4"
@@ -1587,6 +1482,9 @@ export default function Home() {
               </svg>
               <p>No invoices saved yet</p>
               <p className="text-sm mt-1">Upload PDF files to get started</p>
+              <button type="button" onClick={() => upload.open()} className="mt-4 px-4 py-2 text-sm rounded-md bg-orange-500 text-white hover:bg-orange-600">
+                Upload PDFs
+              </button>
             </div>
           )}
 
