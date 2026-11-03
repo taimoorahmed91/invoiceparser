@@ -1,0 +1,2110 @@
+[
+  {
+    "id": "inv_1767876646674_mjxdtfnxt",
+    "filename": "faktura-fa-mys-289-01-2026.pdf",
+    "parsedAt": "2026-01-08T12:50:46.674Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/289/01/2026",
+      "issueDate": "08/01/2026",
+      "saleDate": "31/01/2026",
+      "dueDate": "13/01/2026",
+      "invoiceType": "Rent",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Rent",
+          "netPrice": 476.32,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 476.32,
+          "tax": "0%",
+          "grossValue": 476.32
+        },
+        {
+          "no": 2,
+          "description": "Rent",
+          "netPrice": 73.65,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 73.65,
+          "tax": "0%",
+          "grossValue": 73.65
+        },
+        {
+          "no": 3,
+          "description": "Rent",
+          "netPrice": 5.04,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 5.04,
+          "tax": "0%",
+          "grossValue": 5.04
+        },
+        {
+          "no": 1,
+          "description": "Parking Rent",
+          "netPrice": 15.74,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 15.74,
+          "tax": "23%",
+          "grossValue": 19.36
+        }
+      ],
+      "totals": {
+        "netTotal": 555.01,
+        "taxTotal": 19.36,
+        "grossTotal": 574.37
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396368133_2psstt45d",
+    "filename": "faktura-fa-mys-660-06-2025.pdf",
+    "parsedAt": "2026-01-02T23:26:08.133Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/660/06/2025",
+      "issueDate": "18/06/2025",
+      "saleDate": "31/05/2025",
+      "dueDate": "30/06/2025",
+      "invoiceType": "Utility",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Electricity",
+          "netPrice": 1.09,
+          "quantity": 44,
+          "unit": "KWH",
+          "netValue": 48.04,
+          "tax": "23%",
+          "grossValue": 59.09
+        },
+        {
+          "no": 2,
+          "description": "Central Heating",
+          "netPrice": 0,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "23%",
+          "grossValue": 0
+        },
+        {
+          "no": 3,
+          "description": "OPŁATA ZA GOSPODARKA ODPADAMI 01/05/2025 - 31/05/2",
+          "netPrice": 81,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 81,
+          "tax": "0%",
+          "grossValue": 81
+        },
+        {
+          "no": 4,
+          "description": "Manual Heating Calculation (1.43 × 76)",
+          "netPrice": 108.67999999999999,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 108.67999999999999,
+          "tax": "0%",
+          "grossValue": 108.67999999999999
+        },
+        {
+          "no": 5,
+          "description": "Manual Heating Calculation (1.43 × 76)",
+          "netPrice": 108.67999999999999,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 108.67999999999999,
+          "tax": "0%",
+          "grossValue": 108.67999999999999
+        },
+        {
+          "no": 6,
+          "description": "Manual Heating Calculation (1.43 × 76)",
+          "netPrice": 108.67999999999999,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 108.67999999999999,
+          "tax": "0%",
+          "grossValue": 108.67999999999999
+        },
+        {
+          "no": 7,
+          "description": "Manual Heating Calculation (1.43 × 76)",
+          "netPrice": 108.67999999999999,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 108.67999999999999,
+          "tax": "0%",
+          "grossValue": 108.67999999999999
+        }
+      ],
+      "totals": {
+        "netTotal": 563.76,
+        "taxTotal": 11.049999999999955,
+        "grossTotal": 574.81
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_rz0v6092j",
+    "filename": "faktura-fa-mys-211-01-2026.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/211/01/2026",
+      "issueDate": "01/01/2026",
+      "saleDate": "28/01/2026",
+      "dueDate": "07/01/2026",
+      "invoiceType": "Rent",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Rent",
+          "netPrice": 4154.84,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 4154.84,
+          "tax": "0%",
+          "grossValue": 4154.84
+        },
+        {
+          "no": 2,
+          "description": "Rent",
+          "netPrice": 695.48,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 695.48,
+          "tax": "0%",
+          "grossValue": 695.48
+        },
+        {
+          "no": 3,
+          "description": "Rent",
+          "netPrice": 47.05,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 47.05,
+          "tax": "0%",
+          "grossValue": 47.05
+        }
+      ],
+      "totals": {
+        "netTotal": 4897.37,
+        "taxTotal": 0,
+        "grossTotal": 4897.37
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_h93ouwpuh",
+    "filename": "faktura-fa-mys-212-01-2026.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/212/01/2026",
+      "issueDate": "01/01/2026",
+      "saleDate": "28/01/2026",
+      "dueDate": "07/01/2026",
+      "invoiceType": "Parking",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Parking Rent",
+          "netPrice": 146.86,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 146.86,
+          "tax": "23%",
+          "grossValue": 180.64
+        }
+      ],
+      "totals": {
+        "netTotal": 146.86,
+        "taxTotal": 33.77999999999997,
+        "grossTotal": 180.64
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_sv4k058wl",
+    "filename": "faktura-fa-mys-453-12-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/453/12/2025",
+      "issueDate": "12/12/2025",
+      "saleDate": "30/11/2025",
+      "dueDate": "22/12/2025",
+      "invoiceType": "Utility",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Cold Water",
+          "netPrice": 13.67,
+          "quantity": 9.81,
+          "unit": "M3",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 134.1
+        },
+        {
+          "no": 2,
+          "description": "Electricity",
+          "netPrice": 1.06,
+          "quantity": 257,
+          "unit": "KWH",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 273.35
+        },
+        {
+          "no": 3,
+          "description": "Central Heating",
+          "netPrice": 0,
+          "quantity": 0.56,
+          "unit": "GJ",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 0
+        },
+        {
+          "no": 4,
+          "description": "Hot Water",
+          "netPrice": 41.82,
+          "quantity": 7.33,
+          "unit": "M3",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 306.54
+        },
+        {
+          "no": 5,
+          "description": "5 OPŁATA ZA GOSPODARKA ODPADAMI 01/11/2025 - 30/11",
+          "netPrice": 105,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 105
+        },
+        {
+          "no": 6,
+          "description": "Manual Heating Calculation (1.81 × 76)",
+          "netPrice": 137.56,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 137.56,
+          "tax": "0%",
+          "grossValue": 137.56
+        },
+        {
+          "no": 7,
+          "description": "Manual Heating Calculation (1.81 × 76)",
+          "netPrice": 137.56,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 137.56,
+          "tax": "0%",
+          "grossValue": 137.56
+        },
+        {
+          "no": 8,
+          "description": "Manual Heating Calculation (1.81 × 76)",
+          "netPrice": 137.56,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 137.56,
+          "tax": "0%",
+          "grossValue": 137.56
+        },
+        {
+          "no": 9,
+          "description": "Manual Heating Calculation (1.81 × 76)",
+          "netPrice": 137.56,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 137.56,
+          "tax": "0%",
+          "grossValue": 137.56
+        }
+      ],
+      "totals": {
+        "netTotal": 550.24,
+        "taxTotal": 818.9899999999998,
+        "grossTotal": 1369.2299999999998
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_p1j74q5zh",
+    "filename": "faktura-fa-mys-218-12-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/218/12/2025",
+      "issueDate": "01/12/2025",
+      "saleDate": "31/12/2025",
+      "dueDate": "08/12/2025",
+      "invoiceType": "Parking",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Parking Rent",
+          "netPrice": 162.6,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 162.6,
+          "tax": "23%",
+          "grossValue": 200
+        }
+      ],
+      "totals": {
+        "netTotal": 162.6,
+        "taxTotal": 37.400000000000006,
+        "grossTotal": 200
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_bfmqvtwgg",
+    "filename": "faktura-fa-mys-217-12-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/217/12/2025",
+      "issueDate": "01/12/2025",
+      "saleDate": "31/12/2025",
+      "dueDate": "08/12/2025",
+      "invoiceType": "Rent",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Rent",
+          "netPrice": 4600,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 4600,
+          "tax": "0%",
+          "grossValue": 4600
+        },
+        {
+          "no": 2,
+          "description": "Rent",
+          "netPrice": 770,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 770,
+          "tax": "0%",
+          "grossValue": 770
+        },
+        {
+          "no": 3,
+          "description": "Rent",
+          "netPrice": 52.09,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 52.09,
+          "tax": "0%",
+          "grossValue": 52.09
+        }
+      ],
+      "totals": {
+        "netTotal": 5422.09,
+        "taxTotal": 0,
+        "grossTotal": 5422.09
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_bcjhkrm28",
+    "filename": "faktura-fa-mys-474-11-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/474/11/2025",
+      "issueDate": "18/11/2025",
+      "saleDate": "31/10/2025",
+      "dueDate": "28/11/2025",
+      "invoiceType": "Utility",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Cold Water",
+          "netPrice": 13.67,
+          "quantity": 9.69,
+          "unit": "M3",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 132.46
+        },
+        {
+          "no": 2,
+          "description": "Electricity",
+          "netPrice": 1.07,
+          "quantity": 238,
+          "unit": "KWH",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 254.56
+        },
+        {
+          "no": 3,
+          "description": "Central Heating",
+          "netPrice": 0,
+          "quantity": 0.07,
+          "unit": "GJ",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 0
+        },
+        {
+          "no": 4,
+          "description": "Hot Water",
+          "netPrice": 42.73,
+          "quantity": 6.2,
+          "unit": "M3",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 264.93
+        },
+        {
+          "no": 5,
+          "description": "5 OPŁATA ZA GOSPODARKA ODPADAMI 01/10/2025 - 31/10",
+          "netPrice": 105,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 105
+        },
+        {
+          "no": 6,
+          "description": "Manual Heating Calculation (1.82 × 76)",
+          "netPrice": 138.32,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 138.32,
+          "tax": "0%",
+          "grossValue": 138.32
+        },
+        {
+          "no": 7,
+          "description": "Manual Heating Calculation (1.82 × 76)",
+          "netPrice": 138.32,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 138.32,
+          "tax": "0%",
+          "grossValue": 138.32
+        },
+        {
+          "no": 8,
+          "description": "Manual Heating Calculation (1.82 × 76)",
+          "netPrice": 138.32,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 138.32,
+          "tax": "0%",
+          "grossValue": 138.32
+        },
+        {
+          "no": 9,
+          "description": "Manual Heating Calculation (1.82 × 76)",
+          "netPrice": 138.32,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 138.32,
+          "tax": "0%",
+          "grossValue": 138.32
+        }
+      ],
+      "totals": {
+        "netTotal": 553.28,
+        "taxTotal": 756.9499999999998,
+        "grossTotal": 1310.2299999999998
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_wwmncqff1",
+    "filename": "faktura-fa-mys-286-11-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/286/11/2025",
+      "issueDate": "05/11/2025",
+      "saleDate": "31/10/2025",
+      "dueDate": "10/11/2025",
+      "invoiceType": "Parking",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Parking Rent",
+          "netPrice": 57.7,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 57.7,
+          "tax": "23%",
+          "grossValue": 70.97
+        }
+      ],
+      "totals": {
+        "netTotal": 57.7,
+        "taxTotal": 13.269999999999996,
+        "grossTotal": 70.97
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_md03evyiq",
+    "filename": "faktura-fa-mys-223-11-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/223/11/2025",
+      "issueDate": "01/11/2025",
+      "saleDate": "30/11/2025",
+      "dueDate": "06/11/2025",
+      "invoiceType": "Rent",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Rent",
+          "netPrice": 4600,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 4600,
+          "tax": "0%",
+          "grossValue": 4600
+        },
+        {
+          "no": 2,
+          "description": "Rent",
+          "netPrice": 770,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 770,
+          "tax": "0%",
+          "grossValue": 770
+        },
+        {
+          "no": 3,
+          "description": "Rent",
+          "netPrice": 52.09,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 52.09,
+          "tax": "0%",
+          "grossValue": 52.09
+        }
+      ],
+      "totals": {
+        "netTotal": 5422.09,
+        "taxTotal": 0,
+        "grossTotal": 5422.09
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_fzy3e5yqa",
+    "filename": "faktura-fa-mys-433-10-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/433/10/2025",
+      "issueDate": "17/10/2025",
+      "saleDate": "30/09/2025",
+      "dueDate": "27/10/2025",
+      "invoiceType": "Utility",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Cold Water",
+          "netPrice": 13.67,
+          "quantity": 11.29,
+          "unit": "M3",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 154.33
+        },
+        {
+          "no": 2,
+          "description": "Electricity",
+          "netPrice": 1.05,
+          "quantity": 319.1,
+          "unit": "KWH",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 334.83
+        },
+        {
+          "no": 3,
+          "description": "Central Heating",
+          "netPrice": 139.9,
+          "quantity": 0,
+          "unit": "GJ",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 0
+        },
+        {
+          "no": 4,
+          "description": "Hot Water",
+          "netPrice": 50.42,
+          "quantity": 4.27,
+          "unit": "M3",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 215.29
+        },
+        {
+          "no": 5,
+          "description": "5 OPŁATA ZA GOSPODARKA ODPADAMI 01/09/2025 - 30/09",
+          "netPrice": 105,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 105
+        },
+        {
+          "no": 6,
+          "description": "Manual Heating Calculation (1.84 × 76)",
+          "netPrice": 139.84,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 139.84,
+          "tax": "0%",
+          "grossValue": 139.84
+        },
+        {
+          "no": 7,
+          "description": "Manual Heating Calculation (1.84 × 76)",
+          "netPrice": 139.84,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 139.84,
+          "tax": "0%",
+          "grossValue": 139.84
+        },
+        {
+          "no": 8,
+          "description": "Manual Heating Calculation (1.84 × 76)",
+          "netPrice": 139.84,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 139.84,
+          "tax": "0%",
+          "grossValue": 139.84
+        },
+        {
+          "no": 9,
+          "description": "Manual Heating Calculation (1.84 × 76)",
+          "netPrice": 139.84,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 139.84,
+          "tax": "0%",
+          "grossValue": 139.84
+        }
+      ],
+      "totals": {
+        "netTotal": 559.36,
+        "taxTotal": 809.4499999999997,
+        "grossTotal": 1368.8099999999997
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_uimas1yak",
+    "filename": "faktura-fa-mys-232-10-2025 (1).pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/232/10/2025",
+      "issueDate": "01/10/2025",
+      "saleDate": "31/10/2025",
+      "dueDate": "06/10/2025",
+      "invoiceType": "Rent",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Rent",
+          "netPrice": 4600,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 4600,
+          "tax": "0%",
+          "grossValue": 4600
+        },
+        {
+          "no": 2,
+          "description": "Rent",
+          "netPrice": 770,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 770,
+          "tax": "0%",
+          "grossValue": 770
+        },
+        {
+          "no": 3,
+          "description": "Rent",
+          "netPrice": 52.09,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 52.09,
+          "tax": "0%",
+          "grossValue": 52.09
+        }
+      ],
+      "totals": {
+        "netTotal": 5422.09,
+        "taxTotal": 0,
+        "grossTotal": 5422.09
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_lrg1r8kyk",
+    "filename": "faktura-fa-mys-534-09-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/534/09/2025",
+      "issueDate": "11/09/2025",
+      "saleDate": "31/08/2025",
+      "dueDate": "22/09/2025",
+      "invoiceType": "Utility",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Cold Water",
+          "netPrice": 13.67,
+          "quantity": 16.1,
+          "unit": "M3",
+          "netValue": 16.3,
+          "tax": "8%",
+          "grossValue": 220.09
+        },
+        {
+          "no": 2,
+          "description": "Electricity",
+          "netPrice": 1.04,
+          "quantity": 388.4,
+          "unit": "KWH",
+          "netValue": 75.44,
+          "tax": "23%",
+          "grossValue": 403.45
+        },
+        {
+          "no": 3,
+          "description": "Central Heating",
+          "netPrice": 138.4,
+          "quantity": 0,
+          "unit": "GJ",
+          "netValue": 0,
+          "tax": "23%",
+          "grossValue": 0
+        },
+        {
+          "no": 4,
+          "description": "Hot Water",
+          "netPrice": 35.65,
+          "quantity": 3.97,
+          "unit": "M3",
+          "netValue": 26.47,
+          "tax": "23%",
+          "grossValue": 141.54
+        },
+        {
+          "no": 5,
+          "description": "5 OPŁATA ZA GOSPODARKA ODPADAMI 01/08/2025 - 31/08",
+          "netPrice": 81,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 81
+        },
+        {
+          "no": 6,
+          "description": "Manual Heating Calculation (1.82 × 76)",
+          "netPrice": 138.32,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 138.32,
+          "tax": "0%",
+          "grossValue": 138.32
+        },
+        {
+          "no": 7,
+          "description": "Manual Heating Calculation (1.82 × 76)",
+          "netPrice": 138.32,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 138.32,
+          "tax": "0%",
+          "grossValue": 138.32
+        },
+        {
+          "no": 8,
+          "description": "Manual Heating Calculation (1.82 × 76)",
+          "netPrice": 138.32,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 138.32,
+          "tax": "0%",
+          "grossValue": 138.32
+        },
+        {
+          "no": 9,
+          "description": "Manual Heating Calculation (1.82 × 76)",
+          "netPrice": 138.32,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 138.32,
+          "tax": "0%",
+          "grossValue": 138.32
+        }
+      ],
+      "totals": {
+        "netTotal": 671.49,
+        "taxTotal": 727.8699999999997,
+        "grossTotal": 1399.3599999999997
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_8ei9dnkdc",
+    "filename": "faktura-fa-mys-293-09-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/293/09/2025",
+      "issueDate": "01/09/2025",
+      "saleDate": "30/09/2025",
+      "dueDate": "08/09/2025",
+      "invoiceType": "Rent",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Rent",
+          "netPrice": 4600,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 4600,
+          "tax": "0%",
+          "grossValue": 4600
+        },
+        {
+          "no": 2,
+          "description": "Rent",
+          "netPrice": 770,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 770,
+          "tax": "0%",
+          "grossValue": 770
+        },
+        {
+          "no": 3,
+          "description": "Rent",
+          "netPrice": 52.09,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 52.09,
+          "tax": "0%",
+          "grossValue": 52.09
+        }
+      ],
+      "totals": {
+        "netTotal": 5422.09,
+        "taxTotal": 0,
+        "grossTotal": 5422.09
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_8ii22b2tm",
+    "filename": "faktura-fa-mys-526-08-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/526/08/2025",
+      "issueDate": "18/08/2025",
+      "saleDate": "31/07/2025",
+      "dueDate": "28/08/2025",
+      "invoiceType": "Utility",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Cold Water",
+          "netPrice": 13.67,
+          "quantity": 10.35,
+          "unit": "M3",
+          "netValue": 10.48,
+          "tax": "8%",
+          "grossValue": 141.48
+        },
+        {
+          "no": 2,
+          "description": "Electricity",
+          "netPrice": 1.05,
+          "quantity": 310.9,
+          "unit": "KWH",
+          "netValue": 61.09,
+          "tax": "23%",
+          "grossValue": 326.72
+        },
+        {
+          "no": 3,
+          "description": "Central Heating",
+          "netPrice": 138.4,
+          "quantity": 0,
+          "unit": "GJ",
+          "netValue": 0,
+          "tax": "23%",
+          "grossValue": 0
+        },
+        {
+          "no": 4,
+          "description": "Hot Water",
+          "netPrice": 35.65,
+          "quantity": 4.1,
+          "unit": "M3",
+          "netValue": 27.33,
+          "tax": "23%",
+          "grossValue": 146.17
+        },
+        {
+          "no": 5,
+          "description": "5 OPŁATA ZA GOSPODARKA ODPADAMI 01/07/2025 - 31/07",
+          "netPrice": 81,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 81
+        },
+        {
+          "no": 6,
+          "description": "Manual Heating Calculation (1.82 × 76)",
+          "netPrice": 138.32,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 138.32,
+          "tax": "0%",
+          "grossValue": 138.32
+        },
+        {
+          "no": 7,
+          "description": "Manual Heating Calculation (1.82 × 76)",
+          "netPrice": 138.32,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 138.32,
+          "tax": "0%",
+          "grossValue": 138.32
+        },
+        {
+          "no": 8,
+          "description": "Manual Heating Calculation (1.82 × 76)",
+          "netPrice": 138.32,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 138.32,
+          "tax": "0%",
+          "grossValue": 138.32
+        },
+        {
+          "no": 9,
+          "description": "Manual Heating Calculation (1.82 × 76)",
+          "netPrice": 138.32,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 138.32,
+          "tax": "0%",
+          "grossValue": 138.32
+        }
+      ],
+      "totals": {
+        "netTotal": 652.1799999999998,
+        "taxTotal": 596.47,
+        "grossTotal": 1248.6499999999999
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_zr35bkl49",
+    "filename": "faktura-fa-mys-311-08-2025 (2).pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/311/08/2025",
+      "issueDate": "01/08/2025",
+      "saleDate": "31/08/2025",
+      "dueDate": "06/08/2025",
+      "invoiceType": "Rent",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Rent",
+          "netPrice": 4600,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 4600,
+          "tax": "0%",
+          "grossValue": 4600
+        },
+        {
+          "no": 2,
+          "description": "Rent",
+          "netPrice": 770,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 770,
+          "tax": "0%",
+          "grossValue": 770
+        },
+        {
+          "no": 3,
+          "description": "Rent",
+          "netPrice": 52.09,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 52.09,
+          "tax": "0%",
+          "grossValue": 52.09
+        }
+      ],
+      "totals": {
+        "netTotal": 5422.09,
+        "taxTotal": 0,
+        "grossTotal": 5422.09
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_h5lzs7ifh",
+    "filename": "faktura-fa-mys-660-07-2025 (1).pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/660/07/2025",
+      "issueDate": "18/07/2025",
+      "saleDate": "30/06/2025",
+      "dueDate": "28/07/2025",
+      "invoiceType": "Utility",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Cold Water",
+          "netPrice": 13.67,
+          "quantity": 2.3,
+          "unit": "M3",
+          "netValue": 2.33,
+          "tax": "8%",
+          "grossValue": 31.44
+        },
+        {
+          "no": 2,
+          "description": "Electricity",
+          "netPrice": 1.14,
+          "quantity": 100.6,
+          "unit": "KWH",
+          "netValue": 21.53,
+          "tax": "23%",
+          "grossValue": 115.12
+        },
+        {
+          "no": 3,
+          "description": "Central Heating",
+          "netPrice": 108.47,
+          "quantity": 0,
+          "unit": "GJ",
+          "netValue": 0,
+          "tax": "23%",
+          "grossValue": 0
+        },
+        {
+          "no": 4,
+          "description": "Hot Water",
+          "netPrice": 29.52,
+          "quantity": 1.06,
+          "unit": "M3",
+          "netValue": 5.85,
+          "tax": "23%",
+          "grossValue": 31.29
+        },
+        {
+          "no": 5,
+          "description": "5 OPŁATA ZA GOSPODARKA ODPADAMI 01/06/2025 - 30/06",
+          "netPrice": 81,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 81
+        },
+        {
+          "no": 6,
+          "description": "Manual Heating Calculation (1.43 × 76)",
+          "netPrice": 108.67999999999999,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 108.67999999999999,
+          "tax": "0%",
+          "grossValue": 108.67999999999999
+        },
+        {
+          "no": 7,
+          "description": "Manual Heating Calculation (1.43 × 76)",
+          "netPrice": 108.67999999999999,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 108.67999999999999,
+          "tax": "0%",
+          "grossValue": 108.67999999999999
+        },
+        {
+          "no": 8,
+          "description": "Manual Heating Calculation (1.43 × 76)",
+          "netPrice": 108.67999999999999,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 108.67999999999999,
+          "tax": "0%",
+          "grossValue": 108.67999999999999
+        },
+        {
+          "no": 9,
+          "description": "Manual Heating Calculation (1.43 × 76)",
+          "netPrice": 108.67999999999999,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 108.67999999999999,
+          "tax": "0%",
+          "grossValue": 108.67999999999999
+        }
+      ],
+      "totals": {
+        "netTotal": 464.43,
+        "taxTotal": 229.13999999999993,
+        "grossTotal": 693.5699999999999
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_q8l8bi14d",
+    "filename": "faktura-fa-mys-327-07-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/327/07/2025",
+      "issueDate": "01/07/2025",
+      "saleDate": "31/07/2025",
+      "dueDate": "07/07/2025",
+      "invoiceType": "Rent",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Rent",
+          "netPrice": 4600,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 4600,
+          "tax": "0%",
+          "grossValue": 4600
+        },
+        {
+          "no": 2,
+          "description": "Rent",
+          "netPrice": 770,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 770,
+          "tax": "0%",
+          "grossValue": 770
+        },
+        {
+          "no": 3,
+          "description": "Rent",
+          "netPrice": 52.09,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 52.09,
+          "tax": "0%",
+          "grossValue": 52.09
+        }
+      ],
+      "totals": {
+        "netTotal": 5422.09,
+        "taxTotal": 0,
+        "grossTotal": 5422.09
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_k898w82dj",
+    "filename": "faktura-fa-mys-339-06-2025 (1).pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/339/06/2025",
+      "issueDate": "01/06/2025",
+      "saleDate": "30/06/2025",
+      "dueDate": "06/06/2025",
+      "invoiceType": "Rent",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Rent",
+          "netPrice": 4600,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 4600,
+          "tax": "0%",
+          "grossValue": 4600
+        },
+        {
+          "no": 2,
+          "description": "Rent",
+          "netPrice": 770,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 770,
+          "tax": "0%",
+          "grossValue": 770
+        },
+        {
+          "no": 3,
+          "description": "Rent",
+          "netPrice": 52.09,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 52.09,
+          "tax": "0%",
+          "grossValue": 52.09
+        }
+      ],
+      "totals": {
+        "netTotal": 5422.09,
+        "taxTotal": 0,
+        "grossTotal": 5422.09
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_bttawarq7",
+    "filename": "faktura-fa-mys-661-05-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/661/05/2025",
+      "issueDate": "09/05/2025",
+      "saleDate": "30/04/2025",
+      "dueDate": "19/05/2025",
+      "invoiceType": "Utility",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Cold Water",
+          "netPrice": 13.67,
+          "quantity": 5.48,
+          "unit": "M3",
+          "netValue": 5.55,
+          "tax": "8%",
+          "grossValue": 74.91
+        },
+        {
+          "no": 2,
+          "description": "Electricity",
+          "netPrice": 1.11,
+          "quantity": 133,
+          "unit": "KWH",
+          "netValue": 27.52,
+          "tax": "23%",
+          "grossValue": 147.19
+        },
+        {
+          "no": 3,
+          "description": "Central Heating",
+          "netPrice": 0,
+          "quantity": 0.2,
+          "unit": "GJ",
+          "netValue": 0,
+          "tax": "23%",
+          "grossValue": 0
+        },
+        {
+          "no": 4,
+          "description": "Hot Water",
+          "netPrice": 29.52,
+          "quantity": 4.36,
+          "unit": "M3",
+          "netValue": 24.07,
+          "tax": "23%",
+          "grossValue": 128.71
+        },
+        {
+          "no": 5,
+          "description": "5 OPŁATA ZA GOSPODARKA ODPADAMI 01/04/2025 - 30/04",
+          "netPrice": 81,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 81
+        },
+        {
+          "no": 6,
+          "description": "Manual Heating Calculation (1.13 × 76)",
+          "netPrice": 85.88,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 85.88,
+          "tax": "0%",
+          "grossValue": 85.88
+        },
+        {
+          "no": 7,
+          "description": "Manual Heating Calculation (1.13 × 76)",
+          "netPrice": 85.88,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 85.88,
+          "tax": "0%",
+          "grossValue": 85.88
+        },
+        {
+          "no": 8,
+          "description": "Manual Heating Calculation (1.13 × 76)",
+          "netPrice": 85.88,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 85.88,
+          "tax": "0%",
+          "grossValue": 85.88
+        },
+        {
+          "no": 9,
+          "description": "Manual Heating Calculation (1.13 × 76)",
+          "netPrice": 85.88,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 85.88,
+          "tax": "0%",
+          "grossValue": 85.88
+        }
+      ],
+      "totals": {
+        "netTotal": 400.65999999999997,
+        "taxTotal": 374.6700000000001,
+        "grossTotal": 775.33
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_o3bixvdxw",
+    "filename": "faktura-fa-mys-342-05-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/342/05/2025",
+      "issueDate": "01/05/2025",
+      "saleDate": "31/05/2025",
+      "dueDate": "06/05/2025",
+      "invoiceType": "Rent",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Rent",
+          "netPrice": 4600,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 4600,
+          "tax": "0%",
+          "grossValue": 4600
+        },
+        {
+          "no": 2,
+          "description": "Rent",
+          "netPrice": 770,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 770,
+          "tax": "0%",
+          "grossValue": 770
+        },
+        {
+          "no": 3,
+          "description": "Rent",
+          "netPrice": 52.09,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 52.09,
+          "tax": "0%",
+          "grossValue": 52.09
+        }
+      ],
+      "totals": {
+        "netTotal": 5422.09,
+        "taxTotal": 0,
+        "grossTotal": 5422.09
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_xta2r5rrp",
+    "filename": "faktura-fa-mys-692-04-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/692/04/2025",
+      "issueDate": "23/04/2025",
+      "saleDate": "31/03/2025",
+      "dueDate": "05/05/2025",
+      "invoiceType": "Utility",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Cold Water",
+          "netPrice": 13.67,
+          "quantity": 6.37,
+          "unit": "M3",
+          "netValue": 6.45,
+          "tax": "8%",
+          "grossValue": 87.08
+        },
+        {
+          "no": 2,
+          "description": "Electricity",
+          "netPrice": 1.04,
+          "quantity": 304,
+          "unit": "KWH",
+          "netValue": 59.19,
+          "tax": "23%",
+          "grossValue": 316.52
+        },
+        {
+          "no": 3,
+          "description": "Central Heating",
+          "netPrice": 0,
+          "quantity": 0.62,
+          "unit": "GJ",
+          "netValue": 0,
+          "tax": "23%",
+          "grossValue": 0
+        },
+        {
+          "no": 4,
+          "description": "Hot Water",
+          "netPrice": 29.52,
+          "quantity": 5.56,
+          "unit": "M3",
+          "netValue": 30.69,
+          "tax": "23%",
+          "grossValue": 164.13
+        },
+        {
+          "no": 5,
+          "description": "5 OPŁATA ZA GOSPODARKA ODPADAMI 01/03/2025 - 31/03",
+          "netPrice": 81,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 81
+        },
+        {
+          "no": 6,
+          "description": "Manual Heating Calculation (1.13 × 76)",
+          "netPrice": 85.88,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 85.88,
+          "tax": "0%",
+          "grossValue": 85.88
+        },
+        {
+          "no": 7,
+          "description": "Manual Heating Calculation (1.13 × 76)",
+          "netPrice": 85.88,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 85.88,
+          "tax": "0%",
+          "grossValue": 85.88
+        },
+        {
+          "no": 8,
+          "description": "Manual Heating Calculation (1.13 × 76)",
+          "netPrice": 85.88,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 85.88,
+          "tax": "0%",
+          "grossValue": 85.88
+        },
+        {
+          "no": 9,
+          "description": "Manual Heating Calculation (1.13 × 76)",
+          "netPrice": 85.88,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 85.88,
+          "tax": "0%",
+          "grossValue": 85.88
+        }
+      ],
+      "totals": {
+        "netTotal": 439.84999999999997,
+        "taxTotal": 552.4000000000001,
+        "grossTotal": 992.25
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_aecq5b8ye",
+    "filename": "faktura-fa-mys-351-04-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/351/04/2025",
+      "issueDate": "01/04/2025",
+      "saleDate": "30/04/2025",
+      "dueDate": "07/04/2025",
+      "invoiceType": "Rent",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Rent",
+          "netPrice": 4600,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 4600,
+          "tax": "0%",
+          "grossValue": 4600
+        },
+        {
+          "no": 2,
+          "description": "Rent",
+          "netPrice": 770,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 770,
+          "tax": "0%",
+          "grossValue": 770
+        },
+        {
+          "no": 3,
+          "description": "Rent",
+          "netPrice": 52.09,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 52.09,
+          "tax": "0%",
+          "grossValue": 52.09
+        }
+      ],
+      "totals": {
+        "netTotal": 5422.09,
+        "taxTotal": 0,
+        "grossTotal": 5422.09
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_gecfnoaqi",
+    "filename": "faktura-fa-mys-347-03-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/347/03/2025",
+      "issueDate": "01/03/2025",
+      "saleDate": "31/03/2025",
+      "dueDate": "06/03/2025",
+      "invoiceType": "Rent",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Rent",
+          "netPrice": 4600,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 4600,
+          "tax": "0%",
+          "grossValue": 4600
+        },
+        {
+          "no": 2,
+          "description": "Rent",
+          "netPrice": 770,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 770,
+          "tax": "0%",
+          "grossValue": 770
+        },
+        {
+          "no": 3,
+          "description": "Rent",
+          "netPrice": 52.09,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 52.09,
+          "tax": "0%",
+          "grossValue": 52.09
+        }
+      ],
+      "totals": {
+        "netTotal": 5422.09,
+        "taxTotal": 0,
+        "grossTotal": 5422.09
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_i1wjagdm3",
+    "filename": "faktura-fa-mys-348-02-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/348/02/2025",
+      "issueDate": "01/02/2025",
+      "saleDate": "28/02/2025",
+      "dueDate": "06/02/2025",
+      "invoiceType": "Rent",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Rent",
+          "netPrice": 800,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 800
+        },
+        {
+          "no": 2,
+          "description": "Rent",
+          "netPrice": 770,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 770
+        },
+        {
+          "no": 3,
+          "description": "Rent",
+          "netPrice": 52.09,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 52.09
+        }
+      ],
+      "totals": {
+        "netTotal": 3622.09,
+        "taxTotal": 0,
+        "grossTotal": 3622.09
+      },
+      "currency": "PLN"
+    }
+  },
+  {
+    "id": "inv_1767396189326_dq8aogdsb",
+    "filename": "faktura-fa-mys-352-01-2025.pdf",
+    "parsedAt": "2026-01-02T23:23:09.326Z",
+    "invoice": {
+      "invoiceNumber": "FA/MYS/352/01/2025",
+      "issueDate": "29/01/2025",
+      "saleDate": "31/01/2025",
+      "dueDate": "03/02/2025",
+      "invoiceType": "Rent",
+      "seller": {
+        "name": "TEST LANDLORD SP. Z O.O.",
+        "address": "UL. TESTOWA 1, 00-001 WARSZAWA",
+        "nip": "0000000000"
+      },
+      "purchaser": {
+        "name": "TEST TENANT",
+        "address": "UL. PRZYKŁADOWA 2/3, 30-000 KRAKÓW"
+      },
+      "payment": {
+        "method": "TRANSFER",
+        "accountNumber": "00 0000 0000 0000 0000 0000 0000"
+      },
+      "lineItems": [
+        {
+          "no": 1,
+          "description": "Rent",
+          "netPrice": 0,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 0
+        },
+        {
+          "no": 2,
+          "description": "Rent",
+          "netPrice": 0,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 0
+        },
+        {
+          "no": 3,
+          "description": "Rent",
+          "netPrice": 0,
+          "quantity": 1,
+          "unit": "UNIT",
+          "netValue": 0,
+          "tax": "0%",
+          "grossValue": 0
+        }
+      ],
+      "totals": {
+        "netTotal": 0,
+        "taxTotal": 0,
+        "grossTotal": 0
+      },
+      "currency": "PLN"
+    }
+  }
+]
