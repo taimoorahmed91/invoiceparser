@@ -2,7 +2,7 @@
 
 import { monthNames, getMonthFromDate, getMonthYearFromDate, parseDate } from '@/lib/dates';
 import { UTILITY_CATEGORIES as utilityCategories } from '@/lib/categories';
-import { monthlyTotals, yoySeries, rentalSeries, utilityTypeSeries, parkingSeries, utilitySeries } from '@/lib/analytics';
+import { monthlyTotals, yoySeries, utilitySeries } from '@/lib/analytics';
 import { applyManualAdjustments } from '@/lib/adjustments';
 import { toJson, toCsv, toExcelCsv } from '@/lib/export';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -52,7 +52,6 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [dateRangeStart, setDateRangeStart] = useState<string>('');
   const [dateRangeEnd, setDateRangeEnd] = useState<string>('');
-  const [showGraphs, setShowGraphs] = useState(false);
   const [showUtilityGross, setShowUtilityGross] = useState(false);
   const [showUtilityQuantity, setShowUtilityQuantity] = useState(false);
   const [showUtilityUnitPrice, setShowUtilityUnitPrice] = useState(false);
@@ -145,20 +144,8 @@ export default function Home() {
     return chartData.map((item) => item.month);
   }, [chartData]);
 
-  // Prepare rental chart data - all months with Rent values (0 if no data)
-  const rentalChartData = useMemo(() => {
-    return rentalSeries(chartData, allMonths);
-  }, [chartData, allMonths]);
 
-  // Prepare utility chart data - all months with Utility values (0 if no data)
-  const utilityChartData = useMemo(() => {
-    return utilityTypeSeries(chartData, allMonths);
-  }, [chartData, allMonths]);
 
-  // Prepare parking chart data - all months with Parking values (0 if no data)
-  const parkingChartData = useMemo(() => {
-    return parkingSeries(chartData, allMonths);
-  }, [chartData, allMonths]);
 
   // Five utility subtypes for line items
 
@@ -1210,12 +1197,6 @@ export default function Home() {
                     Table
                   </button>
                   <button
-                    onClick={() => setShowGraphs(!showGraphs)}
-                    className={`px-2 py-1 text-xs rounded ${showGraphs ? 'bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
-                  >
-                    Cumulative
-                  </button>
-                  <button
                     onClick={() => setShowUtilityGross(!showUtilityGross)}
                     className={`px-2 py-1 text-xs rounded ${showUtilityGross ? 'bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
                   >
@@ -1658,184 +1639,6 @@ export default function Home() {
                 </div>
               ) : null}
             </>
-          )}
-
-          {/* Graphs Section */}
-          {showGraphs && allMonths.length > 0 && filterType === 'all' && filterMonth === 'all' && (
-            <div className="space-y-6 mb-6">
-              {/* Rental Values Chart */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-                  <span className="w-8 h-8 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </span>
-                  Rental Values by Month
-                </h3>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={rentalChartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                      <XAxis
-                        dataKey="month"
-                        tick={{ fontSize: 12, fill: '#6b7280' }}
-                        angle={-45}
-                        textAnchor="end"
-                        height={80}
-                        tickFormatter={(value) => {
-                          // value is now "Jan 2025" format - show abbreviated
-                          const parts = value.split(' ');
-                          if (parts.length === 2) {
-                            return `${parts[0]} '${parts[1].slice(-2)}`;
-                          }
-                          return value;
-                        }}
-                      />
-                      <YAxis
-                        tick={{ fontSize: 12, fill: '#6b7280' }}
-                        width={60}
-                        tickFormatter={(value) => {
-                          if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
-                          return value.toString();
-                        }}
-                      />
-                      <Tooltip
-                        content={({ active, payload }) => {
-                          if (active && payload && payload.length) {
-                            const data = payload[0]?.payload;
-                            return (
-                              <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded shadow-lg">
-                                <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{data?.fullLabel || data?.name}</p>
-                                <p className="text-sm text-orange-600 font-semibold">
-                                  {new Intl.NumberFormat('en-US', {
-                                    style: 'currency',
-                                    currency: 'PLN',
-                                    minimumFractionDigits: 2,
-                                  }).format(data?.value || 0)}
-                                </p>
-                              </div>
-                            );
-                          }
-                          return null;
-                        }}
-                      />
-                      <Bar dataKey="value" fill="#f97316" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Utility Values Chart */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Utility Values by Month</h3>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={utilityChartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                      <XAxis
-                        dataKey="month"
-                        tick={{ fontSize: 12, fill: '#6b7280' }}
-                        angle={-45}
-                        textAnchor="end"
-                        height={80}
-                        tickFormatter={(value) => {
-                          const parts = value.split(' ');
-                          if (parts.length === 2) {
-                            return `${parts[0]} '${parts[1].slice(-2)}`;
-                          }
-                          return value;
-                        }}
-                      />
-                      <YAxis
-                        tick={{ fontSize: 12, fill: '#6b7280' }}
-                        width={60}
-                        tickFormatter={(value) => {
-                          if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
-                          return value.toString();
-                        }}
-                      />
-                      <Tooltip
-                        content={({ active, payload }) => {
-                          if (active && payload && payload.length) {
-                            const data = payload[0]?.payload;
-                            return (
-                              <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded shadow-lg">
-                                <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{data?.fullLabel}</p>
-                                <p className="text-sm text-green-600 font-semibold">
-                                  {new Intl.NumberFormat('en-US', {
-                                    style: 'currency',
-                                    currency: 'PLN',
-                                    minimumFractionDigits: 2,
-                                  }).format(data?.value || 0)}
-                                </p>
-                              </div>
-                            );
-                          }
-                          return null;
-                        }}
-                      />
-                      <Bar dataKey="value" fill="#10b981" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Parking Values Chart */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Parking Values by Month</h3>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={parkingChartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                      <XAxis
-                        dataKey="month"
-                        tick={{ fontSize: 12, fill: '#6b7280' }}
-                        angle={-45}
-                        textAnchor="end"
-                        height={80}
-                        tickFormatter={(value) => {
-                          const parts = value.split(' ');
-                          if (parts.length === 2) {
-                            return `${parts[0]} '${parts[1].slice(-2)}`;
-                          }
-                          return value;
-                        }}
-                      />
-                      <YAxis
-                        tick={{ fontSize: 12, fill: '#6b7280' }}
-                        width={60}
-                        tickFormatter={(value) => {
-                          if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
-                          return value.toString();
-                        }}
-                      />
-                      <Tooltip
-                        content={({ active, payload }) => {
-                          if (active && payload && payload.length) {
-                            const data = payload[0]?.payload;
-                            return (
-                              <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded shadow-lg">
-                                <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{data?.fullLabel}</p>
-                                <p className="text-sm text-purple-600 font-semibold">
-                                  {new Intl.NumberFormat('en-US', {
-                                    style: 'currency',
-                                    currency: 'PLN',
-                                    minimumFractionDigits: 2,
-                                  }).format(data?.value || 0)}
-                                </p>
-                              </div>
-                            );
-                          }
-                          return null;
-                        }}
-                      />
-                      <Bar dataKey="value" fill="#a855f7" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
           )}
 
           {/* Utility Gross Section */}

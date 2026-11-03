@@ -7,11 +7,13 @@ describe('nav', () => {
   it('has the four destinations in plan order', () => {
     expect(NAV_ITEMS.map((n) => n.href)).toEqual(['/', '/invoices', '/analytics', '/data']);
   });
-  it('Phase 2 enables only /invoices', () => {
-    expect(ENABLED_ROUTES).toEqual(['/invoices']);
+  it('Phase 4a enables /invoices and /analytics; Overview and Data are not built yet', () => {
+    expect(ENABLED_ROUTES).toEqual(['/invoices', '/analytics']);
     expect(isEnabled('/invoices')).toBe(true);
+    expect(isEnabled('/analytics')).toBe(true);
     expect(isEnabled('/')).toBe(false);
-    expect(isEnabled('/analytics', ['/analytics'])).toBe(true);
+    expect(isEnabled('/data')).toBe(false);
+    expect(isEnabled('/data', ['/data'])).toBe(true);
   });
   it('matches the active item from the pathname', () => {
     expect(activeEntry('/invoices')?.label).toBe('Invoices');
@@ -30,7 +32,7 @@ describe('nav', () => {
     expect(pageTitle('/nope')).toBe('Invoice Parser');
   });
   it('gives a plain reason for unavailable items', () => {
-    expect(unavailableReason(NAV_ITEMS[2])).toBe('Analytics is coming in a later update');
+    expect(unavailableReason(NAV_ITEMS[3])).toBe('Data is coming in a later update');
   });
 });
 

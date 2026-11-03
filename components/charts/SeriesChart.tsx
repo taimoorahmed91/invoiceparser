@@ -1,9 +1,10 @@
 'use client';
 
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, LabelList, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { fmtCompactMoney, fmtMonthTick } from '@/lib/format';
 import { isStackedType, type ChartType, type TimeSeriesSpec } from '@/lib/dataView';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { ChartTooltip } from './ChartTooltip';
 
 interface SeriesChartProps {
@@ -24,9 +25,18 @@ interface SeriesChartProps {
  */
 export function SeriesChart({ spec, chartType, height, width, interactive = true, yTick = fmtCompactMoney }: SeriesChartProps) {
   const reduced = useReducedMotion();
+  const roomy = useMediaQuery('(min-width: 640px)');
   const animate = interactive && !reduced;
-  const common = { data: spec.rows, margin: { top: 12, right: 12, left: 0, bottom: 4 } };
   const stacked = isStackedType(chartType);
+  // Total above each stacked bar: only for stacked bars, not on phones (too crowded), and not for very long series.
+  const totals = Boolean(spec.totalLabels) && chartType === 'bar-stacked' && spec.series.length > 1 && (roomy || !interactive) && spec.rows.length <= 24;
+  const data = totals
+    ? spec.rows.map((r) => {
+        const vals = spec.series.map((s) => (typeof r[s.key] === 'number' ? (r[s.key] as number) : null));
+        return { ...r, __zero: 0, __sum: vals.every((v) => v === null) ? null : vals.reduce<number>((a, v) => a + (v ?? 0), 0) };
+      })
+    : spec.rows;
+  const common = { data, margin: { top: totals ? 22 : 12, right: 12, left: 0, bottom: 4 } };
 
   const axes = (
     <>
@@ -80,6 +90,16 @@ export function SeriesChart({ spec, chartType, height, width, interactive = true
             isAnimationActive={animate}
           />
         ))}
+        {totals && (
+          <Bar dataKey="__zero" stackId="a" fill="transparent" legendType="none" isAnimationActive={animate} activeBar={false}>
+            <LabelList
+              dataKey="__sum"
+              position="top"
+              formatter={(v: unknown) => (typeof v === 'number' ? fmtCompactMoney(v) : '')}
+              style={{ fontSize: 11, fill: 'var(--ink-muted)' }}
+            />
+          </Bar>
+        )}
       </BarChart>
     );
   }

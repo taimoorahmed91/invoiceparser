@@ -3,6 +3,7 @@
 import type { TimeSeriesSpec } from '@/lib/dataView';
 
 interface Payload {
+  payload?: Record<string, unknown>;
   dataKey?: string | number;
   value?: number | string;
   color?: string;
@@ -12,6 +13,15 @@ interface Payload {
 export function ChartTooltip({ active, payload, label, spec }: { active?: boolean; payload?: Payload[]; label?: string | number; spec: TimeSeriesSpec }) {
   if (!active || !payload?.length) return null;
   const fmt = spec.formatValue ?? String;
+  // A month inside the range with no invoice is a gap, not a zero.
+  if (payload[0]?.payload?.__empty === 1) {
+    return (
+      <div className="rounded-[10px] border border-border bg-surface px-3 py-2 text-[13px] leading-[18px] text-ink" style={{ boxShadow: 'var(--shadow-e2)' }}>
+        <p className="font-semibold mb-1">{label}</p>
+        <p className="text-ink-muted">No invoice</p>
+      </div>
+    );
+  }
   return (
     <div className="rounded-[10px] border border-border bg-surface px-3 py-2 text-[13px] leading-[18px] text-ink" style={{ boxShadow: 'var(--shadow-e2)' }}>
       <p className="font-semibold mb-1">{label}</p>

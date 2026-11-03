@@ -34,6 +34,9 @@
 
   .dv-reason { margin: 0; max-width: 64ch; font-size: 12px; line-height: 16px; color: var(--ink-subtle); }
   .dv-content { min-width: 0; }
+  .dv-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .fs-chart { display: flex; flex-direction: column; gap: 8px; }
+  .fs-chart-body { flex: 1; min-height: 0; }
   .dv-empty { margin: 0; padding: 48px 0; text-align: center; color: var(--ink-muted); font-size: 14px; }
 
   .dv-table-wrap {
@@ -126,4 +129,21 @@
   html[data-print-export="true"] body { background: #fff !important; color: #1b1f24 !important; }
   /* the plain page print hides charts (globals.css); the panel's own chart must print */
   html[data-print-export="true"] #print-root .recharts-wrapper { display: block !important; }
+}
+
+/* ---------- Analytics page ---------- */
+@layer components {
+  .an-page { display: flex; flex-direction: column; gap: 16px; }
+  .an-controls { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 8px; background: var(--canvas); }
+  .an-caption { margin: 0; font-size: 12px; line-height: 16px; color: var(--ink-subtle); }
+  @media (min-width: 768px) {
+    /* stays under the top bar while the charts scroll */
+    .an-controls { position: sticky; top: var(--top-h); z-index: 20; }
+  }
+  @media (min-width: 1024px) {
+    /* one row: tabs left, range right, caption below (keeps the sticky block short) */
+    .an-controls { flex-direction: row; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 24px; }
+    .an-controls .tabs { flex: 1 1 420px; min-width: 0; }
+    .an-caption { flex-basis: 100%; }
+  }
 }

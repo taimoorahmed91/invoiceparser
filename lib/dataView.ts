@@ -35,6 +35,13 @@ export interface TimeSeriesSpec {
   unit?: string;
   /** Formats a value for display (money, quantity). Defaults to String(). */
   formatValue?: (n: number) => string;
+  /** Print the total above each stacked bar (bar-stacked only). */
+  totalLabels?: boolean;
+  /**
+   * Adds a "change vs previous" column to the table view: this row's total against the previous row that has data
+   * (months without an invoice are skipped). `format` returns the display text, e.g. "▲ +104,20 zł · +9,0 %".
+   */
+  deltaColumn?: { label: string; format: (current: number, previous: number) => string };
 }
 
 export interface TableColumn {
@@ -42,6 +49,8 @@ export interface TableColumn {
   label: string;
   align?: 'left' | 'right';
   format?: (v: DataCell) => string;
+  /** Display text that needs the whole row (e.g. a change against another row). */
+  formatRow?: (row: DataRow) => string;
 }
 
 export interface TableSpec {
@@ -113,7 +122,7 @@ export function resolveChartType(pref: ChartType | undefined, spec: Pick<TimeSer
   return wanted;
 }
 
-/** The table behind a chart: x column, one column per series, optional total. */
+/** The table behind a chart: x column, one column per series, optional total and change-vs-previous. */
 export function timeSeriesToTable(spec: TimeSeriesSpec): TableSpec {
   const fmt = (v: DataCell): string => {
     const n = num(v);
@@ -124,17 +133,36 @@ export function timeSeriesToTable(spec: TimeSeriesSpec): TableSpec {
     { key: spec.xKey, label: spec.xLabel, align: 'left' },
     ...spec.series.map((s) => ({ key: s.key, label: s.label, align: 'right' as const, format: fmt })),
   ];
+  const needTotal = Boolean(spec.showTotal && spec.series.length > 1);
   const rows = spec.rows.map((r) => ({ ...r }));
-  if (spec.showTotal && spec.series.length > 1) {
-    columns.push({ key: '__total', label: 'Total', align: 'right', format: fmt });
-    rows.forEach((r) => {
-      r.__total = spec.series.reduce((sum, s) => sum + (num(r[s.key]) ?? 0), 0);
+
+  // Total per row; null when no series has a value (a month without an invoice).
+  let previous: number | null = null;
+  rows.forEach((r) => {
+    const values = spec.series.map((s) => num(r[s.key]));
+    const total = values.every((v) => v === null) ? null : values.reduce<number>((sum, v) => sum + (v ?? 0), 0);
+    r.__total = total;
+    if (spec.deltaColumn) {
+      r.__prev = previous;
+      r.__delta = total !== null && previous !== null ? Math.round((total - previous) * 100) / 100 : null;
+      if (total !== null) previous = total;
+    }
+  });
+  if (needTotal) columns.push({ key: '__total', label: 'Total', align: 'right', format: fmt });
+  if (spec.deltaColumn) {
+    const { label, format } = spec.deltaColumn;
+    columns.push({
+      key: '__delta',
+      label,
+      align: 'right',
+      formatRow: (row) => (num(row.__total) !== null && num(row.__prev) !== null ? format(row.__total as number, row.__prev as number) : '—'),
     });
   }
   return { columns, rows, wide: columns.length > 5 };
 }
 
 export function cellText(col: TableColumn, row: DataRow): string {
+  if (col.formatRow) return col.formatRow(row);
   const v = row[col.key] ?? null;
   if (col.format) return col.format(v);
   return v === null || v === undefined ? '—' : String(v);

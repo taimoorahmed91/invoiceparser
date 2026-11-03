@@ -2,6 +2,7 @@
 
 import { useCallback, useId, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { ToggleChip } from '@/components/ui/ToggleChip';
 import { useToast } from '@/components/toast/ToastProvider';
 import { useDataView } from '@/hooks/useDataView';
 import { ChartToolbar } from './ChartToolbar';
@@ -45,6 +46,8 @@ export function DataViewCard(props: DataViewCardProps) {
   const expandRef = useRef<HTMLButtonElement>(null);
   const [origin, setOrigin] = useState<HTMLElement | null>(null);
   const [exporting, setExporting] = useState<ExportMode | null>(null);
+  // Legend chips hide/show a series on screen. Table, CSV, PNG and PDF always use all series.
+  const [hidden, setHidden] = useState<string[]>([]);
 
   const table = useMemo<TableSpec>(() => {
     if (chartSpec) return timeSeriesToTable(chartSpec);
@@ -53,6 +56,27 @@ export function DataViewCard(props: DataViewCardProps) {
   const hasChart = Boolean(chartSpec);
   const empty = table.rows.length === 0;
   const multiSeries = (chartSpec?.series.length ?? 0) > 1;
+  const shownSpec = useMemo(
+    () => (chartSpec && hidden.length ? { ...chartSpec, series: chartSpec.series.filter((s) => !hidden.includes(s.key)) } : chartSpec),
+    [chartSpec, hidden],
+  );
+  const legend = chartSpec && multiSeries && (
+    <div className="dv-legend" role="group" aria-label="Series shown">
+      {chartSpec.series.map((s) => {
+        const on = !hidden.includes(s.key);
+        return (
+          <ToggleChip
+            key={s.key}
+            label={s.label}
+            dotColor={s.color}
+            pressed={on}
+            disabledReason={on && hidden.length === chartSpec.series.length - 1 ? 'Keep at least one series' : undefined}
+            onPressedChange={(p) => setHidden((h) => (p ? h.filter((k) => k !== s.key) : [...h, s.key]))}
+          />
+        );
+      })}
+    </div>
+  );
 
   const startExport = useCallback((mode: ExportMode) => {
     if (mode === 'pdf') dv.setFullscreen(false); // leave full screen before printing (plan §4.12.2 step 3)
@@ -84,10 +108,11 @@ export function DataViewCard(props: DataViewCardProps) {
     ? `${title}: ${chartSpec.rows.length} ${chartSpec.unit ?? 'months'}, from ${chartSpec.rows[0][chartSpec.xKey]} to ${chartSpec.rows[chartSpec.rows.length - 1][chartSpec.xKey]}.`
     : title;
 
-  const chart = chartSpec && (
+  const chart = shownSpec && (
     <figure className="dv-figure" style={{ margin: 0 }}>
-      <SeriesChart spec={chartSpec} chartType={dv.chartType} height={chartHeight} />
+      <SeriesChart spec={shownSpec} chartType={dv.chartType} height={chartHeight} />
       <figcaption className="sr-only-text">{summary}</figcaption>
+      {legend}
     </figure>
   );
 
@@ -129,7 +154,8 @@ export function DataViewCard(props: DataViewCardProps) {
             <div className="fs-body">
               {chartSpec && (
                 <div className="fs-pane fs-chart">
-                  <SeriesChart spec={chartSpec} chartType={dv.chartType} height="100%" />
+                  {legend}
+                  <div className="fs-chart-body">{shownSpec && <SeriesChart spec={shownSpec} chartType={dv.chartType} height="100%" />}</div>
                 </div>
               )}
               <div className="fs-pane">
