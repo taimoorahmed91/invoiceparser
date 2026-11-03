@@ -48,41 +48,52 @@ export function parseInvoiceText(text: string): ParsedInvoice {
     || text.match(/(FA\/[A-Z]+\/\d+\/\d+\/\d+)/i);
   const invoiceNumber = invoiceNumberMatch ? invoiceNumberMatch[1] : 'Unknown';
 
-  // Extract dates (DD/MM/YYYY format) - use [\s\S] to match across newlines
-  const issueDateMatch = text.match(/DATE OF ISSUE[\s\S]*?(\d{2}\/\d{2}\/\d{4})/i)
-    || text.match(/DATA WYSTAWIENIA[\s\S]*?(\d{2}\/\d{2}\/\d{4})/i);
-  const saleDateMatch = text.match(/DATE OF SALE[\s\S]*?(\d{2}\/\d{2}\/\d{4})/i)
-    || text.match(/DATA SPRZEDA[ŻZ]Y[\s\S]*?(\d{2}\/\d{2}\/\d{4})/i);
-  const dueDateMatch = text.match(/DUE DATE[\s\S]*?(\d{2}\/\d{2}\/\d{4})/i)
-    || text.match(/TERMIN P[ŁL]ATNO[ŚS]CI[\s\S]*?(\d{2}\/\d{2}\/\d{4})/i);
+  // Extract dates. Accepts DD/MM/YYYY, DD.MM.YYYY, DD-MM-YYYY and YYYY-MM-DD (KSeF style),
+  // always normalised to DD/MM/YYYY because the UI derives month/year from that format.
+  // Boundaries stop it matching inside invoice numbers like FA/MYS/289/01/2026.
+  const DATE_RE = '(?<![\\d\\/])(\\d{1,2}[\\/.\\-]\\d{1,2}[\\/.\\-]\\d{4}|\\d{4}[\\/.\\-]\\d{1,2}[\\/.\\-]\\d{1,2})(?!\\d)';
+  const findDate = (...labels: string[]): string => {
+    for (const label of labels) {
+      const m = text.match(new RegExp(`${label}[\\s\\S]*?${DATE_RE}`, 'i'));
+      if (m) {
+        const parts = m[1].split(/[\/.\-]/);
+        const [d, mo, y] = parts[0].length === 4 ? [parts[2], parts[1], parts[0]] : parts;
+        return `${d.padStart(2, '0')}/${mo.padStart(2, '0')}/${y}`;
+      }
+    }
+    return '';
+  };
 
-  const issueDate = issueDateMatch ? issueDateMatch[1] : '';
-  const saleDate = saleDateMatch ? saleDateMatch[1] : '';
-  const dueDate = dueDateMatch ? dueDateMatch[1] : '';
+  const issueDate = findDate('DATE OF ISSUE', 'DATE ISSUED', 'ISSUE DATE', 'DATA WYSTAWIENIA');
+  const saleDate = findDate('DATE OF SALE', 'DATA SPRZEDA[ŻZ]Y', 'DATA DOKONANIA');
+  const dueDate = findDate('DUE DATE', 'TERMIN P[ŁL]ATNO[ŚS]CI');
 
   // Extract seller info
   const sellerMatch = text.match(/SELLER.*?SPRZEDAWCA\s*([\s\S]*?)(?:PURCHASER|NABYWCA)/i)
-    || text.match(/SPRZEDAWCA\s*([\s\S]*?)(?:NABYWCA)/i);
+    || text.match(/SPRZEDAWCA\s*([\s\S]*?)(?:NABYWCA)/i)
+    // 2026 layout: "SELLER ... BUYER" without Polish labels
+    || text.match(/\bSELLER\b\s*([\s\S]*?)\b(?:BUYER|PURCHASER)\b/i);
   let sellerName = '';
   let sellerAddress = '';
   let sellerNip = '';
 
   if (sellerMatch) {
     const sellerBlock = sellerMatch[1];
-    const nipMatch = sellerBlock.match(/NIP[:\s]*(\d+)/i);
+    const nipMatch = sellerBlock.match(/(?:NIP|TAX ID(?: NUMBER)?)[:\s]*(\d+)/i);
     sellerNip = nipMatch ? nipMatch[1] : '';
 
     const sellerLines = sellerBlock.split('\n').map(l => l.trim()).filter(Boolean);
     if (sellerLines.length > 0) {
       sellerName = sellerLines[0];
-      const addressLines = sellerLines.slice(1).filter(l => !l.startsWith('NIP'));
+      const addressLines = sellerLines.slice(1).filter(l => !/^(NIP|TAX ID)/i.test(l));
       sellerAddress = addressLines.join(', ');
     }
   }
 
   // Extract purchaser info
   const purchaserMatch = text.match(/PURCHASER.*?NABYWCA\s*([\s\S]*?)(?:PAYMENT|SPOSÓB)/i)
-    || text.match(/NABYWCA\s*([\s\S]*?)(?:PAYMENT|SPOSÓB|TRANSFER)/i);
+    || text.match(/NABYWCA\s*([\s\S]*?)(?:PAYMENT|SPOSÓB|TRANSFER)/i)
+    || text.match(/\bBUYER\b\s*([\s\S]*?)(?:PAYMENT|SPOSÓB)/i);
   let purchaserName = '';
   let purchaserAddress = '';
 
@@ -124,7 +135,7 @@ export function parseInvoiceText(text: string): ParsedInvoice {
   // Generic pattern: find numbered items with prices ending in UNIT/SZT/M3 followed by amounts
   // Matches patterns like: "1 CZYNSZ ZA LOKAL - 123.45 1.00 UNIT 123.45 ZW | 0.00 123.45"
   // Description MUST start with invoice keywords to avoid matching legal text like "ARTICLE 43 PARAGRAPH..."
-  const lineItemPattern = /(\d+)\s+((?:CZYNSZ|RENT|ZUŻYCIE|OPŁATA|CONSUMPTION)[A-ZŻŹĆĄĘŁÓŃŚa-zżźćąęłóńś\s\/\-\d\.,:]+?)\s+-?\s*(\d[\d\s]*\.\d{2,})\s+(\d+\.?\d*)\s+(UNIT|SZT|M3|M²)\s+(\d[\d\s]*\.\d{2,})\s+(?:ZW|(\d+)%?)\s*\|?\s*(\d[\d\s]*\.?\d*)\s+(\d[\d\s]*\.\d{2,})/gi;
+  const lineItemPattern = /(\d+)\s+((?:CZYNSZ|RENT|ZUŻYCIE|OPŁATA|CONSUMPTION)[A-ZŻŹĆĄĘŁÓŃŚa-zżźćąęłóńś\s\/\-\d\.,:]+?)\s+-?\s*(\d[\d\s]*\.\d{2,})\s+(\d+\.?\d*)\s+(UNIT|SZT\.?|PCS\.?|M3|M²)\s+(\d[\d\s]*\.\d{2,})\s+(?:ZW|(\d+)%?)\s*\|?\s*(\d[\d\s]*\.?\d*)\s+(\d[\d\s]*\.\d{2,})/gi;
 
   let match;
   while ((match = lineItemPattern.exec(textNormalized)) !== null) {
@@ -134,7 +145,7 @@ export function parseInvoiceText(text: string): ParsedInvoice {
       description: cleanDescription(match[2]),
       netPrice: parseNumber(match[3]),
       quantity: parseFloat(match[4]),
-      unit: match[5],
+      unit: match[5].replace(/\.$/, '').toUpperCase(),
       netValue: parseNumber(match[6]),
       tax: `${taxPercent}%`,
       grossValue: parseNumber(match[9]),
@@ -335,7 +346,7 @@ export function parseInvoiceText(text: string): ParsedInvoice {
   let grossTotal = 0;
 
   // First, try to get gross total from "Total to pay" / "PLN" (most reliable)
-  const totalToPayMatch = text.match(/(?:Total to pay|RAZEM DO ZAP[ŁL]ATY)[:\s]*(?:PLN)?\s*(\d[\d\s,\.]+)/i)
+  const totalToPayMatch = text.match(/(?:Total to pay|Total amount due|RAZEM DO ZAP[ŁL]ATY)[:\s]*(?:PLN)?\s*(\d[\d\s,\.]+)/i)
     || text.match(/PLN\s*(\d[\d\s,\.]+)/i);
   if (totalToPayMatch) {
     grossTotal = parseAmount(totalToPayMatch[1]);
@@ -345,11 +356,15 @@ export function parseInvoiceText(text: string): ParsedInvoice {
   const totalMatch = text.match(/TOTAL[\s\S]*?RAZEM\s*(\d[\d\s,\.]+)/i);
   if (totalMatch) {
     netTotal = parseAmount(totalMatch[1]);
+  } else {
+    // 2026 layout: "SUMMARY\nTOTAL <net> - | <vat> <gross>"
+    const summaryMatch = text.match(/SUMMARY\s*TOTAL\s+(\d{1,3}(?:\s\d{3})*[.,]\d{2})/i);
+    if (summaryMatch) netTotal = parseAmount(summaryMatch[1]);
   }
 
   // Calculate tax as difference if we have both
   if (grossTotal > 0 && netTotal > 0) {
-    taxTotal = grossTotal - netTotal;
+    taxTotal = Math.round((grossTotal - netTotal) * 100) / 100;
   } else if (grossTotal > 0 && netTotal === 0) {
     netTotal = grossTotal; // If no net, assume same as gross (no tax)
   } else if (netTotal > 0 && grossTotal === 0) {
@@ -370,8 +385,9 @@ export function parseInvoiceText(text: string): ParsedInvoice {
     const hasRent = descriptions.some(d => d === 'rent');
 
     if (hasUtility) return 'Utility';
-    if (hasParking) return 'Parking';
+    // 2026 invoices combine rent + parking; classify as Rent (charts split by line item)
     if (hasRent) return 'Rent';
+    if (hasParking) return 'Parking';
     return 'Other';
   };
 

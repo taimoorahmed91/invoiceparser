@@ -69,6 +69,22 @@ function getMonthYearFromDate(dateStr: string): string {
   return 'Unknown';
 }
 
+// Split an invoice's gross amount by type. Since 2026, rent and parking can share
+// one invoice, so when parking line items sit on a Rent invoice, move them to Parking.
+function amountsByType(invoice: StoredInvoice['invoice']): { Rent: number; Parking: number; Utility: number } {
+  const result = { Rent: 0, Parking: 0, Utility: 0 };
+  const type = invoice.invoiceType;
+  if (type !== 'Rent' && type !== 'Parking' && type !== 'Utility') return result;
+  const parkingGross = type === 'Rent'
+    ? invoice.lineItems
+        .filter((item) => item.description.toLowerCase().includes('parking'))
+        .reduce((sum, item) => sum + (item.grossValue ?? 0), 0)
+    : 0;
+  result[type] = invoice.totals.grossTotal - parkingGross;
+  result.Parking += parkingGross;
+  return result;
+}
+
 export default function Home() {
   const [invoices, setInvoices] = useState<StoredInvoice[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -209,16 +225,15 @@ export default function Home() {
 
     invoices.forEach((inv) => {
       const monthYear = getMonthYearFromDate(inv.invoice.issueDate);
-      const type = inv.invoice.invoiceType;
-      const amount = inv.invoice.totals.grossTotal;
+      const amounts = amountsByType(inv.invoice);
 
       if (!monthlyData[monthYear]) {
         monthlyData[monthYear] = { month: monthYear, Rent: 0, Parking: 0, Utility: 0 };
       }
 
-      if (type === 'Rent' || type === 'Parking' || type === 'Utility') {
-        monthlyData[monthYear][type] += amount;
-      }
+      monthlyData[monthYear].Rent += amounts.Rent;
+      monthlyData[monthYear].Parking += amounts.Parking;
+      monthlyData[monthYear].Utility += amounts.Utility;
     });
 
     // Sort by date
@@ -239,8 +254,7 @@ export default function Home() {
     invoices.forEach((inv) => {
       const monthYear = getMonthYearFromDate(inv.invoice.issueDate);
       const [month, year] = monthYear.split(' ');
-      const type = inv.invoice.invoiceType;
-      const amount = inv.invoice.totals.grossTotal;
+      const amounts = amountsByType(inv.invoice);
 
       if (!byMonthYear[month]) {
         byMonthYear[month] = {};
@@ -249,9 +263,9 @@ export default function Home() {
         byMonthYear[month][year] = { Rent: 0, Parking: 0, Utility: 0 };
       }
 
-      if (type === 'Rent' || type === 'Parking' || type === 'Utility') {
-        byMonthYear[month][year][type] += amount;
-      }
+      byMonthYear[month][year].Rent += amounts.Rent;
+      byMonthYear[month][year].Parking += amounts.Parking;
+      byMonthYear[month][year].Utility += amounts.Utility;
     });
 
     return byMonthYear;
