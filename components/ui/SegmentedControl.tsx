@@ -25,6 +25,8 @@ interface SegmentedControlProps<T extends string> {
   /** Print the reasons of unavailable options under the control so touch users see them. */
   showReasons?: boolean;
   className?: string;
+  /** When the caller prints the reasons itself (showReasons={false}), unavailable options point at that element. */
+  reasonsId?: string;
   /** Forces a state for the gallery. */
   forceHoverValue?: T;
 }
@@ -42,6 +44,7 @@ export function SegmentedControl<T extends string>({
   showReasons = true,
   className,
   forceHoverValue,
+  reasonsId,
   ...aria
 }: SegmentedControlProps<T>) {
   const captionId = useId();
@@ -103,7 +106,7 @@ export function SegmentedControl<T extends string>({
               role="radio"
               aria-checked={checked}
               aria-disabled={o.disabledReason ? true : undefined}
-              aria-describedby={o.disabledReason && showReasons ? captionId : undefined}
+              aria-describedby={o.disabledReason ? (showReasons ? captionId : reasonsId) : undefined}
               tabIndex={i === tabStop ? 0 : -1}
               data-state={forceHoverValue === o.value ? 'hover' : undefined}
               className="seg-item"

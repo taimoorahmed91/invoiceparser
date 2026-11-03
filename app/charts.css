@@ -1,0 +1,129 @@
+/* Shared chart / table panel (plan §4.11), full screen and the print tree (§4.12). */
+
+@layer components {
+  .dv-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    min-width: 0;
+  }
+  @media (max-width: 639px) { .dv-card { padding: 16px; } }
+
+  .dv-toolbar { display: flex; flex-direction: column; gap: 12px; }
+  .dv-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .dv-title { margin: 0; font-size: 17px; line-height: 24px; font-weight: 600; }
+  .dv-sub { margin: 2px 0 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
+  .dv-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+  .dv-actions-wide { display: flex; align-items: center; gap: 8px; }
+  .dv-actions-narrow { display: none; }
+  @media (max-width: 639px) {
+    .dv-actions-wide { display: none; }
+    .dv-actions-narrow { display: block; }
+  }
+  .dv-view { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; }
+  @media (max-width: 639px) {
+    .dv-view > div { width: 100%; }
+    .dv-view [role="radiogroup"] { display: flex; width: 100%; }
+    .dv-view [role="radiogroup"] .seg-item { flex: 1 1 0; }
+    .dv-view > div > div:first-child { width: 100%; }
+  }
+
+  .dv-reason { margin: 0; max-width: 64ch; font-size: 12px; line-height: 16px; color: var(--ink-subtle); }
+  .dv-content { min-width: 0; }
+  .dv-empty { margin: 0; padding: 48px 0; text-align: center; color: var(--ink-muted); font-size: 14px; }
+
+  .dv-table-wrap {
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .dv-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; line-height: 20px; }
+  .dv-table th, .dv-table td { padding: 10px 12px; white-space: nowrap; border-bottom: 1px solid var(--border); }
+  .dv-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--surface-2);
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 500;
+    color: var(--ink-muted);
+  }
+  .dv-table tbody th { font-weight: 500; color: var(--ink); }
+  .dv-table tbody tr:last-child th, .dv-table tbody tr:last-child td { border-bottom: 0; }
+  .dv-table td { font-variant-numeric: tabular-nums; }
+  .dv-table tbody tr:hover { background: var(--surface-2); }
+
+  /* ---------- Full screen ---------- */
+  .fs-dialog {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--canvas);
+    color: var(--ink);
+  }
+  .fs-dialog[open] { display: flex; flex-direction: column; animation: ui-fade var(--dur-base) var(--ease-out); }
+  .fs-dialog::backdrop { background: var(--scrim); }
+  .fs-shell { display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0; padding: 16px 20px 20px; }
+  .fs-body { flex: 1; min-height: 0; display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); overflow: auto; align-content: start; }
+  .fs-pane { min-width: 0; min-height: 0; }
+  .fs-chart { height: 56vh; min-height: 280px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px; }
+  @media (min-width: 1024px) {
+    .fs-body { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); overflow: hidden; align-content: stretch; }
+    .fs-chart { height: auto; }
+    .fs-pane { overflow: auto; }
+    .fs-pane .dv-table-wrap { max-height: 100%; }
+  }
+  .fs-hint { display: none; margin: 0; font-size: 13px; color: var(--ink-muted); }
+  @media (max-width: 640px) and (orientation: portrait) { .fs-hint { display: block; } }
+  @media (max-height: 520px) and (orientation: landscape) { .fs-shell { padding: 8px 12px 12px; gap: 8px; } .fs-chart { height: 70vh; } }
+  @media (prefers-reduced-motion: reduce) { .fs-dialog[open] { animation: none; } }
+}
+
+/* ---------- Print tree (#print-root): light tokens, laid out off-screen, shown only while exporting ---------- */
+#print-root {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: var(--print-w, 658px);
+  background: #fff;
+  color: #1b1f24;
+  font-family: var(--font-fira-sans), var(--font-fira-sans-ext), system-ui, sans-serif;
+  font-size: 11pt;
+  line-height: 1.4;
+}
+#print-root .print-panel header { margin-bottom: 12pt; padding-bottom: 8pt; border-bottom: 1px solid #e1e1da; }
+#print-root .print-panel h1 { margin: 0; font-size: 18pt; line-height: 1.25; font-weight: 600; }
+#print-root .print-sub { margin: 4pt 0 0; font-size: 11pt; color: #555c65; }
+#print-root .print-meta { margin: 4pt 0 0; font-size: 9.5pt; color: #555c65; }
+#print-root .print-chart { margin: 0; }
+#print-root .print-legend { display: flex; flex-wrap: wrap; gap: 6pt 14pt; margin: 8pt 0 0; padding: 0; list-style: none; font-size: 10pt; }
+#print-root .print-swatch { display: inline-block; width: 9pt; height: 9pt; margin-right: 4pt; border-radius: 2pt; }
+#print-root .print-table { width: 100%; border-collapse: collapse; font-size: 10pt; }
+#print-root .print-table th { padding: 5pt 6pt; text-align: left; font-weight: 600; border-bottom: 1.5px solid #1b1f24; }
+#print-root .print-table td { padding: 4pt 6pt; border-bottom: 1px solid #e1e1da; }
+#print-root .print-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+#print-root .print-table thead { display: table-header-group; }
+#print-root .print-table tr { break-inside: avoid; }
+#print-root .print-footer { display: flex; justify-content: space-between; margin-top: 14pt; padding-top: 6pt; border-top: 1px solid #e1e1da; font-size: 8pt; color: #636a73; }
+
+@media print {
+  /* Only while a panel export runs (lib/pdf.ts sets the attribute): print #print-root and nothing else. */
+  html[data-print-export="true"] body > *:not(#print-root) { display: none !important; }
+  html[data-print-export="true"] #print-root {
+    position: static;
+    left: auto;
+    width: auto;
+  }
+  html[data-print-export="true"] body { background: #fff !important; color: #1b1f24 !important; }
+  /* the plain page print hides charts (globals.css); the panel's own chart must print */
+  html[data-print-export="true"] #print-root .recharts-wrapper { display: block !important; }
+}

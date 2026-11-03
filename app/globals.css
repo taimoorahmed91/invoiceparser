@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./controls.css";
 @import "./shell.css";
+@import "./charts.css";
 
 /* Enable class-based dark mode instead of media query */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -160,79 +161,43 @@
   }
 }
 
-/* Print Styles (legacy, replaced in Phase 3.5) */
+/*
+ * Print (plan §4.12).
+ * Panel / report exports are scoped to #print-root and live in app/charts.css (html[data-print-export]).
+ * What stays here is the minimal "print the page" behaviour for F42 (Print list on /invoices) until Phase 8
+ * gives that its own stylesheet. The old global hacks (.shadow-md, .rounded-xl, .bg-white, .mb-6, `.flex-wrap button`)
+ * are gone: they matched things that no longer exist or hid unrelated controls.
+ */
 @media print {
-  /* Hide non-essential elements */
   aside,
   .no-print,
-  button:not(.print-keep),
-  .flex-wrap button {
+  button:not(.print-keep) {
     display: none !important;
   }
 
-  /* Show only essential content */
   main {
     width: 100% !important;
     max-width: 100% !important;
     padding: 0 !important;
   }
 
-  /* Page setup */
   @page {
     margin: 1cm;
     size: A4;
   }
 
-  /* Ensure tables print well */
-  table {
-    page-break-inside: auto;
-  }
+  table { page-break-inside: auto; }
+  tr { page-break-inside: avoid; page-break-after: auto; }
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
 
-  tr {
-    page-break-inside: avoid;
-    page-break-after: auto;
-  }
-
-  thead {
-    display: table-header-group;
-  }
-
-  tfoot {
-    display: table-footer-group;
-  }
-
-  /* Remove shadows and borders for cleaner print */
-  .shadow-md,
-  .shadow-lg,
-  .rounded-xl {
-    box-shadow: none !important;
-    border: 1px solid #e5e7eb !important;
-  }
-
-  /* Ensure good contrast */
   body {
     background: white !important;
     color: black !important;
   }
 
-  /* Prevent page breaks inside important sections */
-  .bg-white {
-    page-break-inside: avoid;
-  }
+  /* Charts are hidden in the plain page print; use the panel's Export → PDF for a chart page. */
+  .recharts-wrapper { display: none !important; }
 
-  /* Print-friendly spacing */
-  .mb-6,
-  .mb-4 {
-    margin-bottom: 1rem !important;
-  }
-
-  /* Hide graphs in print (optional - remove if you want graphs printed) */
-  .recharts-wrapper {
-    display: none !important;
-  }
-
-  /* Toasts never print */
-  [data-toast-viewport] {
-    display: none !important;
-  }
+  [data-toast-viewport] { display: none !important; }
 }
