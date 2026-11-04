@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { Filters } from '@/lib/filters';
+import { replaceUrl } from '@/lib/historyState';
+import { DRAWER_PARAM, readDrawerId } from '@/lib/invoiceDetail';
 import { DEFAULT_FILTERS, FILTERS_KEY, parseListFilters, sameFilters, serializeListFilters } from '@/lib/invoiceList';
 
 function readInitial(): Filters {
@@ -38,9 +40,13 @@ export function useInvoiceFilters(): {
     } catch {
       /* private mode */
     }
-    const qs = serializeListFilters(filters);
+    // the filters own their keys; anything else in the query (the open invoice, ?invoice=) stays as it is
+    const open = readDrawerId(window.location.search);
+    const params = new URLSearchParams(serializeListFilters(filters));
+    if (open) params.set(DRAWER_PARAM, open);
+    const qs = params.toString();
     const next = `${window.location.pathname}${qs ? `?${qs}` : ''}${window.location.hash}`;
-    if (next !== `${window.location.pathname}${window.location.search}${window.location.hash}`) window.history.replaceState(window.history.state, '', next);
+    if (next !== `${window.location.pathname}${window.location.search}${window.location.hash}`) replaceUrl(next);
   }, [filters]);
 
   const set = useCallback((patch: Partial<Filters>) => setFilters((f) => {

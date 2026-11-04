@@ -1,11 +1,12 @@
 /**
  * Where an Overview card or row leads (plan §4.2: "the whole card is a link to the relevant filtered Invoices view").
- * The URL is the deep link the Invoices page will read from Phase 8 on. Until then the current Invoices page restores its filters from
- * localStorage, so `legacyFilters` is what gets written just before the link is followed. Pure, except `storeLegacyFilters`.
+ * The URL is the deep link the Invoices page reads (filters, and `?invoice=` for the drawer). `filters` is also written to localStorage just
+ * before a KPI link is followed, so the list opens the same way even if the URL is lost. Pure, except `storeLegacyFilters`.
  */
 import { ymToMonthKey, type YearMonth } from './analyticsMonthly';
 import type { KpiId } from './analyticsOverview';
 import type { Filters } from './filters';
+import { invoiceHref } from './invoiceDetail';
 import type { StoredInvoice } from './storage';
 
 export const LEGACY_FILTERS_KEY = 'invoice-parser-filters';
@@ -27,9 +28,12 @@ export function kpiLink(id: KpiId, period: YearMonth): InvoiceLink {
   return { href: `/invoices?month=${period}`, filters: { ...NONE, filterMonth: month } };
 }
 
-/** A latest-invoice row: the Invoices page filtered to that invoice's number (the drawer deep link `?invoice=` comes in Phase 9). */
-export function invoiceLink(stored: StoredInvoice): InvoiceLink {
-  return { href: `/invoices?q=${encodeURIComponent(stored.invoice.invoiceNumber)}`, filters: { ...NONE, searchQuery: stored.invoice.invoiceNumber } };
+/**
+ * A latest-invoice row, Upload "Open" / "Review": the Invoices page with that invoice's drawer open (`?invoice=<id>`, plan §4.4).
+ * The list's own filters are left alone: nothing is written to localStorage for this link.
+ */
+export function invoiceLink(stored: StoredInvoice): { href: string } {
+  return { href: invoiceHref(stored.id) };
 }
 
 export function storeLegacyFilters(filters: Filters): void {

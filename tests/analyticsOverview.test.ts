@@ -284,10 +284,10 @@ describe('card and row links', () => {
     const ytd = applyFilters(all, kpiLink('ytd', '2026-11').filters);
     expect(ytd.every((i) => i.invoice.issueDate.endsWith('/2026'))).toBe(true);
   });
-  it('a row link searches for the invoice number; the number is URL-encoded', () => {
+  it('a row link opens that invoice\'s drawer by id; the id is URL-encoded and no filters are touched', () => {
     const l = invoiceLink(combinedInvoice);
-    expect(l.href).toBe('/invoices?q=FA%2FMYS%2F124%2F11%2F2026');
-    expect(applyFilters([combinedInvoice, ...real], l.filters)).toEqual([combinedInvoice]);
+    expect(l.href).toBe(`/invoices?invoice=${encodeURIComponent(combinedInvoice.id)}`);
+    expect(l).not.toHaveProperty('filters');
   });
   it('writes the filters under the key the current Invoices page reads, and survives a blocked storage', () => {
     const store: Record<string, string> = {};

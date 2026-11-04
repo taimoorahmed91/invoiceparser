@@ -42,7 +42,8 @@ describe('reading the filters: URL wins, then the saved ones', () => {
     expect(parseListFilters(search(kpiLink('total', '2026-11').href), null)).toEqual({ ...DEFAULT_FILTERS, dateRangeStart: '2026-11', dateRangeEnd: '2026-11' });
     expect(parseListFilters(search(kpiLink('utility', '2026-11').href), null)).toEqual({ ...DEFAULT_FILTERS, filterType: 'Utility', dateRangeStart: '2026-11', dateRangeEnd: '2026-11' });
     expect(parseListFilters(search(kpiLink('ytd', '2026-11').href), null)).toEqual({ ...DEFAULT_FILTERS, dateRangeStart: '2026-01', dateRangeEnd: '2026-11' });
-    expect(parseListFilters(search(invoiceLink(combinedInvoice).href), null).searchQuery).toBe('FA/MYS/124/11/2026');
+    // an invoice deep link carries no filter: the saved filters stay as they are
+    expect(parseListFilters(search(invoiceLink(combinedInvoice).href), JSON.stringify({ ...DEFAULT_FILTERS, filterType: 'Rent' }))).toEqual({ ...DEFAULT_FILTERS, filterType: 'Rent' });
   });
 
   it('junk is ignored, never thrown: bad type, bad months, broken JSON, wrong shapes', () => {

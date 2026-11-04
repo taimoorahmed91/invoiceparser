@@ -138,7 +138,7 @@ export function InvoiceCardList({ rows, h }: { rows: StoredInvoice[]; h: Invoice
       {rows.map((inv) => {
         const number = inv.invoice.invoiceNumber;
         return (
-          <li key={inv.id} className="inv-card" data-checked={h.selected.includes(inv.id) ? 'true' : undefined}>
+          <li key={inv.id} className="inv-card" data-row-id={inv.id} data-checked={h.selected.includes(inv.id) ? 'true' : undefined}>
             <div className="inv-card-select"><SelectBox inv={inv} h={h} /></div>
             <div className="inv-card-top">
               <Button variant="link" className="inv-num print-keep" onClick={(e) => h.onOpen(inv, e.currentTarget)}>{number}</Button>

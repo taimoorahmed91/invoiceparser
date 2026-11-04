@@ -1,4 +1,4 @@
-/* Invoices list and filters (plan §4.3), the Period popover, sort buttons, type badges and the temporary legacy dialogs. Tokens only. */
+/* Invoices list and filters (plan §4.3), the Period popover, sort buttons, type badges. Tokens only. (The drawer and Compare dialog are in drawer.css.) */
 
 @layer components {
   /* ---------- sort button (inside <th aria-sort>) ---------- */
@@ -113,18 +113,6 @@
   .inv-card-actions { grid-area: menu; }
   .inv-card-file { grid-area: file; max-width: 100%; }
 
-  /* ---------- the temporary old dialogs (Phase 8 → replaced in Phase 9) ---------- */
-  .lg-detail { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-  .lg-box { display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-2); }
-  .lg-box-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
-  .lg-box-title { margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; }
-  .lg-box-sub { margin: 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
-  .lg-box-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; }
-  .lg-box-field { flex: 1 1 160px; }
-  .lg-form { display: flex; flex-direction: column; gap: 12px; }
-  .lg-pos { margin-right: auto; font-size: 13px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
-  .dlg-wide .dlg-body { overflow: auto; }
-  .dlg-wide .dlg-actions { align-items: center; }
 }
 
 /* ---------- print: "Print list…" prints this page as it is (plan §4.12: separate from the PDF export) ---------- */

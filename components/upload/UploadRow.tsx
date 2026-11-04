@@ -6,7 +6,7 @@ import { Ban, CircleCheck, CircleX, Clock, Copy, TriangleAlert } from 'lucide-re
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { fmtMoney } from '@/lib/format';
-import { invoiceLink, storeLegacyFilters } from '@/lib/overviewLinks';
+import { invoiceLink } from '@/lib/overviewLinks';
 import type { UploadItem } from '@/lib/uploader';
 import type { StoredInvoice } from '@/lib/storage';
 
@@ -62,7 +62,7 @@ export function UploadRow({
     if (!target) return null;
     const link = invoiceLink(target);
     return (
-      <Link href={link.href} className="btn-link" onClick={() => { storeLegacyFilters(link.filters); onNavigate(); }}>
+      <Link href={link.href} className="btn-link" onClick={onNavigate}>
         {item.status === 'duplicate' ? 'Open' : 'Review'}
         <span className="sr-only-text"> {target.invoice.invoiceNumber}</span>
       </Link>

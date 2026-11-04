@@ -5,10 +5,10 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { latestInvoices } from '@/lib/analyticsOverview';
 import { fmtDate, fmtMoney } from '@/lib/format';
-import { ALL_INVOICES, invoiceLink, storeLegacyFilters } from '@/lib/overviewLinks';
+import { ALL_INVOICES, invoiceLink } from '@/lib/overviewLinks';
 import type { StoredInvoice } from '@/lib/storage';
 
-/** The 5 most recent invoices; each row opens the Invoices page on that invoice (drawer deep link arrives in Phase 9). */
+/** The 5 most recent invoices; each row opens that invoice's drawer on the Invoices page (`?invoice=`). */
 export function LatestInvoices({ invoices }: { invoices: StoredInvoice[] }) {
   const rows = latestInvoices(invoices, 5);
   return (
@@ -25,7 +25,7 @@ export function LatestInvoices({ invoices }: { invoices: StoredInvoice[] }) {
           const inv = stored.invoice;
           return (
             <li key={stored.id}>
-              <Link href={link.href} className="ov-row" onClick={() => storeLegacyFilters(link.filters)} aria-label={`${inv.invoiceNumber}, ${fmtDate(inv.issueDate)}, ${label}, ${fmtMoney(inv.totals.grossTotal, inv.currency || 'PLN')}`}>
+              <Link href={link.href} className="ov-row" aria-label={`${inv.invoiceNumber}, ${fmtDate(inv.issueDate)}, ${label}, ${fmtMoney(inv.totals.grossTotal, inv.currency || 'PLN')}`}>
                 <span className="ov-row-num">{inv.invoiceNumber}</span>
                 <span className="ov-row-meta">
                   <span className="ov-row-date">{fmtDate(inv.issueDate)}</span>

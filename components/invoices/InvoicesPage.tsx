@@ -10,19 +10,18 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/toast/ToastProvider';
 import { useUpload } from '@/components/upload/UploadProvider';
 import { useInvoiceFilters } from '@/hooks/useFilters';
+import { useInvoiceDrawer } from '@/hooks/useInvoiceDrawer';
 import { useInvoices } from '@/hooks/useInvoices';
 import { useManualValues } from '@/hooks/useManualValues';
 import { dataMonthsYm } from '@/lib/analyticsOverview';
 import { applyFilters } from '@/lib/filters';
+import { neighbourAfterRemove, neighbours } from '@/lib/invoiceDetail';
 import { fmtMoney } from '@/lib/format';
 import { DEFAULT_SORT, describeFilters, isTextEntry, nextSort, periodLabel, resultStats, sortList, toggleSelected, typeCounts, type ListSort, type SortField } from '@/lib/invoiceList';
 import type { StoredInvoice } from '@/lib/storage';
 import { FilterBar } from './FilterBar';
 import { ListExport } from './ListExport';
 import { SelectionBar } from './SelectionBar';
-import { LegacyCompareDialog } from './legacy/CompareDialog';
-import { LegacyDetailDialog } from './legacy/DetailDialog';
-import { LegacyEditDialog } from './legacy/EditDialog';
 import type { InvoiceListHandlers } from './InvoiceTable';
 
 // The list is a DataPanel, and its "Show as chart" view draws with Recharts (the heaviest client dependency): load it on demand (plan §6.3).
@@ -30,6 +29,10 @@ const InvoicesPanel = dynamic(() => import('./InvoicesPanel'), {
   ssr: false,
   loading: () => <Skeleton height={480} label="Loading invoices" />,
 });
+
+// The drawer and Compare hold DataPanels (Recharts comes with them): fetched when one is first opened, not with the list.
+const InvoiceDrawer = dynamic(() => import('./drawer/InvoiceDrawer').then((m) => m.InvoiceDrawer), { ssr: false });
+const CompareDialog = dynamic(() => import('./CompareDialog').then((m) => m.CompareDialog), { ssr: false });
 
 function Loading() {
   return (
@@ -44,9 +47,18 @@ function Loading() {
   );
 }
 
+const rowButtonOf = (id: string): HTMLElement | null => {
+  const rows = document.querySelectorAll<HTMLElement>(`[data-row-id="${CSS.escape(id)}"]`);
+  // with the list also open in full screen, the visible one is the last one in the page
+  return rows.length ? rows[rows.length - 1].querySelector<HTMLElement>('.inv-num') : null;
+};
+
+/** The number button of the row whose menu item was just chosen (focus is inside that row's menu). */
+const openerFromFocus = (): HTMLElement | null => document.activeElement?.closest('[data-row-id]')?.querySelector<HTMLElement>('.inv-num') ?? null;
+
 /**
  * Invoices (plan §4.3): sticky filter bar, result strip, the list as a DataPanel, row actions, selection for Compare, Export menu.
- * The detail, edit and compare views are the old ones in temporary dialogs until Phase 9.
+ * One invoice opens in the drawer (`?invoice=<id>`, plan §4.4). Compare is a dialog (plan §4.5).
  */
 export function InvoicesPage() {
   const { invoices, status, error, reload, remove, update, undo, canUndo } = useInvoices();
@@ -56,8 +68,13 @@ export function InvoicesPage() {
   const { filters, set, clear } = useInvoiceFilters();
   const [sort, setSort] = useState<ListSort>(DEFAULT_SORT);
   const [selected, setSelected] = useState<string[]>([]);
-  const [detail, setDetail] = useState<{ id: string; opener: HTMLElement | null } | null>(null);
-  const [edit, setEdit] = useState<{ id: string; opener: HTMLElement | null } | null>(null);
+  const drawer = useInvoiceDrawer();
+  const [editOnOpen, setEditOnOpen] = useState(false);
+  /** The row's number button that opened the drawer, and where focus goes instead after a delete (the invoice now in its place). */
+  const openerRef = useRef<HTMLElement | null>(null);
+  const focusAfterRef = useRef<string | null>(null);
+  const deletedRef = useRef<string | null>(null);
+  const lastIdRef = useRef<string | null>(null);
   const [compare, setCompare] = useState<{ opener: HTMLElement | null } | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
@@ -133,12 +150,48 @@ export function InvoicesPage() {
       onSort: (f: SortField) => setSort((s) => nextSort(s, f)),
       selected: selectedNow,
       onToggle: (id) => setSelected((s) => toggleSelected(s, id)),
-      onOpen: (inv, opener) => setDetail({ id: inv.id, opener: opener ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null) }),
-      onEdit: (inv) => setEdit({ id: inv.id, opener: document.activeElement instanceof HTMLElement ? document.activeElement : null }),
+      onOpen: (inv, opener) => {
+        openerRef.current = opener ?? openerFromFocus();
+        setEditOnOpen(false);
+        drawer.open(inv.id);
+      },
+      onEdit: (inv) => {
+        openerRef.current = openerFromFocus();
+        setEditOnOpen(true);
+        drawer.open(inv.id);
+      },
       onDelete: (inv) => void onDelete(inv),
     }),
-    [sort, selectedNow, onDelete],
+    [sort, selectedNow, onDelete, drawer],
   );
+
+  // A link to an invoice that is not (or no longer) in the list: say so and drop the parameter instead of showing an empty drawer.
+  const openId = drawer.id;
+  useEffect(() => {
+    if (!openId || status !== 'ready') return;
+    if (byId.has(openId)) {
+      lastIdRef.current = openId;
+      return;
+    }
+    if (deletedRef.current === openId) return; // deleted from the drawer: it is already closing (a second "back" would leave the page)
+    toast.info('That invoice is not in your list any more.');
+    drawer.close();
+  }, [openId, status, byId, toast, drawer]);
+  // the drawer is closed: forget where it came from
+  useEffect(() => {
+    if (!openId) {
+      openerRef.current = null;
+      focusAfterRef.current = null;
+      deletedRef.current = null;
+      setEditOnOpen(false);
+    }
+  }, [openId]);
+
+  const getReturnFocus = useCallback(() => {
+    if (focusAfterRef.current) return rowButtonOf(focusAfterRef.current);
+    if (openerRef.current?.isConnected) return openerRef.current;
+    return lastIdRef.current ? rowButtonOf(lastIdRef.current) : null;
+  }, []);
 
   if (status === 'error') {
     return (
@@ -165,9 +218,9 @@ export function InvoicesPage() {
     );
   }
 
-  const detailRow = detail ? byId.get(detail.id) : undefined;
-  const detailIndex = detailRow ? rows.findIndex((r) => r.id === detailRow.id) : -1;
-  const editRow = edit ? byId.get(edit.id) : undefined;
+  const drawerRow = openId ? byId.get(openId) : undefined;
+  const rowIds = rows.map((r) => r.id);
+  const nav = drawerRow ? neighbours(rowIds, drawerRow.id) : null;
   const pair = selectedNow.map((id) => byId.get(id)).filter((x): x is StoredInvoice => Boolean(x));
 
   return (
@@ -211,44 +264,38 @@ export function InvoicesPage() {
         <InvoicesPanel rows={rows} h={handlers} range={range} filtersText={filtersText} />
       )}
 
-      {detailRow && detail && (
-        <LegacyDetailDialog
-          invoice={detailRow}
-          position={detailIndex + 1}
-          count={rows.length}
-          onPrev={() => detailIndex > 0 && setDetail({ ...detail, id: rows[detailIndex - 1].id })}
-          onNext={() => detailIndex >= 0 && detailIndex < rows.length - 1 && setDetail({ ...detail, id: rows[detailIndex + 1].id })}
-          onClose={() => setDetail(null)}
-          returnFocusTo={detail.opener}
-        />
-      )}
-      {editRow && edit && (
-        <LegacyEditDialog
-          key={editRow.id}
-          invoice={editRow}
-          returnFocusTo={edit.opener}
-          onClose={() => setEdit(null)}
+      {drawerRow && nav && (
+        <InvoiceDrawer
+          stored={drawerRow}
+          nav={nav}
+          startInEdit={editOnOpen}
+          getReturnFocus={getReturnFocus}
+          onClose={drawer.close}
+          onPrev={() => nav.prevId && drawer.swap(nav.prevId)}
+          onNext={() => nav.nextId && drawer.swap(nav.nextId)}
           onSave={async (next) => {
             try {
               await update(next);
               toast.success('Invoice updated successfully');
-              setEdit(null);
             } catch (err) {
               toast.error('Failed to update invoice');
               throw err;
             }
           }}
+          onDelete={() => {
+            focusAfterRef.current = neighbourAfterRemove(rowIds, drawerRow.id);
+            deletedRef.current = drawerRow.id;
+            drawer.close();
+            void onDelete(drawerRow);
+          }}
         />
       )}
       {compare && pair.length === 2 && (
-        <LegacyCompareDialog
+        <CompareDialog
           a={pair[0]}
           b={pair[1]}
           returnFocusTo={compare.opener}
-          onClose={() => {
-            setCompare(null);
-            setSelected([]);
-          }}
+          onClose={() => setCompare(null)}
         />
       )}
     </div>
