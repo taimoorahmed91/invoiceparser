@@ -136,6 +136,7 @@
   .cmp-table tbody tr[data-status="onlyA"], .cmp-table tbody tr[data-status="onlyB"] { background: var(--surface-2); }
   .cmp-details-row td { height: auto !important; padding: 0 12px 12px !important; white-space: normal; }
   .cmp-details { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface-2); font-size: 13px; line-height: 18px; }
+  .cmp-details[hidden], .cmp-details-row[hidden] { display: none; }
   .cmp-details > div { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px; }
   .cmp-details dt { color: var(--ink-muted); }
   .cmp-details dd { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0; font-variant-numeric: tabular-nums; }

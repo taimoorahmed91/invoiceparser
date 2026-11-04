@@ -9,8 +9,6 @@ import { ToggleChip } from '@/components/ui/ToggleChip';
 import { RollingNumber } from '@/components/ui/RollingNumber';
 import { fmtMoney, fmtMoneyWhole, fmtDelta } from '@/lib/format';
 
-const h4 = 'text-[13px] font-medium text-ink-muted mb-2';
-
 /** "Press me": every pressable control shares one sink-to-95% / spring-back mechanism (controls.css). */
 export function PressDemo() {
   const [seg, setSeg] = useState('b');

@@ -42,9 +42,8 @@ function LabelProbe({ store }: { store: MutableRefObject<string | null> }) {
 }
 
 /**
- * Generic Bar (stacked / grouped) | Line | Area renderer driven by a TimeSeriesSpec. It is what the shared
- * toolbar draws today; Phase 4a adds the specialised bodies (StackedBars, SmallBars, YearLines) that plug into the same
- * ChartCard. Colours are tokens ("var(--rent)"), so the same chart is light inside the print tree and themed on screen.
+ * Generic Bar (stacked / grouped) | Line | Area renderer driven by a TimeSeriesSpec: the one chart body behind every ChartCard
+ * and every DataPanel's "Show as chart". Colours are tokens ("var(--rent)"), so the same chart is light inside the print tree and themed on screen.
  */
 export function SeriesChart({ spec, chartType, height, width, interactive = true, yTick: yTickProp, onSelect, selected, animateOnce }: SeriesChartProps) {
   const yTick = yTickProp ?? spec.yTick ?? fmtCompactMoney;

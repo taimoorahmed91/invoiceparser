@@ -8,7 +8,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useUiPrefs } from '@/hooks/useUiPrefs';
 import { NavItem } from './NavItem';
 import { ThemeMenu } from './ThemeMenu';
-import { NAV_ITEMS, activeEntry, isEnabled } from './nav';
+import { NAV_ITEMS, activeEntry } from './nav';
 
 /**
  * Sidebar (≥ 1280 px), collapsible to the icon rail; the rail is also what shows at 768–1279 px.
@@ -23,7 +23,7 @@ export function SidebarNav({ pathname }: { pathname: string }) {
 
   return (
     <aside className="shell-side" aria-label="Sidebar">
-      <Link href="/invoices" className="side-head" aria-label="Invoice Parser, home">
+      <Link href="/" className="side-head" aria-label="Invoice Parser, home">
         <span className="side-mark" aria-hidden="true">
           <ReceiptText size={18} strokeWidth={1.75} />
         </span>
@@ -36,7 +36,6 @@ export function SidebarNav({ pathname }: { pathname: string }) {
             key={entry.href}
             entry={entry}
             variant="side"
-            enabled={isEnabled(entry.href)}
             active={active?.href === entry.href}
             tooltip={railMode}
           />

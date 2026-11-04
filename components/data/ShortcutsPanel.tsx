@@ -6,17 +6,17 @@ interface Shortcut {
 }
 
 /**
- * Only shortcuts that work today (the plan's `/` search and table navigation come with the new Invoices page in Phase 8).
- * Each entry is a list of alternative key combinations; keys inside one combination are pressed together.
+ * Only shortcuts that work. Each entry is a list of alternative key combinations; keys inside one combination are pressed together.
  */
 const SHORTCUTS: Shortcut[] = [
-  { keys: [['Esc']], does: 'Close a menu, a dialog or full screen. In a heating-units box it puts the saved value back.' },
+  { keys: [['/']], does: 'On the Invoices page: jump to the search box (when you are not typing).' },
+  { keys: [['Esc']], does: 'Close a menu, a dialog, the invoice drawer or full screen. In a heating-units box it puts the saved value back.' },
   { keys: [['Enter']], does: 'Save the value in a heating-units box.' },
   { keys: [['←'], ['→']], does: 'Move between tabs and choices such as Chart | Table. On the Overview chart they move across the months.' },
   { keys: [['Enter']], does: 'On the Overview chart: show the month the arrow keys are on.' },
-  { keys: [['↑'], ['↓']], does: 'Move through the items of an open menu; Enter picks one.' },
+  { keys: [['↑'], ['↓']], does: 'Move through the items of an open menu; Enter picks one. In the invoice list they move between rows; Enter opens one and Space ticks it for Compare.' },
   { keys: [['Ctrl', 'Shift', 'F'], ['⌘', 'Shift', 'F']], does: 'Open or close full screen for the chart or table you are working in.' },
-  { keys: [['Ctrl', 'Z'], ['⌘', 'Z']], does: 'Undo a delete. Works on the Invoices page for now.' },
+  { keys: [['Ctrl', 'Z'], ['⌘', 'Z']], does: 'Undo a delete (on the Invoices page, when you are not typing).' },
 ];
 
 export function ShortcutsPanel() {

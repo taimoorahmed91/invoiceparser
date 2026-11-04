@@ -131,19 +131,6 @@ export function createInvoiceActions(get: () => InvoiceState, dispatch: (action:
       });
       return true;
     },
-    prepareUpload(results: { filename: string; invoice: StoredInvoice['invoice'] }[]) {
-      const keys = new Set(get().invoices.map(row => `${row.invoice.invoiceNumber}-${row.invoice.issueDate}`));
-      const rows: StoredInvoice[] = [], duplicates: string[] = [];
-      results.forEach(result => {
-        const key = `${result.invoice.invoiceNumber}-${result.invoice.issueDate}`;
-        if (keys.has(key)) duplicates.push(result.filename);
-        else {
-          rows.push({ ...result, id: api.generateId(), parsedAt: new Date().toISOString() });
-          keys.add(key);
-        }
-      });
-      return { rows, duplicates };
-    },
   };
 }
 

@@ -1,20 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { activeEntry, isEnabled, pageTitle, NAV_ITEMS, ENABLED_ROUTES, unavailableReason } from '../components/shell/nav';
+import { activeEntry, pageTitle, NAV_ITEMS } from '../components/shell/nav';
 import { parseUiPrefs, serializeUiPrefs, UI_INIT_SCRIPT, UI_PREFS_KEY } from '../lib/uiPrefs';
 import vm from 'node:vm';
 
 describe('nav', () => {
   it('has the four destinations in plan order', () => {
     expect(NAV_ITEMS.map((n) => n.href)).toEqual(['/', '/invoices', '/analytics', '/data']);
-  });
-  it('Phase 6 enables all four destinations', () => {
-    expect(ENABLED_ROUTES).toEqual(['/', '/invoices', '/analytics', '/data']);
-    expect(isEnabled('/invoices')).toBe(true);
-    expect(isEnabled('/analytics')).toBe(true);
-    expect(isEnabled('/')).toBe(true);
-    expect(isEnabled('/data')).toBe(true);
-    expect(isEnabled('/data', ['/analytics'])).toBe(false);
-    expect(isEnabled('/nope')).toBe(false);
   });
   it('matches the active item from the pathname', () => {
     expect(activeEntry('/invoices')?.label).toBe('Invoices');
@@ -31,9 +22,6 @@ describe('nav', () => {
     expect(pageTitle('/invoices')).toBe('Invoices');
     expect(pageTitle('/data')).toBe('Data & settings');
     expect(pageTitle('/nope')).toBe('Invoice Parser');
-  });
-  it('gives a plain reason for unavailable items', () => {
-    expect(unavailableReason(NAV_ITEMS[3])).toBe('Data is coming in a later update');
   });
 });
 

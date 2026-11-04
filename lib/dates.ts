@@ -1,16 +1,5 @@
 export const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-export function getMonthFromDate(dateStr: string): string {
-  const parts = dateStr.split('/');
-  if (parts.length >= 2) {
-    const monthIndex = parseInt(parts[1], 10) - 1;
-    if (monthIndex >= 0 && monthIndex < 12) {
-      return monthNames[monthIndex];
-    }
-  }
-  return '-';
-}
-
 export function getMonthYearFromDate(dateStr: string): string {
   const parts = dateStr.split('/');
   if (parts.length >= 3) {

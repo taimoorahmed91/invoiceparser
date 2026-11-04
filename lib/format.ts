@@ -6,7 +6,6 @@
 import { monthNames } from './dates';
 
 export const LOCALE_NUM = 'pl-PL';
-export const LOCALE_DATE = 'en-GB'; // kept for reference; dates below are built from monthNames for stable output
 
 const NBSP = '\u00a0';
 const MINUS = '\u2212'; // real minus sign, not hyphen
@@ -167,11 +166,6 @@ export function fmtDate(ddmmyyyy: string | null | undefined): string {
   const year = parseInt(parts[2], 10);
   if (isNaN(day) || month < 0 || month > 11 || isNaN(year)) return ddmmyyyy;
   return `${day} ${monthNames[month]} ${year}`;
-}
-
-/** Month key "Nov 2026" stays as is for display. */
-export function fmtMonth(monthKey: string): string {
-  return monthKey;
 }
 
 /** Chart tick: "Nov 2026" → "Nov ’26". */

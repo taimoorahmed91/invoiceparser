@@ -45,7 +45,7 @@ export interface ToastItem {
 }
 
 interface ToastApi {
-  /** Same call shape the old page used: show(message, type, durationMs). */
+  /** show(message, type, options): `options` is a duration in ms or { duration, action }. */
   show: (message: string, type?: ToastType, options?: number | ToastOptions) => string;
   success: (message: string, options?: number | ToastOptions) => string;
   info: (message: string, options?: number | ToastOptions) => string;

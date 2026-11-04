@@ -10,7 +10,7 @@ import { HEATING_RATE } from './adjustments';
 import { isManualRow, matchesUtilityCategory } from './categories';
 import { getMonthYearFromDate, monthNames, parseDate } from './dates';
 import { fmtDelta, fmtMoneyWhole } from './format';
-import { monthKeyToYm, ymAdd, ymToMonthKey, type RangeSpec, type YearMonth } from './analyticsMonthly';
+import { monthKeyToYm, ymToMonthKey, type RangeSpec, type YearMonth } from './analyticsMonthly';
 import { UTILITY_KEYS, UTILITY_META, type UtilityKey } from './analyticsUtilities';
 import type { StoredInvoice } from './storage';
 
@@ -314,9 +314,6 @@ export function latestInvoices(invoices: StoredInvoice[], count = 5): LatestInvo
     return { stored, kinds, label: kinds.join(' + ') };
   });
 }
-
-/** For tests and the period switcher: "2026-11" → previous calendar month. Not used for deltas (those skip gaps). */
-export const previousCalendarMonth = (ym: YearMonth): YearMonth => ymAdd(ym, -1);
 
 /* ---------- chart range (6M · 12M · All) ---------- */
 

@@ -42,7 +42,7 @@ export function updateChartPref(existingRaw: string | null | undefined, key: str
   return JSON.stringify(prefs);
 }
 
-/** "Reset all chart/table view choices" (Data page, Phase 6). */
+/** "Reset all chart/table view choices" (Data page). */
 export function clearedChartPrefs(): string {
   return '{}';
 }

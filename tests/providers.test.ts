@@ -177,19 +177,6 @@ describe('invoice provider commands with mocked storage', () => {
     await expect(h.actions.addMany(rows)).rejects.toThrow('second');
     expect(h.get().invoices).toEqual(rows);
   });
-  it('deduplicates uploads against existing data and within the batch by number-date', () => {
-    const h = harness({ invoices: [rows[0]] });
-    vi.mocked(storage.generateId).mockReturnValue('new-id');
-    const prepared = h.actions.prepareUpload([
-      { filename: 'existing', invoice: rows[0].invoice },
-      { filename: 'new', invoice: { ...rows[1].invoice, invoiceNumber: 'NEW' } },
-      { filename: 'repeat', invoice: { ...rows[1].invoice, invoiceNumber: 'NEW' } },
-    ]);
-    expect(prepared.duplicates).toEqual(['existing', 'repeat']);
-    expect(prepared.rows).toHaveLength(1);
-    expect(prepared.rows[0]).toMatchObject({ id: 'new-id', filename: 'new' });
-    expect(storage.addInvoice).not.toHaveBeenCalled();
-  });
 });
 
 describe('manual values provider commands', () => {

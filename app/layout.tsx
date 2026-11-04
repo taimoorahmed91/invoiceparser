@@ -61,7 +61,8 @@ const firaCodeExt = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'Invoice Parser',
+  // each route adds its own name in front: "Invoices · Invoice Parser"
+  title: { default: 'Invoice Parser', template: '%s · Invoice Parser' },
   description: 'Parse and display PDF invoice data',
 };
 

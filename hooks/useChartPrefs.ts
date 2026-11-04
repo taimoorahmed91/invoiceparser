@@ -47,7 +47,7 @@ export function useChartPref(storageKey: string): [ChartPref, (patch: ChartPref)
   return [all[storageKey] ?? (EMPTY as ChartPref), set];
 }
 
-/** Used by Data → Appearance → "Reset all chart/table view choices" (Phase 6). */
+/** Used by Data → Appearance → "Reset all chart/table view choices". */
 export function resetChartPrefs() {
   write(clearedChartPrefs());
 }

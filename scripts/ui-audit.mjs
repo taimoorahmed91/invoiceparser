@@ -7,7 +7,7 @@
  *   - visible focus change when focused
  * and, on /dev/ui, the failures counted by the computed-contrast table.
  *
- * Usage: node scripts/ui-audit.mjs <url> [--touch] [--theme=light|dark] [--json] [--pre=<file.js>]
+ * Usage: node scripts/ui-audit.mjs <url> [--touch] [--width=768] [--theme=light|dark] [--json] [--pre=<file.js>]
  * --pre: a JS file evaluated in the page (awaited) after it has loaded and before the audit, e.g. to open a dialog.
  * Exit code 1 when anything is found. Needs Chrome (set CHROME_BIN to override) and Node 22+.
  */
@@ -19,8 +19,9 @@ const touch = args.includes('--touch');
 const asJson = args.includes('--json');
 const pre = (args.find((a) => a.startsWith('--pre=')) ?? '').slice(6);
 const theme = (args.find((a) => a.startsWith('--theme=')) ?? '--theme=light').split('=')[1];
+const widthArg = Number((args.find((a) => a.startsWith('--width=')) ?? '').slice(8)) || 0;
 if (!url) {
-  console.error('usage: node scripts/ui-audit.mjs <url> [--touch] [--theme=light|dark] [--json] [--pre=<file.js>]');
+  console.error('usage: node scripts/ui-audit.mjs <url> [--touch] [--width=768] [--theme=light|dark] [--json] [--pre=<file.js>]');
   process.exit(2);
 }
 
@@ -49,7 +50,7 @@ const send = (method, params = {}) => new Promise((res) => { const i = ++id; pen
 await send('Page.enable');
 await send('Emulation.setDeviceMetricsOverride', touch
   ? { width: 375, height: 800, deviceScaleFactor: 2, mobile: true }
-  : { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  : { width: widthArg || 1440, height: 900, deviceScaleFactor: 1, mobile: false });
 if (touch) await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
 await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: theme }] });
 await send('Page.addScriptToEvaluateOnNewDocument', { source: `try{localStorage.setItem('invoice-parser-theme','${theme}')}catch(e){}` });
@@ -134,7 +135,7 @@ if (!out) { console.error('audit failed', JSON.stringify(res.result)); process.e
 const total = out.findings.length + (out.contrastFailures || 0);
 if (asJson) console.log(JSON.stringify(out, null, 2));
 else {
-  console.log(`${url} (${touch ? 'touch 375px' : 'mouse 1440px'}, ${theme}): ${out.checked} interactive elements checked`);
+  console.log(`${url} (${touch ? 'touch 375px' : `mouse ${widthArg || 1440}px`}, ${theme}): ${out.checked} interactive elements checked`);
   if (out.contrastTotal !== null) console.log(`computed contrast: ${out.contrastTotal} pairs, ${out.contrastFailures} failures`);
   for (const f of out.findings) console.log(`  [${f.type}] ${f.el} — ${f.detail}`);
   console.log(total === 0 ? 'OK: zero findings' : `${total} finding(s)`);

@@ -6,7 +6,7 @@ import { cx } from './cx';
 export interface TabItem<T extends string> {
   id: T;
   label: string;
-  /** Tab exists but cannot be opened yet: shown with a "Soon" tag, aria-disabled, reason read out. */
+  /** The tab cannot be opened right now: dimmed, aria-disabled, the reason is read out and shown as a tooltip. */
   disabledReason?: string;
 }
 
@@ -58,9 +58,10 @@ export function Tabs<T extends string>({ tabs, value, onChange, idBase, classNam
           type="button"
           role="tab"
           id={`${idBase}-tab-${t.id}`}
-          aria-controls={t.disabledReason ? undefined : `${idBase}-panel-${t.id}`}
+          aria-controls={t.disabledReason || t.id !== value ? undefined : `${idBase}-panel-${t.id}`}
           aria-selected={t.id === value}
           aria-disabled={t.disabledReason ? true : undefined}
+          title={t.disabledReason}
           aria-describedby={t.disabledReason ? `${reasonBase}-${t.id}` : undefined}
           tabIndex={i === (tabStop >= 0 ? tabStop : enabled[0]) ? 0 : -1}
           data-state={forceHoverId === t.id ? 'hover' : undefined}
@@ -74,12 +75,9 @@ export function Tabs<T extends string>({ tabs, value, onChange, idBase, classNam
             {t.label}
           </span>
           {t.disabledReason && (
-            <>
-              <span className="tab-soon" aria-hidden="true">Soon</span>
-              <span id={`${reasonBase}-${t.id}`} className="sr-only-text">
-                {t.disabledReason}
-              </span>
-            </>
+            <span id={`${reasonBase}-${t.id}`} className="sr-only-text">
+              {t.disabledReason}
+            </span>
           )}
         </button>
       ))}

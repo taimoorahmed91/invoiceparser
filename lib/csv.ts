@@ -1,7 +1,7 @@
 import { timeSeriesToTable, type TableSpec, type TimeSeriesSpec, type DataCell } from './dataView';
 
 /**
- * Generic CSV for chart/table exports (plan §4.12.3). Same conventions as the Phase 0
+ * Generic CSV for chart/table exports (plan §4.12.3). Same conventions as the
  * invoice CSV in lib/export.ts: every cell quoted, "" escaping, UTF-8 BOM for Excel.
  * Numbers are written with a dot and 2 decimals (not the display format), so they re-import cleanly.
  */

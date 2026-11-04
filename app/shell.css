@@ -118,7 +118,6 @@
     border-radius: 0 3px 3px 0;
     background: var(--ink);
   }
-  .nav-item[aria-disabled="true"] { color: var(--ink-subtle); cursor: not-allowed; }
   .nav-item:focus-visible { outline-offset: -2px; }
   .nav-icon { flex: none; }
   .nav-label {
@@ -129,21 +128,9 @@
     clip: rect(0 0 0 0);
     white-space: nowrap;
   }
-  .nav-soon {
-    display: none;
-    margin-left: auto;
-    padding: 0 8px;
-    border-radius: 9999px;
-    background: var(--surface-2);
-    color: var(--ink-subtle);
-    font-size: 12px;
-    line-height: 20px;
-    font-weight: 500;
-  }
   @media (min-width: 1280px) {
     html:not([data-sidebar="collapsed"]) .nav-item { width: auto; height: 40px; justify-content: flex-start; padding: 0 12px; }
     html:not([data-sidebar="collapsed"]) .nav-label { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
-    html:not([data-sidebar="collapsed"]) .nav-soon { display: inline-block; }
     html:not([data-sidebar="collapsed"]) .side-foot .btn { width: 100%; justify-content: flex-start; }
   }
   @media (min-width: 1280px) and (pointer: coarse) {
@@ -250,7 +237,7 @@
   .skip-link:focus { transform: none; }
 }
 
-/* Print: the shell disappears, the page content prints full width (replaces nothing in the legacy print block). */
+/* Print: the shell disappears, the page content prints full width (see also the scoped print rules in globals.css, charts.css and invoices.css). */
 @media print {
   .app-shell { display: block !important; }
   .shell-side, .shell-top, .bottom-nav, .skip-link { display: none !important; }

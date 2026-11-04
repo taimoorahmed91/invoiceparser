@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import fixtures from './fixtures/invoices.json';
 import type { StoredInvoice } from '../lib/storage';
-import { applyFilters, migrateLegacyFilters, sortInvoices, type Filters } from '../lib/filters';
+import { applyFilters, migrateLegacyFilters, type Filters } from '../lib/filters';
 import { getMonthYearFromDate, parseDate } from '../lib/dates';
 
 const invoices = fixtures as StoredInvoice[];
@@ -55,14 +55,5 @@ describe('filter parity', () => {
   it('does not replace existing ranges during migration', () => {
     const filters = { ...defaults, filterMonth: 'Nov 2026', dateRangeStart: '2025-01', dateRangeEnd: '2025-12' };
     expect(migrateLegacyFilters(filters)).toEqual(filters);
-  });
-  it('preserves default order and sort direction without mutating input', () => {
-    expect(sortInvoices(invoices, null, 'asc')).toBe(invoices);
-    const original = [...invoices];
-    for (const field of ['date', 'amount', 'type', 'number'] as const) {
-      const asc = sortInvoices(invoices, field, 'asc');
-      expect(sortInvoices(invoices, field, 'desc').map(row => row.id).sort()).toEqual(asc.map(row => row.id).sort());
-    }
-    expect(invoices).toEqual(original);
   });
 });

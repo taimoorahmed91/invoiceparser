@@ -93,6 +93,8 @@
   .inv-table tbody tr { cursor: pointer; }
   .inv-table tbody tr:hover { background: var(--surface-2); }
   .inv-table tbody tr[data-checked="true"] { background: var(--surface-3); }
+  /* on the ticked row's darker background the subtle grey is 4.3:1: use the muted ink there */
+  .inv-table tbody tr[data-checked="true"] .inv-file, .inv-card[data-checked="true"] .inv-file { color: var(--ink-muted); }
   .inv-table tbody tr:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
   .inv-row { scroll-margin-top: calc(var(--top-h) + var(--inv-sticky) + 8px); scroll-margin-bottom: 80px; }
   .inv-num.btn-link { font-family: var(--font-mono); font-size: 13px; line-height: 18px; font-weight: 500; letter-spacing: -0.01em; }

@@ -102,7 +102,7 @@ export interface LineItemView {
 }
 
 /**
- * The line items as the invoice detail has always shown them (components/LineItemTable.tsx before Phase 9), as plain data:
+ * The line items as the invoice detail has always shown them (the old LineItemTable), as plain data:
  *  - the first heating row (`isHeatingRow`) loses manualValue × 76 (gross and net, floored at 0; unit price = gross / quantity when quantity > 0)
  *  - a "Manual Heating Calculation (N × 76)" row is added at the end, 1 UNIT, 0 % tax
  *  - both are skipped when the stored items already hold a manual heating row

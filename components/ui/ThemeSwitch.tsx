@@ -5,7 +5,7 @@ import { SegmentedControl } from './SegmentedControl';
 import { useTheme } from '@/hooks/useTheme';
 import type { ThemePreference } from '@/lib/theme';
 
-/** System | Light | Dark. Temporary home in the old page header until the shell (Phase 2) and Data → Appearance (Phase 6). */
+/** System | Light | Dark (Data → Appearance, and the /dev/ui gallery). */
 export function ThemeSwitch({ size = 'sm' }: { size?: 'sm' | 'md' }) {
   const { preference, setPreference } = useTheme();
   return (

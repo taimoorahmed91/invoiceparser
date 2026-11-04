@@ -1,6 +1,6 @@
 /**
  * UI preferences stored in localStorage['invoice-parser-ui'] (plan §6.2).
- * `sidebarCollapsed` (Phase 2) and `density` (Phase 6, Data → Appearance: table row height 52 / 40 px).
+ * `sidebarCollapsed` (the sidebar / icon rail) and `density` (Data → Appearance: table row height 52 / 40 px).
  * Pure helpers, plus the tiny <head> script that sets html[data-sidebar] and html[data-density] before first paint
  * so a collapsed sidebar or compact tables do not flash.
  */

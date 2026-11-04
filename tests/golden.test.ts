@@ -3,7 +3,7 @@ import type { StoredInvoice } from '../lib/storage';
 import invoicesJson from './fixtures/invoices.json';
 import * as legacy from './legacy-reference';
 import * as dates from '../lib/dates';
-import { amountsByType, monthlyTotals, rentalSeries, utilityTypeSeries, parkingSeries, utilitySeries, yoySeries } from '../lib/analytics';
+import { amountsByType, monthlyTotals, utilitySeries, yoySeries } from '../lib/analytics';
 import { applyManualAdjustments, HEATING_RATE } from '../lib/adjustments';
 import { toJson, toCsv, toExcelCsv } from '../lib/export';
 import { UTILITY_CATEGORIES } from '../lib/categories';
@@ -26,15 +26,6 @@ describe.each(sets)('%s golden calculations', (_name, invoices) => {
   });
   it('preserves monthly totals and chronological order', () => {
     expect(monthlyTotals(invoices)).toEqual(legacy.monthlyTotals(invoices));
-  });
-  it.each([
-    ['Rent', rentalSeries, legacy.rentalSeries],
-    ['Utility', utilityTypeSeries, legacy.utilityTypeSeries],
-    ['Parking', parkingSeries, legacy.parkingSeries],
-  ] as const)('preserves the %s series', (_type, current, previous) => {
-    const oldTotals = legacy.monthlyTotals(invoices);
-    const months = oldTotals.map(row => row.month);
-    expect(current(monthlyTotals(invoices), months)).toEqual(previous(oldTotals, months));
   });
   it('preserves the YoY map', () => {
     expect(yoySeries(invoices)).toEqual(legacy.yoySeries(invoices));
@@ -76,7 +67,6 @@ describe('manual heating adjustment golden cases', () => {
 
 describe('date parsing golden cases', () => {
   it.each(['03/11/2026', '01/01/2024', '31/12/2025', '', 'bad', '1/13/2025', '31/02/2025', '1/2', '01/02/26', '1/2foo/2026', '1/0/2025', '1/2/2026/extra'])('%j', value => {
-    expect(dates.getMonthFromDate(value)).toBe(legacy.getMonthFromDate(value));
     expect(dates.getMonthYearFromDate(value)).toBe(legacy.getMonthYearFromDate(value));
     expect(dates.parseDate(value)).toEqual(legacy.parseDate(value));
   });

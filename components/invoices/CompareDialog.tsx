@@ -64,11 +64,11 @@ function Totals({ c, phone }: { c: Comparison; phone: boolean }) {
 }
 
 /** The expander under a line: quantity and unit price of A and B and what changed (parity with the old per-line quantity / unit-price lines). */
-function Details({ m, c, id }: { m: LineMatch; c: Comparison; id: string }) {
+function Details({ m, c, id, hidden }: { m: LineMatch; c: Comparison; id: string; hidden: boolean }) {
   const qty = (i: LineMatch['a']) => (i ? fmtQuantity(i.quantity, i.unit) : '—');
   const price = (i: LineMatch['a'], cur: string) => (i ? fmtMoney(i.netPrice, cur) : '—');
   return (
-    <dl id={id} className="cmp-details">
+    <dl id={id} className="cmp-details" hidden={hidden}>
       <div><dt>Quantity</dt><dd><span>A {qty(m.a)}</span><span>B {qty(m.b)}</span>{c.sameCurrency && m.status === 'both' && <DeltaText delta={quantityDelta(m)} />}</dd></div>
       <div><dt>Unit price</dt><dd><span>A {price(m.a, c.currencyA)}</span><span>B {price(m.b, c.currencyB)}</span>{c.sameCurrency && m.status === 'both' && <DeltaText delta={unitPriceDelta(m, c.currencyA)} />}</dd></div>
     </dl>
@@ -106,7 +106,7 @@ function Lines({ c, phone }: { c: Comparison; phone: boolean }) {
               {m.status === 'both' && <div><dt>Difference</dt><dd><DeltaText delta={c.sameCurrency ? grossDelta(m, c.currencyA) : null} /></dd></div>}
             </dl>
             {toggler(m, i)}
-            {open.has(m.key) && <Details m={m} c={c} id={`cmp-d-${i}`} />}
+            <Details m={m} c={c} id={`cmp-d-${i}`} hidden={!open.has(m.key)} />
           </li>
         ))}
       </ul>
@@ -135,11 +135,9 @@ function Lines({ c, phone }: { c: Comparison; phone: boolean }) {
                 <td className="text-right">{m.status === 'both' ? <DeltaText delta={c.sameCurrency ? grossDelta(m, c.currencyA) : null} /> : ''}</td>
                 <td className="text-right">{toggler(m, i)}</td>
               </tr>
-              {open.has(m.key) && (
-                <tr className="cmp-details-row">
-                  <td colSpan={5}><Details m={m} c={c} id={`cmp-d-${i}`} /></td>
-                </tr>
-              )}
+              <tr className="cmp-details-row" hidden={!open.has(m.key)}>
+                <td colSpan={5}><Details m={m} c={c} id={`cmp-d-${i}`} hidden={false} /></td>
+              </tr>
             </Fragment>
           ))}
         </tbody>
