@@ -4,6 +4,7 @@
  */
 import { applyManualAdjustments } from './adjustments';
 import { latestInvoices } from './analyticsOverview';
+import { invoiceKinds } from './invoiceList';
 import { buildManualRows, manualTableSpec } from './dataManual';
 import { HEATING_RATE } from './adjustments';
 import { getMonthYearFromDate } from './dates';
@@ -26,8 +27,9 @@ function issuedSpan(invoices: StoredInvoice[]): string | null {
 }
 
 /** The invoice list as a table: newest first, "Rent + Parking" for the combined invoice, a Total row when every invoice is in one currency. */
-export function invoiceListTable(invoices: StoredInvoice[]): TableSpec {
-  const ordered = latestInvoices(invoices, invoices.length);
+export function invoiceListTable(invoices: StoredInvoice[], opts: { keepOrder?: boolean } = {}): TableSpec {
+  // newest first, unless the caller already put them in the order the screen shows
+  const ordered = opts.keepOrder ? invoices.map((stored) => ({ stored, label: invoiceKinds(stored).join(' + ') })) : latestInvoices(invoices, invoices.length);
   const money = (key: string) => (row: DataRow) => (typeof row[key] === 'number' ? fmtMoney(row[key] as number, (row.currency as string) || 'PLN') : '');
   const rows: DataRow[] = ordered.map(({ stored, label }) => ({
     invoice: stored.invoice.invoiceNumber,
@@ -84,4 +86,21 @@ export function buildDataReport(invoices: StoredInvoice[], manualValues: Record<
     meta: `${invoices.length} invoices${span ? ` · ${span}` : ''}   ·   Filters: none   ·   Heating adjustments from manual values included`,
     sections: [list, manual],
   };
+}
+
+/**
+ * Invoices → Export → "PDF (current list)": one section with the list the screen shows (filtered and sorted), heating adjustments applied
+ * like every other export, and the filters named in the header. null when the list is empty.
+ */
+export function buildInvoiceListReport(rows: StoredInvoice[], manualValues: Record<string, number>, filtersText: string): ReportData | null {
+  if (rows.length === 0) return null;
+  const span = issuedSpan(rows);
+  const section: ReportSection = {
+    id: 'invoices',
+    title: 'Invoices',
+    subtitle: `${rows.length} ${rows.length === 1 ? 'invoice' : 'invoices'}${span ? ` · issued ${span}` : ''} · gross, net and VAT`,
+    charts: [],
+    tables: [{ title: 'Invoices', table: invoiceListTable(applyManualAdjustments(rows, manualValues), { keepOrder: true }) }],
+  };
+  return { title: 'Invoices Report', meta: `${rows.length} invoices   ·   Filters: ${filtersText}   ·   Heating adjustments from manual values included`, sections: [section] };
 }

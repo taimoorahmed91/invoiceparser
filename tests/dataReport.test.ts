@@ -67,3 +67,18 @@ describe('Data → PDF (all)', () => {
     expect(s.note).toBe('No Utility invoices yet.');
   });
 });
+
+import { buildInvoiceListReport } from '../lib/dataReport';
+describe('Invoices → PDF (current list)', () => {
+  it('nothing to report for an empty list', () => expect(buildInvoiceListReport([], {}, 'none')).toBeNull());
+  it('one section with exactly the rows given (the screen\'s filtered list) and the filters named in the header', () => {
+    const rows = real.slice(0, 5);
+    const r = buildInvoiceListReport(rows, {}, 'Type: Utility · Period: Jan 2025 – Nov 2025')!;
+    expect(r.title).toBe('Invoices Report');
+    expect(r.meta).toContain('Filters: Type: Utility · Period: Jan 2025 – Nov 2025');
+    expect(r.sections).toHaveLength(1);
+    const body = r.sections[0].tables[0].table.rows;
+    expect(body).toHaveLength(6); // 5 invoices + Total
+    expect(body.slice(0, 5).map((x) => x.invoice)).toEqual(rows.map((x) => x.invoice.invoiceNumber)); // the screen's order is kept
+  });
+});

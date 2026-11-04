@@ -48,6 +48,11 @@ export interface DataViewCardProps {
   animateOnce?: { key: string; durationMs?: number; delayMs?: number };
   /** Extra control in the toolbar's second row (not shown in full screen). */
   viewExtra?: ReactNode;
+  /**
+   * Screen-only replacement for the whole table (Invoices: sortable headers, checkboxes, row menus). Used for the Table view, inline and in full screen;
+   * Export (CSV / PDF) still reads `tableSpec`.
+   */
+  renderTable?: (ctx: { fullscreen: boolean }) => ReactNode;
   /** Screen-only richer cell for the table (an input). Return undefined for the plain text. Export never uses it. */
   renderCell?: (column: TableColumn, row: DataRow, rowIndex: number) => ReactNode | undefined;
 }
@@ -57,7 +62,7 @@ export interface DataViewCardProps {
  * chart type, Expand, Export. Wrappers only choose the default view and the data they pass.
  */
 export function DataViewCard(props: DataViewCardProps) {
-  const { variant, title, subtitle, summary: liveSummary, icon, fullscreenExtra, headingLevel = 2, storageKey, chartSpec, tableSpec, range, filters, chartHeight = 320, tableMaxHeight, chartDisabledReason, className, onSelectX, selectedX, selectHint, animateOnce, viewExtra, renderCell } = props;
+  const { variant, title, subtitle, summary: liveSummary, icon, fullscreenExtra, headingLevel = 2, storageKey, chartSpec, tableSpec, range, filters, chartHeight = 320, tableMaxHeight, chartDisabledReason, className, onSelectX, selectedX, selectHint, animateOnce, viewExtra, renderCell, renderTable } = props;
   const dv = useDataView({ storageKey, chartSpec, defaultView: variant === 'chart' ? 'chart' : 'table' });
   const toast = useToast();
   const headingId = useId();
@@ -169,6 +174,8 @@ export function DataViewCard(props: DataViewCardProps) {
           <p className="dv-empty">No data to show yet.</p>
         ) : dv.view === 'chart' && chart ? (
           chart
+        ) : renderTable ? (
+          renderTable({ fullscreen: false })
         ) : (
           <DataTable table={table} caption={title} renderCell={renderCell} maxHeight={tableMaxHeight ?? (variant === 'chart' ? chartHeight : undefined)} />
         )}
@@ -192,9 +199,7 @@ export function DataViewCard(props: DataViewCardProps) {
                   <div className="fs-chart-body">{shownSpec && <SeriesChart spec={shownSpec} chartType={dv.chartType} height="100%" />}</div>
                 </div>
               )}
-              <div className="fs-pane">
-                <DataTable table={table} caption={title} renderCell={renderCell} />
-              </div>
+              <div className="fs-pane">{renderTable ? renderTable({ fullscreen: true }) : <DataTable table={table} caption={title} renderCell={renderCell} />}</div>
             </div>
           </div>
         </FullscreenDialog>

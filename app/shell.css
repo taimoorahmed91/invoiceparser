@@ -181,19 +181,15 @@
 
   /* ---------- Content ---------- */
   .shell-main {
+    --page-pad: 16px;
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 16px 16px calc(var(--bottom-h) + env(safe-area-inset-bottom) + 24px);
+    padding: 16px var(--page-pad) calc(var(--bottom-h) + env(safe-area-inset-bottom) + 24px);
     outline: none;
   }
-  /* The old page is not responsive yet (Phase 8): let it scroll sideways inside the content area,
-     so the top bar and the bottom tab bar stay exactly viewport wide. */
-  @media (max-width: 767px) {
-    .shell-main { overflow-x: auto; }
-  }
   @media (min-width: 768px) {
-    .shell-main { padding: 20px 24px 32px; }
+    .shell-main { --page-pad: 24px; padding: 20px var(--page-pad) 32px; }
   }
 
   /* ---------- Bottom tab bar (phones) ---------- */

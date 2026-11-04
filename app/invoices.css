@@ -1,0 +1,143 @@
+/* Invoices list and filters (plan §4.3), the Period popover, sort buttons, type badges and the temporary legacy dialogs. Tokens only. */
+
+@layer components {
+  /* ---------- sort button (inside <th aria-sort>) ---------- */
+  .sort-btn {
+    display: inline-flex; align-items: center; gap: 4px; min-height: 28px; margin: -4px -6px; padding: 4px 6px;
+    border: 0; border-radius: var(--radius-sm); background: transparent; color: inherit; font: inherit; font-weight: 600; cursor: pointer;
+    transition: background-color var(--dur-fast) var(--ease-out);
+  }
+  .sort-btn[data-align="right"] { flex-direction: row-reverse; }
+  .sort-btn:hover { background: var(--surface-3); }
+  .sort-btn[data-sorted="true"] { color: var(--ink); }
+  .sort-slot { display: inline-flex; width: 16px; height: 16px; align-items: center; justify-content: center; flex: none; }
+  @media (pointer: coarse) { .sort-btn { min-height: 44px; } }
+
+  /* ---------- popover panel (Period) ---------- */
+  .pop-panel {
+    margin: 0; inset: auto; position: fixed; border: 1px solid var(--border); color: var(--ink);
+    padding: 16px; border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-e2);
+    max-width: min(440px, calc(100vw - 16px)); max-height: calc(100vh - 16px); overflow: auto;
+  }
+
+  /* ---------- type badge ---------- */
+  .tb-group { display: inline-flex; align-items: center; flex-wrap: nowrap; gap: 4px; white-space: nowrap; }
+  .tb-item { display: inline-flex; align-items: center; gap: 4px; }
+  .tb { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: var(--other-tint); color: var(--ink); white-space: nowrap; }
+  .tb[data-kind="Rent"] { background: var(--rent-tint); color: var(--rent); }
+  .tb[data-kind="Parking"] { background: var(--parking-tint); color: var(--parking); }
+  .tb[data-kind="Utility"] { background: var(--utility-tint); color: var(--utility); }
+  .tb-plus { color: var(--ink-subtle); font-size: 12px; }
+
+  /* ---------- page ---------- */
+  .inv-page { --inv-sticky: 150px; display: flex; flex-direction: column; gap: 12px; }
+  .inv-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .inv-count { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-muted); }
+  .inv-print-only { display: none; }
+
+  /* the filter bar sticks under the top bar */
+  .inv-sticky { position: sticky; top: var(--top-h); z-index: 30; margin: 0 calc(var(--page-pad, 16px) * -1); padding: 8px var(--page-pad, 16px); background: var(--canvas); border-bottom: 1px solid var(--border); }
+  .inv-filterbar { display: flex; flex-direction: column; gap: 8px; }
+  .inv-filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .inv-search { flex: 1 1 260px; min-width: 0; max-width: 420px; }
+  .inv-types { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .inv-period-btn { max-width: 100%; }
+  /* the strip reads left to right: result · active chips · Undo (its space is always reserved, so nothing moves when it appears) */
+  .inv-strip-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; min-height: 32px; }
+  .inv-result { order: -1; margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .inv-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; flex: 1 1 0; min-width: 0; }
+  .inv-chips:empty { display: none; }
+  .inv-undo-slot { display: inline-flex; justify-content: flex-end; min-width: 120px; margin-left: auto; }
+  @media (max-width: 639px) {
+    .inv-sticky { padding-top: 6px; padding-bottom: 6px; }
+    .inv-search { max-width: none; flex: 1 1 0; }
+    /* row 1: result + Undo, row 2: the active chips */
+    .inv-result { order: -2; flex: 1 1 0; min-width: 0; white-space: normal; }
+    .inv-undo-slot { order: -1; min-width: 0; }
+    .inv-chips { flex: 1 1 100%; }
+  }
+  .inv-period { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .inv-period-range { display: flex; flex-wrap: wrap; gap: 12px; }
+  .inv-period-range .field { flex: 1 1 150px; }
+  .inv-sheet { display: flex; flex-direction: column; gap: 16px; }
+  .inv-sheet-group { display: flex; flex-direction: column; gap: 8px; }
+  .inv-sheet-label { margin: 0; font-size: 13px; line-height: 18px; font-weight: 600; color: var(--ink-muted); }
+  @media (max-width: 639px) {
+    .dlg.dlg-sheet { margin: auto 0 0 0; width: 100vw; max-width: none; border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
+    .dlg.dlg-sheet .dlg-actions { flex-direction: row; justify-content: space-between; }
+    .dlg.dlg-sheet .dlg-actions > * { width: auto; }
+  }
+
+  /* ---------- selection bar ---------- */
+  .inv-selbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 8px 12px; border: 1px solid var(--control-border); border-radius: var(--radius-md); background: var(--surface); }
+  .inv-selbar-text { margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; }
+  .inv-selbar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  /* phones: fixed above the tab bar, so it is in view wherever in a long list you tick a row (a sticky bar at the top of the list would be scrolled away) */
+  @media (max-width: 639px) {
+    .inv-selbar { position: fixed; left: 8px; right: 8px; bottom: calc(var(--bottom-h) + env(safe-area-inset-bottom, 0px) + 8px); z-index: 35; box-shadow: var(--shadow-e2); }
+    .inv-selbar-actions { width: 100%; flex-wrap: nowrap; }
+    .inv-selbar-actions > :first-child { flex: 1 1 auto; }
+    .inv-page:has(.inv-selbar) { padding-bottom: 104px; }
+  }
+
+  /* ---------- table ---------- */
+  .inv-wrap { overflow-x: auto; }
+  .inv-table { width: 100%; }
+  .inv-table thead th { padding-top: 6px; padding-bottom: 6px; text-align: left; }
+  .inv-table thead th.inv-num-col { text-align: right; }
+  .inv-table .inv-col-select { width: 48px; padding-left: 4px; padding-right: 0; }
+  .inv-table .inv-col-actions { width: 56px; padding-left: 0; padding-right: 8px; text-align: right; }
+  .inv-table .inv-num-col { text-align: right; font-variant-numeric: tabular-nums; }
+  .inv-table .inv-cell-main { min-width: 0; text-align: left; font-weight: 400; }
+  .inv-table .inv-cell-date { white-space: nowrap; }
+  .inv-table tbody tr { cursor: pointer; }
+  .inv-table tbody tr:hover { background: var(--surface-2); }
+  .inv-table tbody tr[data-checked="true"] { background: var(--surface-3); }
+  .inv-table tbody tr:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+  .inv-row { scroll-margin-top: calc(var(--top-h) + var(--inv-sticky) + 8px); scroll-margin-bottom: 80px; }
+  .inv-num.btn-link { font-family: var(--font-mono); font-size: 13px; line-height: 18px; font-weight: 500; letter-spacing: -0.01em; }
+  .inv-file { display: block; max-width: 280px; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; line-height: 16px; color: var(--ink-subtle); }
+  .inv-table tbody th.inv-cell-main { padding-top: 6px; padding-bottom: 6px; }
+
+  /* ---------- phone cards ---------- */
+  .inv-cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .inv-card {
+    display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; grid-template-areas: "sel top top" "sel meta menu" "sel file file";
+    gap: 2px 8px; align-items: center; padding: 8px 8px 8px 4px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface);
+  }
+  .inv-card[data-checked="true"] { background: var(--surface-3); border-color: var(--control-border); }
+  .inv-card-select { grid-area: sel; align-self: start; }
+  .inv-card-top { grid-area: top; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; min-width: 0; }
+  .inv-card-total { flex: none; font-size: 17px; line-height: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .inv-card-meta { grid-area: meta; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 13px; line-height: 20px; color: var(--ink-muted); min-width: 0; }
+  .inv-card-actions { grid-area: menu; }
+  .inv-card-file { grid-area: file; max-width: 100%; }
+
+  /* ---------- the temporary old dialogs (Phase 8 → replaced in Phase 9) ---------- */
+  .lg-detail { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .lg-box { display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-2); }
+  .lg-box-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+  .lg-box-title { margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; }
+  .lg-box-sub { margin: 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
+  .lg-box-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; }
+  .lg-box-field { flex: 1 1 160px; }
+  .lg-form { display: flex; flex-direction: column; gap: 12px; }
+  .lg-pos { margin-right: auto; font-size: 13px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+  .dlg-wide .dlg-body { overflow: auto; }
+  .dlg-wide .dlg-actions { align-items: center; }
+}
+
+/* ---------- print: "Print list…" prints this page as it is (plan §4.12: separate from the PDF export) ---------- */
+@media print {
+  .inv-sticky, .inv-head, .inv-selbar, .inv-col-select, .inv-col-actions, .dv-toolbar { display: none !important; }
+  .inv-print-only { display: block !important; margin: 0 0 8pt; font-size: 10pt; color: #000; }
+  .inv-page { gap: 6pt; }
+  .dv-card { border: 0 !important; padding: 0 !important; }
+  .dv-table-wrap, .inv-wrap { overflow: visible !important; max-height: none !important; border: 0 !important; }
+  .inv-table { font-size: 9pt; }
+  .inv-table thead th { position: static !important; background: transparent !important; color: #000 !important; }
+  .sort-btn { padding: 0; margin: 0; }
+  .sort-slot { display: none; }
+  .tb { background: transparent !important; color: #000 !important; border: 1px solid #999; }
+  .inv-row { break-inside: avoid; }
+}

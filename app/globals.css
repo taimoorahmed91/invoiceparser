@@ -5,6 +5,7 @@
 @import "./overview.css";
 @import "./data.css";
 @import "./upload.css";
+@import "./invoices.css";
 
 /* Enable class-based dark mode instead of media query */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -167,8 +168,8 @@
 /*
  * Print (plan §4.12).
  * Panel / report exports are scoped to #print-root and live in app/charts.css (html[data-print-export]).
- * What stays here is the minimal "print the page" behaviour for F42 (Print list on /invoices) until Phase 8
- * gives that its own stylesheet. The old global hacks (.shadow-md, .rounded-xl, .bg-white, .mb-6, `.flex-wrap button`)
+ * What stays here is the minimal "print the page" behaviour for F42 (Print list on /invoices); the list's own
+ * print rules (header line, hidden controls, plain badges) live in app/invoices.css. The old global hacks (.shadow-md, .rounded-xl, .bg-white, .mb-6, `.flex-wrap button`)
  * are gone: they matched things that no longer exist or hid unrelated controls.
  */
 @media print {
